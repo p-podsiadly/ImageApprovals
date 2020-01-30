@@ -41,6 +41,15 @@ struct RGBA
     float b = 0.0f;
     float a = 0.0f;
 
+    constexpr RGBA() = default;
+    constexpr RGBA(const RGBA&) = default;
+
+    constexpr RGBA(float r, float g, float b, float a)
+        : r(r), g(g), b(b), a(a)
+    {}
+
+    RGBA& operator =(const RGBA&) = default;
+
     bool operator ==(const RGBA& rhs) const
     { return(r == rhs.r) && (g == rhs.g) && (b == rhs.b) && (a == rhs.a); }
 
