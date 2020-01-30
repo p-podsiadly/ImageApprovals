@@ -45,3 +45,10 @@ target_link_libraries(
     PRIVATE
         PNG::PNG
 )
+
+install(
+    DIRECTORY "include/"
+    TYPE INCLUDE
+)
+
+install(TARGETS ImageApprovals)
