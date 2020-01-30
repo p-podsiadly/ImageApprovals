@@ -1,0 +1,27 @@
+language: cpp
+
+dist: bionic
+python: "3.6"
+
+compiler:
+- gcc
+- clang
+
+os:
+- linux
+
+install:
+- pip install --user conan
+- conan user
+
+before_script:
+  - conan --version
+  - cmake --version
+  - $CXX --version
+
+script:
+  - mkdir build/
+  - cd build/
+  - cmake ..
+  - cmake --build
+  - ctest --verbose
