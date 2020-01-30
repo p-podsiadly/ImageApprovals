@@ -12,6 +12,15 @@ struct Size
     uint32_t width = 0;
     uint32_t height = 0;
 
+    constexpr Size() = default;
+    constexpr Size(const Size&) = default;
+    
+    constexpr Size(uint32_t width, uint32_t height)
+        : width(width), height(height)
+    {}
+
+    Size& operator =(const Size&) = default;
+
     bool operator ==(const Size& rhs) const
     { return (width == rhs.width) && (height == rhs.height); }
 
