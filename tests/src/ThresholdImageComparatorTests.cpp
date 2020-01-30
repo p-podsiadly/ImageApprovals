@@ -6,7 +6,7 @@ using namespace ImageApprovals;
 
 TEST_CASE("ThresholdImageComparator")
 {
-    ThresholdImageComparator comparator(0.004f, 5.0f);
+    ThresholdImageComparator comparator(AbsThreshold(0.004), Percent(5.0));
 
     const PixelFormat format{ PixelLayout::RGB, PixelDataType::UInt8 };
     const auto& colorSpace = ColorSpace::getLinear();

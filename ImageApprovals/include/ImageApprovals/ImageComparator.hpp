@@ -1,6 +1,7 @@
 #ifndef IMAGEAPPROVALS_IMAGECOMPARATOR_HPP_INCLUDED
 #define IMAGEAPPROVALS_IMAGECOMPARATOR_HPP_INCLUDED
 
+#include "Units.hpp"
 #include <string>
 
 namespace ImageApprovals {
@@ -28,17 +29,19 @@ protected:
 class ThresholdImageComparator : public ImageComparator
 {
 public:
-    ThresholdImageComparator(float pixelFailThreshold = 0.004f, float maxFailedPixelsPercentage = 0.1f);
+    ThresholdImageComparator(
+        AbsThreshold pixelFailThreshold = AbsThreshold(0.004),
+        Percent maxFailedPixelsPercentage = Percent(0.1));
 
-    float getPixelFailThreshold() const { return m_pixelFailThreshold; }
-    float getMaxFailedPixelsPercentage() const { return m_maxFailedPixelsPercentage; }
+    AbsThreshold getPixelFailThreshold() const { return m_pixelFailThreshold; }
+    Percent getMaxFailedPixelsPercentage() const { return m_maxFailedPixelsPercentage; }
 
 protected:
     bool compareContents(const ImageView& left, const ImageView& right, CmpMessage& outMessage) const override;
 
 private:
-    float m_pixelFailThreshold;
-    float m_maxFailedPixelsPercentage;
+    AbsThreshold m_pixelFailThreshold;
+    Percent m_maxFailedPixelsPercentage;
 };
 
 }

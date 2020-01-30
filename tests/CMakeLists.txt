@@ -1,4 +1,5 @@
 set(sources
+	"src/ComparatorTests.cpp"
 	"src/main.cpp"
 	"src/PixelDecodeTests.cpp"
 	"src/PngCodecTests.cpp"

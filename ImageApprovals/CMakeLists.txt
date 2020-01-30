@@ -9,6 +9,7 @@ set(sources
     "include/ImageApprovals/ImageView.hpp"
     "include/ImageApprovals/PixelFormat.hpp"
     "include/ImageApprovals/StringUtils.hpp"
+    "include/ImageApprovals/Units.hpp"
 
     "src/ColorSpace.cpp"
     "src/Comparator.cpp"
@@ -18,6 +19,7 @@ set(sources
     "src/ImageView.cpp"
     "src/PixelFormat.cpp"
     "src/PngImageCodec.cpp"
+    "src/Units.cpp"
 )
 
 add_library(ImageApprovals STATIC ${sources})

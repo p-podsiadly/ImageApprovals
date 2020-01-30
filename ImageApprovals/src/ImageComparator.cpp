@@ -51,7 +51,7 @@ bool ImageComparator::compareInfos(const ImageView& left, const ImageView& right
     return true;
 }
 
-ThresholdImageComparator::ThresholdImageComparator(float pixelFailThreshold, float maxFailedPixelsPercentage)
+ThresholdImageComparator::ThresholdImageComparator(AbsThreshold pixelFailThreshold, Percent maxFailedPixelsPercentage)
     : m_pixelFailThreshold(pixelFailThreshold), m_maxFailedPixelsPercentage(maxFailedPixelsPercentage)
 {}
 
@@ -82,18 +82,22 @@ bool ThresholdImageComparator::compareContents(const ImageView& left, const Imag
             const auto rightPixel = right.getPixel(x, y);
 
             const float diff = maxAbsDiff(leftPixel, rightPixel);
-            if (diff > m_pixelFailThreshold)
+            if (diff > m_pixelFailThreshold.value)
             {
                 ++numAboveThreshold;
             }
         }
     }
 
-    const auto numPixels = static_cast<double>(sz.width)* static_cast<double>(sz.height);
-    if ((numAboveThreshold / numPixels) > (m_maxFailedPixelsPercentage / 100.0))
+    const double numPixels = static_cast<double>(sz.width)* static_cast<double>(sz.height);
+    const auto percentAboveThreshold = Percent((numAboveThreshold / numPixels) * 100.0);
+
+    if (percentAboveThreshold > m_maxFailedPixelsPercentage)
     {
         outMessage.left = "reference image";
-        outMessage.right = toString(numPixels) + " are above threshold = " + toString(m_pixelFailThreshold);
+        outMessage.right
+            = toString(numAboveThreshold) + " pixels (" + toString(percentAboveThreshold)
+            + ") are above threshold = " + toString(m_pixelFailThreshold);
         return false;
     }
 
