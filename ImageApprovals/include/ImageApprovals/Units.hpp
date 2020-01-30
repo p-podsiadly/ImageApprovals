@@ -19,7 +19,7 @@ struct Unit
         : value(value)
     {}
 
-    constexpr Unit& operator =(const Unit&) = default;
+    Unit& operator =(const Unit&) = default;
 
     bool operator ==(const Unit& rhs) const{ return value == rhs.value; }
     bool operator !=(const Unit& rhs) const{ return value != rhs.value; }
