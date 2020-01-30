@@ -48,7 +48,10 @@ target_link_libraries(
 
 install(
     DIRECTORY "include/"
-    TYPE INCLUDE
+    DESTINATION include
 )
 
-install(TARGETS ImageApprovals)
+install(
+    TARGETS ImageApprovals
+    LIBRARY DESTINATION lib
+)
