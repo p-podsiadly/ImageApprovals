@@ -20,14 +20,9 @@ install:
 - pip3 install --user conan
 - conan user
 
-before_script:
-- conan --version
-- cmake --version
-- $CXX --version
-
 script:
 - mkdir --parents build/release/
 - cd build/release/
-- cmake ../..
+- cmake ../.. -DCMAKE_BUILD_TYPE=Release
 - cmake --build
 - ctest --verbose
