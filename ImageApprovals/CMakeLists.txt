@@ -1,3 +1,6 @@
+find_package(ApprovalTests REQUIRED)
+find_package(PNG REQUIRED)
+
 set(headers
     "include/ImageApprovals.hpp"
 
@@ -35,7 +38,7 @@ target_include_directories(ImageApprovals PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/in
 target_link_libraries(
     ImageApprovals
     PUBLIC
-        CONAN_PKG::approvaltests.cpp
+        ApprovalTests::ApprovalTests
     PRIVATE
-        CONAN_PKG::libpng
+        PNG::PNG
 )

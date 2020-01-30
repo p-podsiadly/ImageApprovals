@@ -1,3 +1,5 @@
+find_package(doctest REQUIRED)
+
 set(sources
 	"src/ComparatorTests.cpp"
 	"src/main.cpp"
@@ -19,7 +21,7 @@ target_link_libraries(
 	ImageApprovalsTests
 	PRIVATE
 		ImageApprovals
-		CONAN_PKG::doctest
+		doctest::doctest
 )
 
 if(MSVC)

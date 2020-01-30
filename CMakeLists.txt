@@ -6,12 +6,15 @@ option(ImageApprovals_ENABLE_TEST "Enable tests?" ON)
 
 include("conan.cmake")
 conan_cmake_run(
-    REQUIRES "approvaltests.cpp/8.0.0"
+    REQUIRES "approvaltests.cpp/8.1.0"
              "doctest/2.3.6"
              "libpng/1.6.37"
-    BASIC_SETUP CMAKE_TARGETS
+    BASIC_SETUP
+    GENERATORS cmake_find_package
     BUILD missing
 )
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
 
 add_subdirectory(ImageApprovals)
 
