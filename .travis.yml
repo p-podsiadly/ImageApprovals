@@ -22,7 +22,9 @@ install:
 
 script:
 - mkdir --parents build/release/
+- mkdir --parents install/release/
 - cd build/release/
 - cmake ../.. -DCMAKE_BUILD_TYPE=Release
 - cmake --build .
+- cmake --install . --prefix=../../install/release
 - ctest --verbose
