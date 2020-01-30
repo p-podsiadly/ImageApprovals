@@ -14,4 +14,4 @@ conan_cmake_run(
 add_subdirectory(ImageApprovals)
 
 enable_testing()
-add_subdirectory(Tests)
+add_subdirectory(tests)

@@ -40,6 +40,12 @@ struct RGBA
     float g = 0.0f;
     float b = 0.0f;
     float a = 0.0f;
+
+    bool operator ==(const RGBA& rhs) const
+    { return(r == rhs.r) && (g == rhs.g) && (b == rhs.b) && (a == rhs.a); }
+
+    bool operator !=(const RGBA& rhs) const
+    { return !(*this == rhs); }
 };
 
 RGBA decode(const PixelFormat& format, const uint8_t* begin, const uint8_t* end);
@@ -47,6 +53,7 @@ RGBA decode(const PixelFormat& format, const uint8_t* begin, const uint8_t* end)
 std::ostream& operator <<(std::ostream& stream, PixelLayout pixelLayout);
 std::ostream& operator <<(std::ostream& stream, PixelDataType pixelDataType);
 std::ostream& operator <<(std::ostream& stream, const PixelFormat& format);
+std::ostream& operator <<(std::ostream& stream, const RGBA& rgba);
 
 }
 

@@ -35,4 +35,31 @@ TEST_CASE("ThresholdImageComparator")
         
         REQUIRE_FALSE(comparator.compare(left.getView(), right.getView(), msg));
     }
+
+    SUBCASE("Images have different pixel formats")
+    {
+        Image right({ PixelLayout::RGBA, format.dataType }, colorSpace, size);
+        REQUIRE_FALSE(comparator.compare(left.getView(), right.getView(), msg));
+
+        right = Image({ format.layout, PixelDataType::Float }, colorSpace, size);
+        REQUIRE_FALSE(comparator.compare(left.getView(), right.getView(), msg));
+    }
+
+    SUBCASE("Images have different color spaces")
+    {
+        Image right(format, ColorSpace::getSRGB(), size);
+        REQUIRE_FALSE(comparator.compare(left.getView(), right.getView(), msg));
+    }
+
+    SUBCASE("Images have different sizes")
+    {
+        Image right(format, colorSpace, Size{ size.width + 1, size.height });
+        REQUIRE_FALSE(comparator.compare(left.getView(), right.getView(), msg));
+    }
+
+    SUBCASE("Images have different row alignment values")
+    {
+        Image right(format, colorSpace, size, 1);
+        REQUIRE(comparator.compare(left.getView(), right.getView(), msg));
+    }
 }

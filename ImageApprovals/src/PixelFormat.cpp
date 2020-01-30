@@ -151,4 +151,10 @@ std::ostream& operator <<(std::ostream& stream, const PixelFormat& format)
     return stream;
 }
 
+std::ostream& operator <<(std::ostream& stream, const RGBA& rgba)
+{
+    stream << "(" << rgba.r << ", " << rgba.g << ", " << rgba.b << ", " << rgba.a << ")";
+    return stream;
+}
+
 }
