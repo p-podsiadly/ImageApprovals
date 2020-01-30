@@ -25,6 +25,15 @@ struct PixelFormat
     PixelLayout layout = PixelLayout::Luminance;
     PixelDataType dataType = PixelDataType::UInt8;
     
+    constexpr PixelFormat() = default;
+    constexpr PixelFormat(const PixelFormat&) = default;
+    
+    constexpr PixelFormat(PixelLayout layout, PixelDataType dataType)
+        : layout(layout), dataType(dataType)
+    {}
+
+    PixelFormat& operator =(const PixelFormat&) = default;
+
     bool operator ==(const PixelFormat& rhs) const
     { return (layout == rhs.layout) && (dataType == rhs.dataType); }
 
