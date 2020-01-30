@@ -8,7 +8,7 @@ Image ImageCodec::read(const std::string& fileName)
     std::ifstream fileStream(fileName.c_str(), std::ios::binary);
     if (!fileStream)
     {
-        throw std::runtime_error("could not open file for reading");
+        throw std::runtime_error("could not open file \"" + fileName + "\" for reading");
     }
 
     const ImageCodec* codec = &getPngCodec();
@@ -17,7 +17,7 @@ Image ImageCodec::read(const std::string& fileName)
         return codec->read(fileStream);
     }
 
-    throw std::runtime_error("unsupported image file format");
+    throw std::runtime_error("unsupported image file format when reading \"" + fileName + "\"");
 }
 
 namespace {
@@ -43,13 +43,13 @@ void ImageCodec::write(const std::string& fileName, const ImageView& image)
 
     if (!codec)
     {
-        throw std::runtime_error("unsupported image file format");
+        throw std::runtime_error("unsupported image file format when writing \"" + fileName + "\"");
     }
 
     std::ofstream fileStream(fileName.c_str(), std::ios::binary);
     if (!fileStream)
     {
-        throw std::runtime_error("could not open file for writing");
+        throw std::runtime_error("could not open file \"" + fileName + "\" for writing");
     }
 
     codec->write(image, fileStream);

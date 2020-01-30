@@ -23,6 +23,7 @@ target_link_libraries(
 )
 
 if(MSVC)
+	target_compile_options(ImageApprovalsTests PRIVATE /FC)
 	target_link_libraries(ImageApprovalsTests PRIVATE -IGNORE:4099)
 endif()
 
