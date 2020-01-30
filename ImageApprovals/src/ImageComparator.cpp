@@ -1,63 +1,50 @@
 #include <ImageApprovals/ImageComparator.hpp>
+#include <ImageApprovals/StringUtils.hpp>
 #include <ImageApprovals/ImageView.hpp>
 #include <algorithm>
 #include <sstream>
 
 namespace ImageApprovals {
 
-bool ImageComparator::compare(const ImageView& left, const ImageView& right, std::string& outMessage) const
+bool ImageComparator::compare(const ImageView& left, const ImageView& right, CmpMessage& outMessage) const
 {
-    std::string infosMsg, contentsMsg;
+    CmpMessage infosMsg, contentsMsg;
 
     if (!compareInfos(left, right, infosMsg))
     {
-         outMessage = "Image are different.";
-
-        if(!infosMsg.empty())
-        {
-            outMessage += "\n" + infosMsg;
-        }
-
+        outMessage = infosMsg;
         return false;
     }
 
     if (!compareContents(left, right, contentsMsg))
     {
-        outMessage = "Image contents are different.";
-
-        if (!contentsMsg.empty())
-        {
-            outMessage += "\n" + contentsMsg;
-        }
-
+        outMessage = contentsMsg;
         return false;
     }
 
     return true;
 }
 
-bool ImageComparator::compareInfos(const ImageView& left, const ImageView& right, std::string& outMessage) const
+bool ImageComparator::compareInfos(const ImageView& left, const ImageView& right, CmpMessage& outMessage) const
 {
-    std::ostringstream msg;
-
     if (left.getPixelFormat() != right.getPixelFormat())
     {
-        msg << "Pixel formats do not match: " << left.getPixelFormat() << " vs " << right.getPixelFormat();
-        outMessage = msg.str();
+        outMessage.left = "pixel format = " + toString(left.getPixelFormat());
+        outMessage.right = "pixel format = " + toString(right.getPixelFormat());
         return false;
     }
 
     if (left.getColorSpace() != right.getColorSpace())
     {
-        msg << "Color spaces do not match: " << left.getColorSpace() << " vs " << right.getColorSpace();
-        outMessage = msg.str();
+        outMessage.left = "color space = " + toString(left.getColorSpace());
+        outMessage.right = "color space = " + toString(right.getColorSpace());
         return false;
     }
 
     if (left.getSize() != right.getSize())
     {
-        msg << "Sizes do not match: " << left.getSize() << " vs " << right.getSize();
-        outMessage = msg.str();
+        outMessage.left = "size = " + toString(left.getSize());
+        outMessage.right = "size = " + toString(right.getSize());
         return false;
     }
 
@@ -81,7 +68,7 @@ float maxAbsDiff(const RGBA& left, const RGBA& right)
 
 }
 
-bool ThresholdImageComparator::compareContents(const ImageView& left, const ImageView& right, std::string& outMessage) const
+bool ThresholdImageComparator::compareContents(const ImageView& left, const ImageView& right, CmpMessage& outMessage) const
 {
     const auto sz = left.getSize();
 
@@ -102,8 +89,15 @@ bool ThresholdImageComparator::compareContents(const ImageView& left, const Imag
         }
     }
 
-    const auto numPixels = static_cast<double>(sz.width) * static_cast<double>(sz.height);
-    return (numAboveThreshold / numPixels) <= (m_maxFailedPixelsPercentage / 100.0);
+    const auto numPixels = static_cast<double>(sz.width)* static_cast<double>(sz.height);
+    if ((numAboveThreshold / numPixels) > (m_maxFailedPixelsPercentage / 100.0))
+    {
+        outMessage.left = "reference image";
+        outMessage.right = toString(numPixels) + " are above threshold = " + toString(m_pixelFailThreshold);
+        return false;
+    }
+
+    return true;
 }
 
 }

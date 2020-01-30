@@ -7,16 +7,22 @@ namespace ImageApprovals {
 
 class ImageView;
 
+struct CmpMessage
+{
+    std::string left;
+    std::string right;
+};
+
 class ImageComparator
 {
 public:
     virtual ~ImageComparator() = default;
 
-    bool compare(const ImageView& left, const ImageView& right, std::string& outMessage) const;
+    bool compare(const ImageView& left, const ImageView& right, CmpMessage& outMessage) const;
 
 protected:
-    virtual bool compareInfos(const ImageView& left, const ImageView& right, std::string& outMessage) const;
-    virtual bool compareContents(const ImageView& left, const ImageView& right, std::string& outMessage) const = 0;
+    virtual bool compareInfos(const ImageView& left, const ImageView& right, CmpMessage& outMessage) const;
+    virtual bool compareContents(const ImageView& left, const ImageView& right, CmpMessage& outMessage) const = 0;
 };
 
 class ThresholdImageComparator : public ImageComparator
@@ -28,7 +34,7 @@ public:
     float getMaxFailedPixelsPercentage() const { return m_maxFailedPixelsPercentage; }
 
 protected:
-    bool compareContents(const ImageView& left, const ImageView& right, std::string& outMessage) const override;
+    bool compareContents(const ImageView& left, const ImageView& right, CmpMessage& outMessage) const override;
 
 private:
     float m_pixelFailThreshold;

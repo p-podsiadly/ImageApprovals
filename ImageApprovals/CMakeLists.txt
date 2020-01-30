@@ -8,6 +8,7 @@ set(sources
     "include/ImageApprovals/ImageComparator.hpp"
     "include/ImageApprovals/ImageView.hpp"
     "include/ImageApprovals/PixelFormat.hpp"
+    "include/ImageApprovals/StringUtils.hpp"
 
     "src/ColorSpace.cpp"
     "src/Comparator.cpp"

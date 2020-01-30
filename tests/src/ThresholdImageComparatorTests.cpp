@@ -14,7 +14,7 @@ TEST_CASE("ThresholdImageComparator")
 
     Image left(format, colorSpace, size);
 
-    std::string msg;
+    CmpMessage msg;
 
     SUBCASE("Differences are within thresholds")
     {

@@ -5,33 +5,23 @@
 
 namespace ImageApprovals {
 
+Comparator::Comparator()
+    : m_comparator(new ThresholdImageComparator())
+{}
+
+Comparator::Comparator(std::unique_ptr<ImageComparator> comparator)
+    : m_comparator(std::move(comparator))
+{}
+
 bool Comparator::contentsAreEquivalent(std::string receivedPath, std::string approvedPath) const
 {
     const Image receivedImg = ImageCodec::read(receivedPath);
     const Image approvedImg = ImageCodec::read(approvedPath);
 
-    if (receivedImg.getPixelFormat() != approvedImg.getPixelFormat())
+    CmpMessage message;
+    if (!m_comparator->compare(approvedImg.getView(), receivedImg.getView(), message))
     {
-        std::ostringstream msg;
-        msg << "Pixel formats are different: ";
-        msg << receivedImg.getPixelFormat() << " (received) and ";
-        msg << approvedImg.getPixelFormat() << " (approved)";
-        throw std::runtime_error(msg.str());
-    }
-
-    if (receivedImg.getSize() != approvedImg.getSize())
-    {
-        std::ostringstream msg;
-        msg << "Image sizes are different: ";
-        msg << receivedImg.getSize() << " (received) and";
-        msg << approvedImg.getSize() << " (approved)";
-        throw std::runtime_error(msg.str());
-    }
-
-    // TODO
-    if (std::memcmp(receivedImg.getPixelData(), approvedImg.getPixelData(), receivedImg.getRowStride() * receivedImg.getSize().height) != 0)
-    {
-        throw std::runtime_error("Contents of images are not equal");
+        throw ApprovalTests::ApprovalMismatchException(message.right, message.left);
     }
 
     return true;
