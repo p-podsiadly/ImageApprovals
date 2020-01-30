@@ -11,7 +11,7 @@ os:
 - linux
 
 install:
-- pip install --user conan
+- pip3 install --user conan
 - conan user
 
 before_script:
@@ -20,7 +20,7 @@ before_script:
   - $CXX --version
 
 script:
-  - mkdir build/release/
+  - mkdir --parents build/release/
   - cd build/release/
   - cmake ../..
   - cmake --build
