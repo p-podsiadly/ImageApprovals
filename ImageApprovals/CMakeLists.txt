@@ -53,5 +53,7 @@ install(
 
 install(
     TARGETS ImageApprovals
+    RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
 )
