@@ -14,6 +14,7 @@ addons:
   apt:
     packages:
     - python3-pip
+    - python3-setuptools
 
 install:
 - pip3 install --user conan
