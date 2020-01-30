@@ -54,12 +54,12 @@ struct PngImageCodec : ImageCodec
         png_struct* png = nullptr;
         png_info* info = nullptr;
 
-        OnExit onExit = [&]() {
+        OnExit onExit([&]() {
             if (png)
             {
                 png_destroy_read_struct(&png, info ? &info : nullptr, nullptr);
             }
-        };
+        });
 
         if (!(png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr)))
         {
@@ -142,12 +142,12 @@ struct PngImageCodec : ImageCodec
         
         std::unique_ptr<png_const_bytep[]> rowPointers;
 
-        OnExit onExit = [&]() {
+        OnExit onExit([&]() {
             if (png)
             {
                 png_destroy_write_struct(&png, info ? &info : nullptr);
             }
-        };
+        });
 
         if (!(png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr)))
         {

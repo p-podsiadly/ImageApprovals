@@ -1,4 +1,5 @@
 #include <ImageApprovals/Image.hpp>
+#include <cstring>
 #include <fstream>
 
 namespace ImageApprovals {

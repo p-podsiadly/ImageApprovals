@@ -1,5 +1,6 @@
 #include <ImageApprovals/PixelFormat.hpp>
 #include <stdexcept>
+#include <cstring>
 #include <ostream>
 
 namespace ImageApprovals {

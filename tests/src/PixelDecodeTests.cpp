@@ -1,6 +1,7 @@
 #include <doctest/doctest.h>
 #include <ImageApprovals/PixelFormat.hpp>
 #include <stdexcept>
+#include <cstring>
 
 using namespace doctest;
 using namespace ImageApprovals;

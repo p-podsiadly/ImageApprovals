@@ -1,4 +1,7 @@
-find_package(ApprovalTests REQUIRED)
+if(NOT TARGET ApprovalTests::ApprovalTests)
+    find_package(ApprovalTests REQUIRED)
+endif()
+
 find_package(PNG REQUIRED)
 
 set(headers
