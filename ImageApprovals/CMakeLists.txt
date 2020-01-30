@@ -1,4 +1,4 @@
-set(sources
+set(headers
     "include/ImageApprovals.hpp"
 
     "include/ImageApprovals/ColorSpace.hpp"
@@ -11,6 +11,10 @@ set(sources
     "include/ImageApprovals/PixelFormat.hpp"
     "include/ImageApprovals/StringUtils.hpp"
     "include/ImageApprovals/Units.hpp"
+)
+
+set(sources
+    ${headers}
 
     "src/ColorSpace.cpp"
     "src/Comparator.cpp"

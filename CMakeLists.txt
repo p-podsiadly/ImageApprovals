@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(ImageApprovals)
+project(ImageApprovals VERSION 0.1.0)
+
+option(ImageApprovals_ENABLE_TEST "Enable tests?" ON)
 
 include("conan.cmake")
 conan_cmake_run(
@@ -13,5 +15,7 @@ conan_cmake_run(
 
 add_subdirectory(ImageApprovals)
 
-enable_testing()
-add_subdirectory(tests)
+if(ImageApprovals_ENABLE_TEST)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
