@@ -10,18 +10,23 @@ compiler:
 os:
 - linux
 
+addons:
+  apt:
+    packages:
+    - python3-pip
+
 install:
 - pip3 install --user conan
 - conan user
 
 before_script:
-  - conan --version
-  - cmake --version
-  - $CXX --version
+- conan --version
+- cmake --version
+- $CXX --version
 
 script:
-  - mkdir --parents build/release/
-  - cd build/release/
-  - cmake ../..
-  - cmake --build
-  - ctest --verbose
+- mkdir --parents build/release/
+- cd build/release/
+- cmake ../..
+- cmake --build
+- ctest --verbose
