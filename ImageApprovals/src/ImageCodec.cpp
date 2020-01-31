@@ -1,4 +1,5 @@
 #include <ImageApprovals/ImageCodec.hpp>
+#include <algorithm>
 #include <fstream>
 #include <vector>
 
