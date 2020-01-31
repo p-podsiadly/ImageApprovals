@@ -1,0 +1,45 @@
+image:
+  - Visual Studio 2015
+  - Visual Studio 2019
+  - Ubuntu
+  #- macos
+
+platform:
+  - x64
+
+configuration: Release
+
+install:
+  - git submodule update --init
+
+  - ps: >-
+      if($isWindows) {
+        $env:Path = "C:\Python37;C:\Python37\Scripts;" + $env:Path;
+        python -m pip install --upgrade pip;
+        python -m pip install conan;
+      } elseif($isLinux) {
+        sudo apt install -y python3-pip;
+        sudo pip3 install conan;
+      } elseif($isMacOS) {
+        $env:MACOSX_DEPLOYMENT_TARGET = "10.15";
+        pip3 install --user conan;
+      }
+  # Run conan user only on windows
+  # cmake is run from powershell below,
+  # and for some reason when there's no
+  # conan profile, on windows, powershell
+  # execption is thrown and the build fails.
+  - cmd: conan user
+
+clone_depth: 1
+
+build_script:
+  - ps: mkdir build
+  - ps: mkdir install
+  - ps: cd build
+  - ps: cmake .. -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -DCMAKE_INSTALL_PREFIX="$(pwd)/.."
+  - ps: cmake --build . --config "$env:CONFIGURATION"
+  - ps: cmake --build . --config "$env:CONFIGURATION" --target install
+  - ps: ctest --verbose
+
+test: off
