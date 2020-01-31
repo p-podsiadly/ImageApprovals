@@ -24,7 +24,7 @@ script:
 - mkdir --parents build/release/
 - mkdir --parents install/release/
 - cd build/release/
-- cmake ../.. -DCMAKE_BUILD_TYPE=Release
+- cmake ../.. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../../install/release
 - cmake --build .
-- cmake --install . --prefix ../../install/release
+- cmake --build . --target install
 - ctest --verbose
