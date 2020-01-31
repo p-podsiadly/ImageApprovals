@@ -28,12 +28,14 @@ set(sources
     "src/ColorSpace.cpp"
     "src/Comparator.cpp"
     "src/ExrImageCodec.cpp"
+    "src/ExrImageCodec.hpp"
     "src/Image.cpp"
     "src/ImageCodec.cpp"
     "src/ImageComparator.cpp"
     "src/ImageView.cpp"
     "src/PixelFormat.cpp"
     "src/PngImageCodec.cpp"
+    "src/PngImageCodec.hpp"
     "src/Units.cpp"
 )
 
@@ -51,6 +53,10 @@ target_link_libraries(
         OpenEXR::OpenEXR
         ZLIB::ZLIB
 )
+
+if(MSVC)
+    target_compile_definitions(ImageApprovals PRIVATE "_CRT_SECURE_NO_WARNINGS")
+endif()
 
 install(
     DIRECTORY "include/"

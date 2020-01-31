@@ -1,4 +1,4 @@
-#include <ImageApprovals/ImageCodec.hpp>
+#include "ExrImageCodec.hpp"
 #include <OpenEXR/ImfRgbaFile.h>
 #include <OpenEXR/ImfIO.h>
 #include <OpenEXR/ImfArray.h>
@@ -103,150 +103,140 @@ void copyRGBAPixels(const Size& sz, const Imf::Array2D<Imf::Rgba>& src, float* d
 
 }
 
-class ExrImageCodec : public ImageCodec
+std::string ExrImageCodec::getFileExtensionWithDot() const
 {
-public:
-    std::string getFileExtensionWithDot() const override
+    return ".exr";
+}
+
+bool ExrImageCodec::canRead(std::istream& stream, const std::string& fileName) const
+{
+    InputStramAdapter streamAdapter(fileName, stream);
+
+    try
     {
-        return ".exr";
-    }
-
-    bool canRead(std::istream& stream, const std::string& fileName) const override
-    {
-        InputStramAdapter streamAdapter(fileName, stream);
-
-        try
-        {
-            Imf::RgbaInputFile file(streamAdapter);
-        }
-        catch (...)
-        {
-            stream.seekg(0);
-            return false;
-        }
-
-        stream.seekg(0);
-        return true;
-    }
-
-    Image read(std::istream& stream, const std::string& fileName) const override
-    {
-        InputStramAdapter streamAdapter(fileName, stream);
-
         Imf::RgbaInputFile file(streamAdapter);
-        Imath::Box2i dw = file.dataWindow();
-
-        const auto width = dw.max.x - dw.min.x + 1;
-        const auto height = dw.max.y - dw.min.y + 1;
-
-        Imf::Array2D<Imf::Rgba> pixels;
-        pixels.resizeErase(width, height);
-
-        file.setFrameBuffer(pixels[0] - dw.min.x - dw.min.y * width, 1, width);
-        file.readPixels(dw.min.y, dw.max.y);
-
-        PixelFormat fmt;
-        fmt.dataType = PixelDataType::Float;
-
-        switch (file.channels())
-        {
-        case Imf::WRITE_RGB:
-            fmt.layout = PixelLayout::RGB;
-            break;
-        case Imf::WRITE_RGBA:
-            fmt.layout = PixelLayout::RGBA;
-            break;
-        default:
-            throw std::runtime_error("Unsupported pixel format");
-        }
-
-        const Size imgSize(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
-
-        Image image(fmt, ColorSpace::getLinear(), imgSize);
-        
-        switch (fmt.layout)
-        {
-        case PixelLayout::RGB:
-            copyRGBPixels(imgSize, pixels, reinterpret_cast<float*>(image.getPixelData()));
-            break;
-        case PixelLayout::RGBA:
-            copyRGBAPixels(imgSize, pixels, reinterpret_cast<float*>(image.getPixelData()));
-            break;
-        }
-
-        return image;
     }
-
-    void write(const ImageView& image, std::ostream& stream, const std::string& fileName) const override
+    catch (...)
     {
-        const auto fmt = image.getPixelFormat();
-        if (fmt.dataType != PixelDataType::Float)
-        {
-            throw std::runtime_error("EXR codec cannot write non-float pixels");
-        }
-
-        if (image.getColorSpace() != ColorSpace::getLinear())
-        {
-            throw std::runtime_error("EXR codec can write only images with linear color space");
-        }
-
-        Imf::RgbaChannels channels;
-        switch (image.getPixelFormat().layout)
-        {
-        case PixelLayout::Luminance:
-            channels = Imf::WRITE_Y;
-            break;
-        case PixelLayout::LuminanceAlpha:
-            channels = Imf::WRITE_YA;
-            break;
-        case PixelLayout::RGB:
-            channels = Imf::WRITE_RGB;
-            break;
-        case PixelLayout::RGBA:
-            channels = Imf::WRITE_RGBA;
-            break;
-        }
-
-        OutputStreamAdapter streamAdapter(fileName, stream);
-
-        const auto sz = image.getSize();
-        int width = static_cast<int>(sz.width);
-        int height = static_cast<int>(sz.height);
-
-        const Imf::Header hdr(
-            width, height,
-            static_cast<float>(width) / height);
-
-        Imf::RgbaOutputFile file(streamAdapter, hdr, channels);
-
-        Imf::Array2D<Imf::Rgba> pixels;
-        pixels.resizeErase(width, height);
-
-        for (uint32_t y = 0; y < sz.height; ++y)
-        {
-            for (uint32_t x = 0; x < sz.width; ++x)
-            {
-                const auto srcPixel = image.getPixel(x, y);
-
-                Imf::Rgba dstPixel;
-                dstPixel.r = half(srcPixel.r);
-                dstPixel.g = half(srcPixel.g);
-                dstPixel.b = half(srcPixel.b);
-                dstPixel.a = half(srcPixel.a);
-
-                pixels[x][y] = dstPixel;
-            }
-        }
-
-        file.setFrameBuffer(pixels[0], 1, width);
-        file.writePixels(height);
+        stream.seekg(0);
+        return false;
     }
-};
 
-const ImageCodec& ImageCodec::getExrCodec()
+    stream.seekg(0);
+    return true;
+}
+
+Image ExrImageCodec::read(std::istream& stream, const std::string& fileName) const
 {
-    static const ExrImageCodec instance;
-    return instance;
+    InputStramAdapter streamAdapter(fileName, stream);
+
+    Imf::RgbaInputFile file(streamAdapter);
+    Imath::Box2i dw = file.dataWindow();
+
+    const auto width = dw.max.x - dw.min.x + 1;
+    const auto height = dw.max.y - dw.min.y + 1;
+
+    Imf::Array2D<Imf::Rgba> pixels;
+    pixels.resizeErase(width, height);
+
+    file.setFrameBuffer(pixels[0] - dw.min.x - dw.min.y * width, 1, width);
+    file.readPixels(dw.min.y, dw.max.y);
+
+    PixelFormat fmt;
+    fmt.dataType = PixelDataType::Float;
+
+    switch (file.channels())
+    {
+    case Imf::WRITE_RGB:
+        fmt.layout = PixelLayout::RGB;
+        break;
+    case Imf::WRITE_RGBA:
+        fmt.layout = PixelLayout::RGBA;
+        break;
+    default:
+        throw std::runtime_error("Unsupported pixel format");
+    }
+
+    const Size imgSize(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+
+    Image image(fmt, ColorSpace::getLinear(), imgSize);
+        
+    switch (fmt.layout)
+    {
+    case PixelLayout::RGB:
+        copyRGBPixels(imgSize, pixels, reinterpret_cast<float*>(image.getPixelData()));
+        break;
+    case PixelLayout::RGBA:
+        copyRGBAPixels(imgSize, pixels, reinterpret_cast<float*>(image.getPixelData()));
+        break;
+    }
+
+    return image;
+}
+
+void ExrImageCodec::write(const ImageView& image, std::ostream& stream, const std::string& fileName) const
+{
+    const auto fmt = image.getPixelFormat();
+    if (fmt.dataType != PixelDataType::Float)
+    {
+        throw std::runtime_error("EXR codec cannot write non-float pixels");
+    }
+
+    if (image.getColorSpace() != ColorSpace::getLinear())
+    {
+        throw std::runtime_error("EXR codec can write only images with linear color space");
+    }
+
+    Imf::RgbaChannels channels;
+    switch (image.getPixelFormat().layout)
+    {
+    case PixelLayout::Luminance:
+        channels = Imf::WRITE_Y;
+        break;
+    case PixelLayout::LuminanceAlpha:
+        channels = Imf::WRITE_YA;
+        break;
+    case PixelLayout::RGB:
+        channels = Imf::WRITE_RGB;
+        break;
+    case PixelLayout::RGBA:
+        channels = Imf::WRITE_RGBA;
+        break;
+    }
+
+    OutputStreamAdapter streamAdapter(fileName, stream);
+
+    const auto sz = image.getSize();
+    int width = static_cast<int>(sz.width);
+    int height = static_cast<int>(sz.height);
+
+    const Imf::Header hdr(
+        width, height,
+        static_cast<float>(width) / height);
+
+    Imf::RgbaOutputFile file(streamAdapter, hdr, channels);
+
+    Imf::Array2D<Imf::Rgba> pixels;
+    pixels.resizeErase(width, height);
+
+    for (uint32_t y = 0; y < sz.height; ++y)
+    {
+        for (uint32_t x = 0; x < sz.width; ++x)
+        {
+            const auto srcPixel = image.getPixel(x, y);
+
+            Imf::Rgba dstPixel;
+            dstPixel.r = half(srcPixel.r);
+            dstPixel.g = half(srcPixel.g);
+            dstPixel.b = half(srcPixel.b);
+            dstPixel.a = half(srcPixel.a);
+
+            pixels[x][y] = dstPixel;
+        }
+    }
+
+    file.setFrameBuffer(pixels[0], 1, width);
+    file.writePixels(height);
 }
 
 }
