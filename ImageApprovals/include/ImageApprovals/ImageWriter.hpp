@@ -10,6 +10,7 @@ namespace ImageApprovals {
 
 enum class Format
 {
+    Auto,
     PNG,
     EXR
 };
@@ -17,11 +18,11 @@ enum class Format
 class ImageWriter : public ApprovalTests::ApprovalWriter
 {
 public:
-    ImageWriter(const ImageView& image, Format format)
+    explicit ImageWriter(const ImageView& image, Format format = Format::Auto)
         : m_image(image), m_format(format)
     {}
 
-    ImageWriter(const Image& image, Format format)
+    explicit ImageWriter(const Image& image, Format format = Format::Auto)
         : ImageWriter(image.getView(), format)
     {}
 
@@ -31,6 +32,8 @@ public:
     {
         switch (m_format)
         {
+        case Format::Auto:
+            return autoDetectExtension();
         case Format::PNG:
             return ".png";
         case Format::EXR:
@@ -53,6 +56,21 @@ public:
 private:
     const ImageView m_image;
     Format m_format;
+
+    std::string autoDetectExtension() const
+    {
+        const auto dataType = m_image.getPixelFormat().dataType;
+
+        switch(dataType)
+        {
+        case PixelDataType::UInt8:
+            return ".png";
+        case PixelDataType::Float:
+            return ".exr";
+        }
+
+        throw std::runtime_error("invalid PixelDataType value");
+    }
 };
 
 }

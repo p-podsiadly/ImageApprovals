@@ -14,18 +14,19 @@ public:
 
     virtual ~ImageCodec() = default;
 
+    static Disposer registerCodec(const std::shared_ptr<ImageCodec>& codec);
+    static void unregisterCodec(const std::shared_ptr<ImageCodec>& codec);
+
+    static Image read(const std::string& fileName);
+    static void write(const std::string& fileName, const ImageView& image);
+
+protected:
     virtual std::string getFileExtensionWithDot() const = 0;
 
     virtual bool canRead(std::istream& stream, const std::string& fileName) const = 0;
     virtual Image read(std::istream& stream, const std::string& fileName) const = 0;
 
     virtual void write(const ImageView& image, std::ostream& stream, const std::string& fileName) const = 0;
-
-    static Disposer registerCodec(const std::shared_ptr<ImageCodec>& codec);
-    static void unregisterCodec(const std::shared_ptr<ImageCodec>& codec);
-
-    static Image read(const std::string& fileName);
-    static void write(const std::string& fileName, const ImageView& image);
 };
 
 class ImageCodec::Disposer

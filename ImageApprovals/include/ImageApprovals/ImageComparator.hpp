@@ -29,9 +29,8 @@ protected:
 class ThresholdImageComparator : public ImageComparator
 {
 public:
-    ThresholdImageComparator(
-        AbsThreshold pixelFailThreshold = AbsThreshold(0.004),
-        Percent maxFailedPixelsPercentage = Percent(0.1));
+    ThresholdImageComparator() = default;
+    ThresholdImageComparator(AbsThreshold pixelFailThreshold, Percent maxFailedPixelsPercentage);
 
     AbsThreshold getPixelFailThreshold() const { return m_pixelFailThreshold; }
     Percent getMaxFailedPixelsPercentage() const { return m_maxFailedPixelsPercentage; }
@@ -40,8 +39,8 @@ protected:
     bool compareContents(const ImageView& left, const ImageView& right, CmpMessage& outMessage) const override;
 
 private:
-    AbsThreshold m_pixelFailThreshold;
-    Percent m_maxFailedPixelsPercentage;
+    AbsThreshold m_pixelFailThreshold = AbsThreshold(0.004);
+    Percent m_maxFailedPixelsPercentage = Percent(0.1);
 };
 
 }

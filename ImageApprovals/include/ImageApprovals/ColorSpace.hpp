@@ -19,6 +19,7 @@ public:
     virtual const char* getName() const = 0;
 
     static const ColorSpace& getLinear();
+
     static const ColorSpace& getSRGB();
 };
 

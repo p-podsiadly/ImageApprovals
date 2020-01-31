@@ -44,7 +44,7 @@ TEST_CASE("Comparator")
 
         const auto image = ImageCodec::read(TEST_FILE("ComparatorTests.Comparator.Using_Approvals__verify_with_PNG.received_ref.png"));
 
-        Approvals::verify(ImageWriter(image, Format::PNG));
+        Approvals::verify(ImageWriter(image));
     }
 
     SUBCASE("Using Approvals::verify with EXR")
@@ -56,6 +56,6 @@ TEST_CASE("Comparator")
 
         const auto image = ImageCodec::read(TEST_FILE("ComparatorTests.Comparator.Using_Approvals__verify_with_EXR.received_ref.exr"));
 
-        Approvals::verify(ImageWriter(image, Format::EXR));
+        Approvals::verify(ImageWriter(image));
     }
 }
