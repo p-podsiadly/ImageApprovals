@@ -26,5 +26,5 @@ script:
 - cd build/release/
 - cmake ../.. -DCMAKE_BUILD_TYPE=Release
 - cmake --build .
-- cmake --install . --prefix=../../install/release
+- cmake --install . --prefix ../../install/release
 - ctest --verbose
