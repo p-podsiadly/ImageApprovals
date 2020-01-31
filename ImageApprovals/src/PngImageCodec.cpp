@@ -37,7 +37,7 @@ struct PngImageCodec : ImageCodec
         return ".png";
     }
 
-    bool canRead(std::istream& stream) const override
+    bool canRead(std::istream& stream, const std::string&) const override
     {
         png_byte signature[8];
         std::fill_n(signature, 8, 0);
@@ -48,7 +48,7 @@ struct PngImageCodec : ImageCodec
         return (png_sig_cmp(signature, 0, 8) == 0);
     }
 
-    Image read(std::istream& stream) const override
+    Image read(std::istream& stream, const std::string&) const override
     {
         Image image;
         png_struct* png = nullptr;
@@ -130,7 +130,7 @@ struct PngImageCodec : ImageCodec
         return image;
     }
 
-    void write(const ImageView& image, std::ostream& stream) const override
+    void write(const ImageView& image, std::ostream& stream, const std::string&) const override
     {
         if (image.getPixelFormat().dataType != PixelDataType::UInt8)
         {

@@ -9,6 +9,7 @@ if(NOT CONAN_EXPORTED)
     conan_cmake_run(
         REQUIRES "doctest/2.3.6"
                  "libpng/1.6.37"
+                 "openexr/2.4.0"
         BASIC_SETUP
         GENERATORS cmake_find_package
         BUILD missing

@@ -10,17 +10,18 @@ namespace ImageApprovals {
 
 enum class Format
 {
-    PNG
+    PNG,
+    EXR
 };
 
 class ImageWriter : public ApprovalTests::ApprovalWriter
 {
 public:
-    ImageWriter(const ImageView& image, Format format = Format::PNG)
+    ImageWriter(const ImageView& image, Format format)
         : m_image(image), m_format(format)
     {}
 
-    ImageWriter(const Image& image, Format format = Format::PNG)
+    ImageWriter(const Image& image, Format format)
         : ImageWriter(image.getView(), format)
     {}
 
@@ -32,6 +33,8 @@ public:
         {
         case Format::PNG:
             return ".png";
+        case Format::EXR:
+            return ".exr";
         }
 
         throw std::runtime_error("invalid Format value");

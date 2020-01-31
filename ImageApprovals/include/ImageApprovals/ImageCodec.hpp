@@ -13,12 +13,13 @@ public:
 
     virtual std::string getFileExtensionWithDot() const = 0;
 
-    virtual bool canRead(std::istream& stream) const = 0;
-    virtual Image read(std::istream& stream) const = 0;
+    virtual bool canRead(std::istream& stream, const std::string& fileName) const = 0;
+    virtual Image read(std::istream& stream, const std::string& fileName) const = 0;
 
-    virtual void write(const ImageView& image, std::ostream& stream) const = 0;
+    virtual void write(const ImageView& image, std::ostream& stream, const std::string& fileName) const = 0;
 
     static const ImageCodec& getPngCodec();
+    static const ImageCodec& getExrCodec();
 
     static Image read(const std::string& fileName);
     static void write(const std::string& fileName, const ImageView& image);

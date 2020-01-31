@@ -11,10 +11,18 @@ Image ImageCodec::read(const std::string& fileName)
         throw std::runtime_error("could not open file \"" + fileName + "\" for reading");
     }
 
+    fileStream.exceptions(std::ios::failbit | std::ios::badbit);
+
     const ImageCodec* codec = &getPngCodec();
-    if (codec->canRead(fileStream))
+    if (codec->canRead(fileStream, fileName))
     {
-        return codec->read(fileStream);
+        return codec->read(fileStream, fileName);
+    }
+    
+    codec = &getExrCodec();
+    if (codec->canRead(fileStream, fileName))
+    {
+        return codec->read(fileStream, fileName);
     }
 
     throw std::runtime_error("unsupported image file format when reading \"" + fileName + "\"");
@@ -40,6 +48,10 @@ void ImageCodec::write(const std::string& fileName, const ImageView& image)
     {
         codec = &getPngCodec();
     }
+    else if (endsWith(fileName, getExrCodec().getFileExtensionWithDot()))
+    {
+        codec = &getExrCodec();
+    }
 
     if (!codec)
     {
@@ -52,7 +64,8 @@ void ImageCodec::write(const std::string& fileName, const ImageView& image)
         throw std::runtime_error("could not open file \"" + fileName + "\" for writing");
     }
 
-    codec->write(image, fileStream);
+    fileStream.exceptions(std::ios::badbit | std::ios::failbit);
+    codec->write(image, fileStream, fileName);
 }
 
 }

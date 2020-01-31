@@ -2,6 +2,7 @@ find_package(doctest REQUIRED)
 
 set(sources
 	"src/ComparatorTests.cpp"
+	"src/ExrCodecTest.cpp"
 	"src/main.cpp"
 	"src/PixelDecodeTests.cpp"
 	"src/PngCodecTests.cpp"

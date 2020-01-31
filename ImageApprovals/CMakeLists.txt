@@ -1,8 +1,10 @@
+# The target exists if we're using AT.cpp as a submodule
 if(NOT TARGET ApprovalTests::ApprovalTests)
     find_package(ApprovalTests REQUIRED)
 endif()
 
 find_package(PNG REQUIRED)
+find_package(OpenEXR REQUIRED)
 
 set(headers
     "include/ImageApprovals.hpp"
@@ -24,6 +26,7 @@ set(sources
 
     "src/ColorSpace.cpp"
     "src/Comparator.cpp"
+    "src/ExrImageCodec.cpp"
     "src/Image.cpp"
     "src/ImageCodec.cpp"
     "src/ImageComparator.cpp"
@@ -44,6 +47,7 @@ target_link_libraries(
         ApprovalTests::ApprovalTests
     PRIVATE
         PNG::PNG
+        OpenEXR::OpenEXR
 )
 
 install(
