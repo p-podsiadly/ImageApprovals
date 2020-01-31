@@ -5,6 +5,7 @@ endif()
 
 find_package(PNG REQUIRED)
 find_package(OpenEXR REQUIRED)
+find_package(ZLIB REQUIRED)
 
 set(headers
     "include/ImageApprovals.hpp"
@@ -48,6 +49,7 @@ target_link_libraries(
     PRIVATE
         PNG::PNG
         OpenEXR::OpenEXR
+        ZLIB::ZLIB
 )
 
 install(

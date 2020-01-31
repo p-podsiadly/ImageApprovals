@@ -10,6 +10,7 @@ if(NOT CONAN_EXPORTED)
         REQUIRES "doctest/2.3.6"
                  "libpng/1.6.37"
                  "openexr/2.4.0"
+                 "zlib/1.2.11"
         BASIC_SETUP
         GENERATORS cmake_find_package
         BUILD missing
