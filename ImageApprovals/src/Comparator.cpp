@@ -18,10 +18,10 @@ bool Comparator::contentsAreEquivalent(std::string receivedPath, std::string app
     const Image receivedImg = ImageCodec::read(receivedPath);
     const Image approvedImg = ImageCodec::read(approvedPath);
 
-    CmpMessage message;
-    if (!m_comparator->compare(approvedImg.getView(), receivedImg.getView(), message))
+    const auto result = m_comparator->compare(approvedImg.getView(), receivedImg.getView());
+    if (!result.passed)
     {
-        throw ApprovalTests::ApprovalMismatchException(message.right, message.left);
+        throw ApprovalTests::ApprovalMismatchException(result.rightImageInfo, result.leftImageInfo);
     }
 
     return true;

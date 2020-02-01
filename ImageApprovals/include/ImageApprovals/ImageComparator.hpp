@@ -8,22 +8,26 @@ namespace ImageApprovals {
 
 class ImageView;
 
-struct CmpMessage
-{
-    std::string left;
-    std::string right;
-};
-
 class ImageComparator
 {
 public:
+    struct Result
+    {
+        bool passed = false;
+        std::string leftImageInfo;
+        std::string rightImageInfo;
+
+        static Result makePassed();
+        static Result makeFailed(std::string leftInfo, std::string rightInfo);
+    };
+
     virtual ~ImageComparator() = default;
 
-    bool compare(const ImageView& left, const ImageView& right, CmpMessage& outMessage) const;
+    Result compare(const ImageView& left, const ImageView& right) const;
 
 protected:
-    virtual bool compareInfos(const ImageView& left, const ImageView& right, CmpMessage& outMessage) const;
-    virtual bool compareContents(const ImageView& left, const ImageView& right, CmpMessage& outMessage) const = 0;
+    virtual Result compareInfos(const ImageView& left, const ImageView& right) const;
+    virtual Result compareContents(const ImageView& left, const ImageView& right) const = 0;
 };
 
 class ThresholdImageComparator : public ImageComparator
@@ -36,7 +40,7 @@ public:
     Percent getMaxFailedPixelsPercentage() const { return m_maxFailedPixelsPercentage; }
 
 protected:
-    bool compareContents(const ImageView& left, const ImageView& right, CmpMessage& outMessage) const override;
+    Result compareContents(const ImageView& left, const ImageView& right) const override;
 
 private:
     AbsThreshold m_pixelFailThreshold = AbsThreshold(0.004);

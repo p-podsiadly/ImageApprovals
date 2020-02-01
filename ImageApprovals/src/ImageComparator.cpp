@@ -6,49 +6,66 @@
 
 namespace ImageApprovals {
 
-bool ImageComparator::compare(const ImageView& left, const ImageView& right, CmpMessage& outMessage) const
+ImageComparator::Result ImageComparator::Result::makePassed()
 {
-    CmpMessage infosMsg, contentsMsg;
-
-    if (!compareInfos(left, right, infosMsg))
-    {
-        outMessage = infosMsg;
-        return false;
-    }
-
-    if (!compareContents(left, right, contentsMsg))
-    {
-        outMessage = contentsMsg;
-        return false;
-    }
-
-    return true;
+    Result res;
+    res.passed = true;
+    return res;
 }
 
-bool ImageComparator::compareInfos(const ImageView& left, const ImageView& right, CmpMessage& outMessage) const
+ImageComparator::Result ImageComparator::Result::makeFailed(std::string leftInfo, std::string rightInfo)
 {
+    Result res;
+    res.passed = false;
+    res.leftImageInfo = std::move(leftInfo);
+    res.rightImageInfo = std::move(rightInfo);
+    return res;
+}
+
+ImageComparator::Result ImageComparator::compare(const ImageView& left, const ImageView& right) const
+{
+    Result result;
+
+    if (!(result = compareInfos(left, right)).passed)
+    {
+        return result;
+    }
+
+    if (!(result = compareContents(left, right)).passed)
+    {
+        return result;
+    }
+
+    return Result::makePassed();
+}
+
+ImageComparator::Result ImageComparator::compareInfos(const ImageView& left, const ImageView& right) const
+{
+    Result result;
+    result.passed = false;
+
     if (left.getPixelFormat() != right.getPixelFormat())
     {
-        outMessage.left = "pixel format = " + toString(left.getPixelFormat());
-        outMessage.right = "pixel format = " + toString(right.getPixelFormat());
-        return false;
+        return Result::makeFailed(
+            "pixel format = " + toString(left.getPixelFormat()),
+            "pixel format = " + toString(right.getPixelFormat()));
     }
 
     if (left.getColorSpace() != right.getColorSpace())
     {
-        outMessage.left = "color space = " + toString(left.getColorSpace());
-        outMessage.right = "color space = " + toString(right.getColorSpace());
-        return false;
+        return Result::makeFailed(
+            "color space = " + toString(left.getColorSpace()),
+            "color space = " + toString(right.getColorSpace()));
     }
 
     if (left.getSize() != right.getSize())
     {
-        outMessage.left = "size = " + toString(left.getSize());
-        outMessage.right = "size = " + toString(right.getSize());
-        return false;
+        return Result::makeFailed(
+            "size = " + toString(left.getSize()),
+            "size = " + toString(right.getSize()));
     }
 
-    return true;
+    return Result::makePassed();
 }
 
 ThresholdImageComparator::ThresholdImageComparator(AbsThreshold pixelFailThreshold, Percent maxFailedPixelsPercentage)
@@ -68,7 +85,7 @@ float maxAbsDiff(const RGBA& left, const RGBA& right)
 
 }
 
-bool ThresholdImageComparator::compareContents(const ImageView& left, const ImageView& right, CmpMessage& outMessage) const
+ImageComparator::Result ThresholdImageComparator::compareContents(const ImageView& left, const ImageView& right) const
 {
     const auto sz = left.getSize();
 
@@ -94,14 +111,14 @@ bool ThresholdImageComparator::compareContents(const ImageView& left, const Imag
 
     if (percentAboveThreshold > m_maxFailedPixelsPercentage)
     {
-        outMessage.left = "reference image";
-        outMessage.right
+        std::string rightInfo
             = toString(numAboveThreshold) + " pixels (" + toString(percentAboveThreshold)
             + ") are above threshold = " + toString(m_pixelFailThreshold);
-        return false;
+
+        return Result::makeFailed("reference image", rightInfo);
     }
 
-    return true;
+    return Result::makePassed();
 }
 
 }

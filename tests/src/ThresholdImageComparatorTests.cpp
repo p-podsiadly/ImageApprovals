@@ -13,16 +13,14 @@ TEST_CASE("ThresholdImageComparator")
     const Size size{ 20, 1 };
 
     Image left(format, colorSpace, size);
-
-    CmpMessage msg;
-
+    
     SUBCASE("Differences are within thresholds")
     {
         Image right(format, colorSpace, size);
         auto pixels = right.getPixelData();
         pixels[6] = 2;
 
-        REQUIRE(comparator.compare(left.getView(), right.getView(), msg));
+        REQUIRE(comparator.compare(left.getView(), right.getView()).passed);
     }
 
     SUBCASE("Differences are not within thresholds")
@@ -33,33 +31,33 @@ TEST_CASE("ThresholdImageComparator")
         pixels[10] = 2;
         pixels[14] = 2;
         
-        REQUIRE_FALSE(comparator.compare(left.getView(), right.getView(), msg));
+        REQUIRE_FALSE(comparator.compare(left.getView(), right.getView()).passed);
     }
 
     SUBCASE("Images have different pixel formats")
     {
         Image right({ PixelLayout::RGBA, format.dataType }, colorSpace, size);
-        REQUIRE_FALSE(comparator.compare(left.getView(), right.getView(), msg));
+        REQUIRE_FALSE(comparator.compare(left.getView(), right.getView()).passed);
 
         right = Image({ format.layout, PixelDataType::Float }, colorSpace, size);
-        REQUIRE_FALSE(comparator.compare(left.getView(), right.getView(), msg));
+        REQUIRE_FALSE(comparator.compare(left.getView(), right.getView()).passed);
     }
 
     SUBCASE("Images have different color spaces")
     {
         Image right(format, ColorSpace::getSRGB(), size);
-        REQUIRE_FALSE(comparator.compare(left.getView(), right.getView(), msg));
+        REQUIRE_FALSE(comparator.compare(left.getView(), right.getView()).passed);
     }
 
     SUBCASE("Images have different sizes")
     {
         Image right(format, colorSpace, Size{ size.width + 1, size.height });
-        REQUIRE_FALSE(comparator.compare(left.getView(), right.getView(), msg));
+        REQUIRE_FALSE(comparator.compare(left.getView(), right.getView()).passed);
     }
 
     SUBCASE("Images have different row alignment values")
     {
         Image right(format, colorSpace, size, 1);
-        REQUIRE(comparator.compare(left.getView(), right.getView(), msg));
+        REQUIRE(comparator.compare(left.getView(), right.getView()).passed);
     }
 }
