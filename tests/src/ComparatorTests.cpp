@@ -85,24 +85,26 @@ TEST_CASE("Comparator")
 
         Approvals::verify(ImageWriter(image));
     }
+}
 
-    SUBCASE("Using Comparator::registerForAllExtensions")
+TEST_CASE("Comparator::registerForAllExtensions" * doctest::should_fail())
+{
+    auto subdirDisposer = Approvals::useApprovalsSubdirectory("../data");
+
+    DefaultNamerFactory::setDefaultNamer([]() { return std::make_shared<FixedNameNamer>("cornell"); });
+
+    auto comparatorDisposer
+        = Comparator::registerForAllExtensions<ThresholdImageComparator>(AbsThreshold(0.1), Percent(1.25));
+
+    SUBCASE("PNG")
     {
-        auto subdirDisposer = Approvals::useApprovalsSubdirectory("../data");
+        const auto pngImage = ImageCodec::read(TEST_FILE("cornell.received_ref.png"));
+        Approvals::verify(ImageWriter(pngImage));
+    }
 
-        auto comparatorDisposer
-            = Comparator::registerForAllExtensions<ThresholdImageComparator>(AbsThreshold(0.1), Percent(1.25));
-
-        SUBCASE("PNG")
-        {
-            const auto pngImage = ImageCodec::read(TEST_FILE("cornell.received_ref.png"));
-            Approvals::verify(ImageWriter(pngImage));
-        }
-
-        SUBCASE("EXR")
-        {
-            const auto exrImage = ImageCodec::read(TEST_FILE("cornell.received_ref.exr"));
-            Approvals::verify(ImageWriter(exrImage));
-        }
+    SUBCASE("EXR")
+    {
+        const auto exrImage = ImageCodec::read(TEST_FILE("cornell.received_ref.exr"));
+        Approvals::verify(ImageWriter(exrImage));
     }
 }
