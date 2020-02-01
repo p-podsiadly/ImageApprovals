@@ -9,7 +9,19 @@ namespace ImageApprovals {
 class Comparator : public ApprovalTests::ApprovalComparator
 {
 public:
-    class Disposer;
+    class Disposer
+    {
+    public:
+        explicit Disposer(std::vector<ApprovalTests::ComparatorDisposer> disposers);
+        Disposer(const Disposer&) = delete;
+        Disposer(Disposer&&) = default;
+
+        Disposer& operator =(const Disposer&) = delete;
+        Disposer& operator =(Disposer&&) = delete;
+
+    private:
+        std::vector<ApprovalTests::ComparatorDisposer> m_disposers;
+    };
 
     Comparator();
     explicit Comparator(std::unique_ptr<ImageComparator> comparator);
@@ -37,20 +49,6 @@ private:
     std::unique_ptr<ImageComparator> m_comparator;
 
     static Disposer registerForAllExtensionsImpl(std::unique_ptr<ImageComparator> imageComparator);
-};
-
-class Comparator::Disposer
-{
-public:
-    explicit Disposer(std::vector<ApprovalTests::ComparatorDisposer> disposers);
-    Disposer(const Disposer&) = delete;
-    Disposer(Disposer&&) = default;
-
-    Disposer& operator =(const Disposer&) = delete;
-    Disposer& operator =(Disposer&&) = delete;
-
-private:
-    std::vector<ApprovalTests::ComparatorDisposer> m_disposers;
 };
 
 }

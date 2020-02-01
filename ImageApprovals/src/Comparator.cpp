@@ -5,6 +5,10 @@
 
 namespace ImageApprovals {
 
+Comparator::Disposer::Disposer(std::vector<ApprovalTests::ComparatorDisposer> disposers)
+    : m_disposers(std::move(disposers))
+{}
+
 Comparator::Comparator()
     : m_comparator(new ThresholdImageComparator())
 {}
@@ -43,9 +47,5 @@ Comparator::Disposer Comparator::registerForAllExtensionsImpl(std::unique_ptr<Im
 
     return Disposer(std::move(disposers));
 }
-
-Comparator::Disposer::Disposer(std::vector<ApprovalTests::ComparatorDisposer> disposers)
-    : m_disposers(std::move(disposers))
-{}
 
 }
