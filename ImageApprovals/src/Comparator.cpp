@@ -1,6 +1,7 @@
 #include <ImageApprovals/Comparator.hpp>
 #include <ImageApprovals/ImageCodec.hpp>
 #include <sstream>
+#include <iterator>
 #include <stdexcept>
 
 namespace ImageApprovals {
