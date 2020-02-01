@@ -85,4 +85,24 @@ TEST_CASE("Comparator")
 
         Approvals::verify(ImageWriter(image));
     }
+
+    SUBCASE("Using Comparator::registerForAllExtensions")
+    {
+        auto subdirDisposer = Approvals::useApprovalsSubdirectory("../data");
+
+        auto comparatorDisposer
+            = Comparator::registerForAllExtensions<ThresholdImageComparator>(AbsThreshold(0.1), Percent(1.25));
+
+        SUBCASE("PNG")
+        {
+            const auto pngImage = ImageCodec::read(TEST_FILE("cornell.received_ref.png"));
+            Approvals::verify(ImageWriter(pngImage));
+        }
+
+        SUBCASE("EXR")
+        {
+            const auto exrImage = ImageCodec::read(TEST_FILE("cornell.received_ref.exr"));
+            Approvals::verify(ImageWriter(exrImage));
+        }
+    }
 }

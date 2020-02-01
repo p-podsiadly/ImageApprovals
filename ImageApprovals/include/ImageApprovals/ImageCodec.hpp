@@ -4,6 +4,7 @@
 #include "Image.hpp"
 #include <string>
 #include <memory>
+#include <vector>
 
 namespace ImageApprovals {
 
@@ -16,6 +17,8 @@ public:
 
     static Disposer registerCodec(const std::shared_ptr<ImageCodec>& codec);
     static void unregisterCodec(const std::shared_ptr<ImageCodec>& codec);
+
+    static std::vector<std::string> getRegisteredExtensions();
 
     static Image read(const std::string& fileName);
     static void write(const std::string& fileName, const ImageView& image);

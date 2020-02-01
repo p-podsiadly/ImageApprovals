@@ -27,4 +27,25 @@ bool Comparator::contentsAreEquivalent(std::string receivedPath, std::string app
     return true;
 }
 
+Comparator::Disposer Comparator::registerForAllExtensionsImpl(std::unique_ptr<ImageComparator> imageComparator)
+{
+    using namespace ApprovalTests;
+
+    auto comparator = std::make_shared<Comparator>(std::move(imageComparator));
+
+    const auto allExtensions = ImageCodec::getRegisteredExtensions();
+    
+    std::vector<ApprovalTests::ComparatorDisposer> disposers;
+    disposers.reserve(allExtensions.size());
+
+    transform(allExtensions.begin(), allExtensions.end(), std::back_inserter(disposers),
+        [&](const std::string& ext) { return FileApprover::registerComparatorForExtension(ext, comparator); });
+
+    return Disposer(std::move(disposers));
+}
+
+Comparator::Disposer::Disposer(std::vector<ApprovalTests::ComparatorDisposer> disposers)
+    : m_disposers(std::move(disposers))
+{}
+
 }

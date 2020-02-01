@@ -41,6 +41,17 @@ void ImageCodec::unregisterCodec(const std::shared_ptr<ImageCodec>& codec)
     }
 }
 
+std::vector<std::string> ImageCodec::getRegisteredExtensions()
+{
+    std::vector<std::string> extensions;
+    extensions.resize(imageCodecs.size());
+
+    transform(imageCodecs.begin(), imageCodecs.end(), extensions.begin(),
+        [](const std::shared_ptr<ImageCodec>& codec) { return codec->getFileExtensionWithDot(); });
+
+    return extensions;
+}
+
 Image ImageCodec::read(const std::string& fileName)
 {
     std::ifstream fileStream(fileName.c_str(), std::ios::binary);
