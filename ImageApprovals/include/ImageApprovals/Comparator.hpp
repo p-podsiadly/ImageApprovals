@@ -14,18 +14,18 @@ public:
 
     bool contentsAreEquivalent(std::string receivedPath, std::string approvedPath) const override;
 
+    template<typename ConcreteImageComparator, typename... Arguments>
+    static std::shared_ptr<Comparator> make(Arguments&&... args)
+    {
+        std::unique_ptr<ImageComparator> imgComparator(
+            new ConcreteImageComparator(std::forward<Arguments>(args)...));
+
+        return std::make_shared<Comparator>(std::move(imgComparator));
+    }
+
 private:
     std::unique_ptr<ImageComparator> m_comparator;
 };
-
-template<typename ConcreteImageComparator, typename... Arguments>
-std::shared_ptr<Comparator> makeImageComparator(Arguments&&... args)
-{
-    std::unique_ptr<ImageComparator> imgComparator;
-    imgComparator.reset(new ConcreteImageComparator(std::forward<Arguments>(args)...));
-
-    return std::make_shared<Comparator>(std::move(imgComparator));
-}
 
 }
 

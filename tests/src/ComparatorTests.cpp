@@ -39,7 +39,7 @@ TEST_CASE("Comparator")
     {
         auto subdirDisposer = Approvals::useApprovalsSubdirectory("../data");
 
-        auto comparator = makeImageComparator<ThresholdImageComparator>(AbsThreshold(0.1), Percent(1.25));
+        auto comparator = Comparator::make<ThresholdImageComparator>(AbsThreshold(0.1), Percent(1.25));
         auto comparatorDisposer = FileApprover::registerComparatorForExtension(".png", comparator);
 
         const auto image = ImageCodec::read(TEST_FILE("ComparatorTests.Comparator.Using_Approvals__verify_with_PNG.received_ref.png"));
@@ -51,7 +51,7 @@ TEST_CASE("Comparator")
     {
         auto subdirDisposer = Approvals::useApprovalsSubdirectory("../data");
 
-        auto comparator = makeImageComparator<ThresholdImageComparator>(AbsThreshold(0.1), Percent(1.25));
+        auto comparator = Comparator::make<ThresholdImageComparator>(AbsThreshold(0.1), Percent(1.25));
         auto comparatorDisposer = FileApprover::registerComparatorForExtension(".exr", comparator);
 
         const auto image = ImageCodec::read(TEST_FILE("ComparatorTests.Comparator.Using_Approvals__verify_with_EXR.received_ref.exr"));
