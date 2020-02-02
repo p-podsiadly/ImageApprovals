@@ -1,5 +1,5 @@
 #include <doctest/doctest.h>
-#include <ImageApprovals/PixelFormat.hpp>
+#include <ImageApprovals.hpp>
 #include <stdexcept>
 #include <cstring>
 

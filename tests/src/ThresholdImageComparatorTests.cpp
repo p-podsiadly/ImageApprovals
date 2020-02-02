@@ -1,6 +1,5 @@
 #include <doctest/doctest.h>
-#include <ImageApprovals/ImageComparator.hpp>
-#include <ImageApprovals/Image.hpp>
+#include <ImageApprovals.hpp>
 
 using namespace ImageApprovals;
 
