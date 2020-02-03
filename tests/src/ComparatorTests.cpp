@@ -5,35 +5,8 @@
 using namespace ImageApprovals;
 using namespace ApprovalTests;
 
-namespace {
-
-class FixedNameNamer : public ApprovalTestNamer
-{
-public:
-    explicit FixedNameNamer(std::string baseName)
-        : m_baseName(std::move(baseName))
-    {}
-
-    std::string getApprovedFile(std::string extensionWithDot) const override
-    {
-        return getDirectory() + m_baseName + ".approved" + extensionWithDot;
-    }
-
-    std::string getReceivedFile(std::string extensionWithDot) const override
-    {
-        return getDirectory() + m_baseName + ".received" + extensionWithDot;
-    }
-
-private:
-    std::string m_baseName;
-};
-
-}
-
 TEST_CASE("Comparator")
 {
-    DefaultNamerFactory::setDefaultNamer([]() { return std::make_shared<FixedNameNamer>("cornell"); });
-
     SUBCASE("Differences are within tolerance")
     {
         std::unique_ptr<ImageComparator> imgComparator;
@@ -62,50 +35,30 @@ TEST_CASE("Comparator")
             ApprovalMismatchException);
     }
 
-    SUBCASE("Using Approvals::verify with PNG")
+    SUBCASE("Using FileApprover::verify with PNG")
     {
-        auto subdirDisposer = Approvals::useApprovalsSubdirectory("../data");
-
         auto comparator = Comparator::make<ThresholdImageComparator>(AbsThreshold(0.1), Percent(1.25));
         auto comparatorDisposer = FileApprover::registerComparatorForExtension(".png", comparator);
 
-        const auto image = ImageCodec::read(TEST_FILE("cornell.received_ref.png"));
-
-        Approvals::verify(ImageWriter(image));
+        FileApprover::verify(TEST_FILE("cornell.received_ref.png"), TEST_FILE("cornell.approved.png"));
     }
 
-    SUBCASE("Using Approvals::verify with EXR")
+    SUBCASE("Using FileApprover::verify with EXR")
     {
-        auto subdirDisposer = Approvals::useApprovalsSubdirectory("../data");
-
         auto comparator = Comparator::make<ThresholdImageComparator>(AbsThreshold(0.1), Percent(1.25));
         auto comparatorDisposer = FileApprover::registerComparatorForExtension(".exr", comparator);
 
-        const auto image = ImageCodec::read(TEST_FILE("cornell.received_ref.exr"));
-
-        Approvals::verify(ImageWriter(image));
+        FileApprover::verify(TEST_FILE("cornell.received_ref.exr"), TEST_FILE("cornell.approved.exr"));
     }
 }
 
 // TODO: remove should_fail once this is resolved: https://github.com/approvals/ApprovalTests.cpp/pull/93
 TEST_CASE("Comparator::registerForAllExtensions" * doctest::should_fail())
 {
-    auto subdirDisposer = Approvals::useApprovalsSubdirectory("../data");
-
-    DefaultNamerFactory::setDefaultNamer([]() { return std::make_shared<FixedNameNamer>("cornell"); });
-
     auto comparatorDisposer
         = Comparator::registerForAllExtensions<ThresholdImageComparator>(AbsThreshold(0.1), Percent(1.25));
 
-    SUBCASE("PNG")
-    {
-        const auto pngImage = ImageCodec::read(TEST_FILE("cornell.received_ref.png"));
-        Approvals::verify(ImageWriter(pngImage));
-    }
+    FileApprover::verify(TEST_FILE("cornell.received_ref.png"), TEST_FILE("cornell.approved.png"));
 
-    SUBCASE("EXR")
-    {
-        const auto exrImage = ImageCodec::read(TEST_FILE("cornell.received_ref.exr"));
-        Approvals::verify(ImageWriter(exrImage));
-    }
+    FileApprover::verify(TEST_FILE("cornell.received_ref.exr"), TEST_FILE("cornell.approved.exr"));
 }
