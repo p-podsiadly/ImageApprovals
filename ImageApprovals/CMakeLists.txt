@@ -1,8 +1,4 @@
-# The target exists if we're using AT.cpp as a submodule
-if(NOT TARGET ApprovalTests::ApprovalTests)
-    find_package(ApprovalTests REQUIRED)
-endif()
-
+find_package(ApprovalTests REQUIRED)
 find_package(PNG REQUIRED)
 find_package(OpenEXR REQUIRED)
 find_package(ZLIB REQUIRED)
