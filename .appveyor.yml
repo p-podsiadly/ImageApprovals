@@ -18,8 +18,6 @@ platform:
 configuration: Release
 
 install:
-  - git submodule update --init
-
   - ps: >-
       if($isWindows) {
         $env:Path = "C:\Python37;C:\Python37\Scripts;" + $env:Path;
