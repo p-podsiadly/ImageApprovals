@@ -1,154 +1,168 @@
 #include <ImageApprovals/PixelFormat.hpp>
+#include <algorithm>
 #include <stdexcept>
 #include <cstring>
 #include <ostream>
+#include <array>
 
 namespace ImageApprovals {
 
 namespace {
 
-struct LayoutProps
+float clamp(float x, float minX, float maxX)
 {
-    PixelLayout layout;
-    std::size_t numComponents;
-    const char* str;
+    return std::min(maxX, std::max(minX, x));
+}
+
+template<typename T, size_t N>
+auto normalize(const std::array<T, N>& src, float maxValue)
+{
+    std::array<float, N> dst;
+
+    for (size_t i = 0; i < N; ++i)
+    {
+        dst[i] = clamp(src[i] / maxValue, 0.0f, 1.0f);
+    }
+
+    return dst;
+}
+
+template<size_t NumChannels, typename ChannelType>
+struct GenericPixelFormat : PixelFormat
+{
+    size_t getNumberOfChannels() const override { return NumChannels; }
+    size_t getPixelStride() const override { return NumChannels * sizeof(ChannelType); }
+
+    bool isU8() const override { return std::is_same<ChannelType, uint8_t>::value; }
+    bool isF32() const override { return std::is_same<ChannelType, float>::value; }
+
+    std::array<ChannelType, NumChannels> decodeBytes(const uint8_t* src) const
+    {
+        std::array<ChannelType, NumChannels> dst;
+        std::memcpy(dst.data(), src, NumChannels * sizeof(ChannelType));
+        return dst;
+    }
 };
 
-struct DataTypeProps
+struct LuminanceU8PixelFormat : GenericPixelFormat<1, uint8_t>
 {
-    PixelDataType dataType;
-    std::size_t stride;
-    const char* str;
+    const char* getName() const override { return "LuminanceU8"; }
+
+    void decode(const uint8_t* begin, RGBA& outRgba) const override
+    {
+        const auto v = normalize(decodeBytes(begin), 255.0f)[0];
+        outRgba = RGBA(v, v, v, 1);
+    }
 };
 
-const LayoutProps& getProps(PixelLayout layout)
+struct LuminanceAlphaU8PixelFormat : GenericPixelFormat<2, uint8_t>
 {
-    static const LayoutProps layoutProps[]{
-        { PixelLayout::Luminance,      1, "Luminance"      },
-        { PixelLayout::LuminanceAlpha, 2, "LuminanceAlpha" },
-        { PixelLayout::RGB,            3, "RGB"            },
-        { PixelLayout::RGBA,           4, "RGBA"           }
-    };
+    const char* getName() const override { return "LuminanceAlphaU8"; }
 
-    for (const auto& props : layoutProps)
+    void decode(const uint8_t* begin, RGBA& outRgba) const override
     {
-        if (props.layout == layout)
-        {
-            return props;
-        }
+        const auto v = normalize(decodeBytes(begin), 255.0f);
+        outRgba = RGBA(v[0], v[0], v[0], v[1]);
     }
+};
 
-    throw std::runtime_error("Invalid PixelLayout value");
-}
-
-const DataTypeProps& getProps(PixelDataType dataType)
+struct RgbU8PixelFormat : GenericPixelFormat<3, uint8_t>
 {
-    static const DataTypeProps dataTypeProps[]{
-        { PixelDataType::UInt8, 1, "UInt8" },
-        { PixelDataType::Float, 4, "Float" }
-    };
+    const char* getName() const override { return "RgbU8"; }
 
-    for (const auto& props : dataTypeProps)
+    void decode(const uint8_t* begin, RGBA& outRgba) const override
     {
-        if (props.dataType == dataType)
-        {
-            return props;
-        }
+        const auto v = normalize(decodeBytes(begin), 255.0f);
+        outRgba = RGBA(v[0], v[1], v[2], 1);
     }
+};
 
-    throw std::runtime_error("Invalid PixelDataType value");
-}
-
-}
-
-std::size_t getPixelStride(const PixelFormat& format)
+struct RgbAlphaU8PixelFormat : GenericPixelFormat<4, uint8_t>
 {
-    const auto& layoutProps = getProps(format.layout);
-    const auto& dataTypeProps = getProps(format.dataType);
+    const char* getName() const override { return "RgbAlphaU8"; }
 
-    return layoutProps.numComponents * dataTypeProps.stride;
-}
-
-namespace {
-
-template<typename DecodeValue>
-RGBA decode(PixelLayout layout, const uint8_t* data, DecodeValue&& decodeValue)
-{
-    RGBA result{ 0.0f, 0.0f, 0.0f, 1.0f };
-    result.r = decodeValue(&data);
-
-    switch (layout)
+    void decode(const uint8_t* begin, RGBA& outRgba) const override
     {
-    case PixelLayout::Luminance:
-    case PixelLayout::LuminanceAlpha:
-        result.g = result.b = result.r;
-        break;
-    case PixelLayout::RGB:
-    case PixelLayout::RGBA:
-        result.g = decodeValue(&data);
-        result.b = decodeValue(&data);
-        break;
+        const auto v = normalize(decodeBytes(begin), 255.0f);
+        outRgba = RGBA(v[0], v[1], v[2], v[3]);
     }
+};
 
-    switch (layout)
-    {
-    case PixelLayout::LuminanceAlpha:
-    case PixelLayout::RGBA:
-        result.a = decodeValue(&data);
-        break;
-    default:
-        break;
-    }
-
-    return result;
-}
-
-}
-
-RGBA decode(const PixelFormat& format, const uint8_t* begin, const uint8_t* end)
+struct RgbF32PixelFormat : GenericPixelFormat<3, float>
 {
-    const auto stride = getPixelStride(format);
+    const char* getName() const override { return "RgbF32"; }
 
+    void decode(const uint8_t* begin, RGBA& outRgba) const override
+    {
+        const auto v = decodeBytes(begin);
+        outRgba = RGBA(v[0], v[1], v[2], 1);
+    }
+};
+
+struct RgbAlphaF32PixelFormat : GenericPixelFormat<4, float>
+{
+    const char* getName() const override { return "RgbAlphaF32"; }
+
+    void decode(const uint8_t* begin, RGBA& outRgba) const override
+    {
+        const auto v = decodeBytes(begin);
+        outRgba = RGBA(v[0], v[1], v[2], v[3]);
+    }
+};
+
+}
+
+const uint8_t* PixelFormat::decode(const uint8_t* begin, const uint8_t* end, RGBA& outRgba) const
+{
+    const auto stride = getPixelStride();
     if (begin + stride > end)
     {
-        throw std::out_of_range("not enough data to decode a pixel");
+        throw std::out_of_range("begin + stride > end");
     }
 
-    switch (format.dataType)
-    {
-    case PixelDataType::UInt8:
-        return decode(format.layout, begin,
-            [](const uint8_t** ptr) { return *((*ptr)++) / 255.0f; });
-    case PixelDataType::Float:
-        return decode(format.layout, begin,
-            [](const uint8_t** ptr) {
-                float v;
-                std::memcpy(&v, *ptr, 4);
-                (*ptr) += 4;
-                return v;
-            });
-    }
-
-    throw std::runtime_error("Invalid value of PixelFormat::dataType");
+    decode(begin, outRgba);
+    return begin + stride;
 }
 
-std::ostream& operator <<(std::ostream& stream, PixelLayout pixelLayout)
+const PixelFormat& PixelFormat::getLuminanceU8()
 {
-    return stream << getProps(pixelLayout).str;
+    static const LuminanceU8PixelFormat instance;
+    return instance;
 }
 
-std::ostream& operator <<(std::ostream& stream, PixelDataType pixelDataType)
+const PixelFormat& PixelFormat::getLuminanceAlphaU8()
 {
-    return stream << getProps(pixelDataType).str;
+    static const LuminanceAlphaU8PixelFormat instance;
+    return instance;
+}
+
+const PixelFormat& PixelFormat::getRgbU8()
+{
+    static const RgbU8PixelFormat instance;
+    return instance;
+}
+
+const PixelFormat& PixelFormat::getRgbAlphaU8()
+{
+    static const RgbAlphaU8PixelFormat instance;
+    return instance;
+}
+
+const PixelFormat& PixelFormat::getRgbF32()
+{
+    static const RgbF32PixelFormat instance;
+    return instance;
+}
+
+const PixelFormat& PixelFormat::getRgbAlphaF32()
+{
+    static const RgbAlphaF32PixelFormat instance;
+    return instance;
 }
 
 std::ostream& operator <<(std::ostream& stream, const PixelFormat& format)
 {
-    const auto& layoutProps = getProps(format.layout);
-    const auto& dataTypeProps = getProps(format.dataType);
-
-    stream << "{" << layoutProps.str << ", " << dataTypeProps.str << "}";
-
+    stream << format.getName();
     return stream;
 }
 

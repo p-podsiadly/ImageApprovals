@@ -66,37 +66,23 @@ private:
 
 namespace {
 
-void copyRGBPixels(const Size& sz, const Imf::Array2D<Imf::Rgba>& src, float* dst)
+void copyPixels(size_t numChannels, const Size& sz, const Imf::Array2D<Imf::Rgba>& src, uint8_t* dst)
 {
     for (uint32_t y = 0; y < sz.height; ++y)
     {
         for (uint32_t x = 0; x < sz.width; ++x)
         {
-            const auto pixel = src[x][y];
+            const auto srcPixel = src[x][y];
 
-            dst[0] = static_cast<float>(pixel.r);
-            dst[1] = static_cast<float>(pixel.g);
-            dst[2] = static_cast<float>(pixel.b);
+            const float value[]{
+                static_cast<float>(srcPixel.r),
+                static_cast<float>(srcPixel.g),
+                static_cast<float>(srcPixel.b),
+                static_cast<float>(srcPixel.a)
+            };
 
-            dst += 3;
-        }
-    }
-}
-
-void copyRGBAPixels(const Size& sz, const Imf::Array2D<Imf::Rgba>& src, float* dst)
-{
-    for (uint32_t y = 0; y < sz.height; ++y)
-    {
-        for (uint32_t x = 0; x < sz.width; ++x)
-        {
-            const auto pixel = src[x][y];
-
-            dst[0] = static_cast<float>(pixel.r);
-            dst[1] = static_cast<float>(pixel.g);
-            dst[2] = static_cast<float>(pixel.b);
-            dst[3] = static_cast<float>(pixel.a);
-
-            dst += 4;
+            std::memcpy(dst, value, numChannels * 4);
+            dst += numChannels * 4;
         }
     }
 }
@@ -142,16 +128,15 @@ Image ExrImageCodec::read(std::istream& stream, const std::string& fileName) con
     file.setFrameBuffer(pixels[0] - dw.min.x - dw.min.y * width, 1, width);
     file.readPixels(dw.min.y, dw.max.y);
 
-    PixelFormat fmt;
-    fmt.dataType = PixelDataType::Float;
+    const PixelFormat* fmt = nullptr;
 
     switch (file.channels())
     {
     case Imf::WRITE_RGB:
-        fmt.layout = PixelLayout::RGB;
+        fmt = &PixelFormat::getRgbF32();
         break;
     case Imf::WRITE_RGBA:
-        fmt.layout = PixelLayout::RGBA;
+        fmt = &PixelFormat::getRgbAlphaF32();
         break;
     default:
         throw std::runtime_error("Unsupported pixel format");
@@ -159,25 +144,17 @@ Image ExrImageCodec::read(std::istream& stream, const std::string& fileName) con
 
     const Size imgSize(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
 
-    Image image(fmt, ColorSpace::getLinear(), imgSize);
-        
-    switch (fmt.layout)
-    {
-    case PixelLayout::RGB:
-        copyRGBPixels(imgSize, pixels, reinterpret_cast<float*>(image.getPixelData()));
-        break;
-    case PixelLayout::RGBA:
-        copyRGBAPixels(imgSize, pixels, reinterpret_cast<float*>(image.getPixelData()));
-        break;
-    }
+    Image image(*fmt, ColorSpace::getLinear(), imgSize, 4);
+    copyPixels(fmt->getNumberOfChannels(), imgSize, pixels, image.getPixelData());
 
     return image;
 }
 
 void ExrImageCodec::write(const ImageView& image, std::ostream& stream, const std::string& fileName) const
 {
-    const auto fmt = image.getPixelFormat();
-    if (fmt.dataType != PixelDataType::Float)
+    const auto& fmt = image.getPixelFormat();
+
+    if (!fmt.isF32())
     {
         throw std::runtime_error("EXR codec cannot write non-float pixels");
     }
@@ -187,21 +164,19 @@ void ExrImageCodec::write(const ImageView& image, std::ostream& stream, const st
         throw std::runtime_error("EXR codec can write only images with linear color space");
     }
 
-    Imf::RgbaChannels channels;
-    switch (image.getPixelFormat().layout)
+    Imf::RgbaChannels channels{};
+
+    if (fmt == PixelFormat::getRgbF32())
     {
-    case PixelLayout::Luminance:
-        channels = Imf::WRITE_Y;
-        break;
-    case PixelLayout::LuminanceAlpha:
-        channels = Imf::WRITE_YA;
-        break;
-    case PixelLayout::RGB:
         channels = Imf::WRITE_RGB;
-        break;
-    case PixelLayout::RGBA:
+    }
+    else if (fmt == PixelFormat::getRgbAlphaF32())
+    {
         channels = Imf::WRITE_RGBA;
-        break;
+    }
+    else
+    {
+        throw std::runtime_error("unexpected pixel format");
     }
 
     OutputStreamAdapter streamAdapter(fileName, stream);

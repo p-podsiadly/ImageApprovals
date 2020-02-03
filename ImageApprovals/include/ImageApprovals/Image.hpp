@@ -12,14 +12,16 @@ public:
     Image() = default;
     Image(const Image&) = delete;
     Image(Image&& other) noexcept;
-    Image(PixelFormat format, const ColorSpace& colorSpace, const Size& size, size_t rowAlignment = 4);
+    Image(const PixelFormat& format, const ColorSpace& colorSpace, const Size& size, size_t rowAlignment = 4);
     ~Image() noexcept;
 
     Image& operator =(const Image&) = delete;
     Image& operator =(Image&& rhs) noexcept;
 
-    PixelFormat getPixelFormat() const { return m_format; }
-    const ColorSpace& getColorSpace() const { return *m_colorSpace; }
+    bool isEmpty() const;
+
+    const PixelFormat& getPixelFormat() const;
+    const ColorSpace& getColorSpace() const;
     Size getSize() const { return m_size; }
     size_t getRowAlignment() const { return m_rowAlignment; }
     size_t getRowStride() const;
@@ -35,8 +37,8 @@ public:
     ImageView getView() const;
 
 private:
-    PixelFormat m_format;
-    const ColorSpace* m_colorSpace = &ColorSpace::getLinear();
+    const PixelFormat* m_format = nullptr;
+    const ColorSpace* m_colorSpace = nullptr;
     Size m_size;
     size_t m_rowAlignment = 0;
     std::unique_ptr<uint8_t[]> m_data;

@@ -59,13 +59,14 @@ private:
 
     std::string autoDetectExtension() const
     {
-        const auto dataType = m_image.getPixelFormat().dataType;
+        const auto& fmt = m_image.getPixelFormat();
 
-        switch(dataType)
+        if (fmt.isU8())
         {
-        case PixelDataType::UInt8:
             return ".png";
-        case PixelDataType::Float:
+        }
+        else if (fmt.isF32())
+        {
             return ".exr";
         }
 

@@ -6,43 +6,6 @@
 
 namespace ImageApprovals {
 
-enum class PixelLayout
-{
-    Luminance,
-    LuminanceAlpha,
-    RGB,
-    RGBA
-};
-
-enum class PixelDataType
-{
-    UInt8,
-    Float
-};
-
-struct PixelFormat
-{
-    PixelLayout layout = PixelLayout::Luminance;
-    PixelDataType dataType = PixelDataType::UInt8;
-    
-    constexpr PixelFormat() = default;
-    constexpr PixelFormat(const PixelFormat&) = default;
-    
-    constexpr PixelFormat(PixelLayout layout, PixelDataType dataType)
-        : layout(layout), dataType(dataType)
-    {}
-
-    PixelFormat& operator =(const PixelFormat&) = default;
-
-    bool operator ==(const PixelFormat& rhs) const
-    { return (layout == rhs.layout) && (dataType == rhs.dataType); }
-
-    bool operator !=(const PixelFormat& rhs) const
-    { return !(*this == rhs); }
-};
-
-std::size_t getPixelStride(const PixelFormat& format);
-
 struct RGBA
 {
     float r = 0.0f;
@@ -60,16 +23,49 @@ struct RGBA
     RGBA& operator =(const RGBA&) = default;
 
     bool operator ==(const RGBA& rhs) const
-    { return(r == rhs.r) && (g == rhs.g) && (b == rhs.b) && (a == rhs.a); }
+    {
+        return(r == rhs.r) && (g == rhs.g) && (b == rhs.b) && (a == rhs.a);
+    }
 
     bool operator !=(const RGBA& rhs) const
-    { return !(*this == rhs); }
+    {
+        return !(*this == rhs);
+    }
 };
 
-RGBA decode(const PixelFormat& format, const uint8_t* begin, const uint8_t* end);
+class PixelFormat
+{
+public:
+    virtual ~PixelFormat() = default;
 
-std::ostream& operator <<(std::ostream& stream, PixelLayout pixelLayout);
-std::ostream& operator <<(std::ostream& stream, PixelDataType pixelDataType);
+    bool operator ==(const PixelFormat& rhs) const
+    { return this == &rhs; }
+
+    bool operator !=(const PixelFormat& rhs) const
+    { return !(*this == rhs); }
+
+    virtual const char* getName() const = 0;
+
+    virtual size_t getNumberOfChannels() const = 0;
+    virtual size_t getPixelStride() const = 0;
+    virtual bool isU8() const = 0;
+    virtual bool isF32() const = 0;
+
+    const uint8_t* decode(const uint8_t* begin, const uint8_t* end, RGBA& outRgba) const;
+
+    static const PixelFormat& getLuminanceU8();
+    static const PixelFormat& getLuminanceAlphaU8();
+
+    static const PixelFormat& getRgbU8();
+    static const PixelFormat& getRgbAlphaU8();
+    
+    static const PixelFormat& getRgbF32();
+    static const PixelFormat& getRgbAlphaF32();
+
+protected:
+    virtual void decode(const uint8_t* begin, RGBA& outRgba) const = 0;
+};
+
 std::ostream& operator <<(std::ostream& stream, const PixelFormat& format);
 std::ostream& operator <<(std::ostream& stream, const RGBA& rgba);
 

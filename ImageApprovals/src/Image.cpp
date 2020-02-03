@@ -18,9 +18,19 @@ Image::Image(Image&& other) noexcept
     *this = std::move(other);
 }
 
-Image::Image(PixelFormat format, const ColorSpace& colorSpace, const Size& size, size_t rowAlignment)
-    : m_format(format), m_colorSpace(&colorSpace), m_size(size), m_rowAlignment(rowAlignment)
+Image::Image(const PixelFormat& format, const ColorSpace& colorSpace, const Size& size, size_t rowAlignment)
+    : m_format(&format), m_colorSpace(&colorSpace), m_size(size), m_rowAlignment(rowAlignment)
 {
+    if (m_size.isZero())
+    {
+        throw std::logic_error("image size cannot be zero");
+    }
+
+    if (m_rowAlignment == 0)
+    {
+        throw std::logic_error("image row alignment must be greater than 0");
+    }
+
     const size_t rowStride = getRowStride();
 
     m_data.reset(new uint8_t[rowStride * m_size.height]);
@@ -38,10 +48,10 @@ Image& Image::operator =(Image&& rhs) noexcept
     if (this != &rhs)
     {
         m_format = rhs.m_format;
-        rhs.m_format = {};
+        rhs.m_format = nullptr;
 
         m_colorSpace = rhs.m_colorSpace;
-        rhs.m_colorSpace = &ColorSpace::getLinear();
+        rhs.m_colorSpace = nullptr;
 
         m_size = rhs.m_size;
         rhs.m_size = {};
@@ -55,9 +65,35 @@ Image& Image::operator =(Image&& rhs) noexcept
     return *this;
 }
 
+bool Image::isEmpty() const
+{
+    return m_format == nullptr;
+}
+
+const PixelFormat& Image::getPixelFormat() const
+{
+    if (!m_format)
+    {
+        throw std::logic_error("call to getPixelFormat on an empty image");
+    }
+
+    return *m_format;
+}
+
+const ColorSpace& Image::getColorSpace() const
+{
+    if (!m_colorSpace)
+    {
+        throw std::logic_error("call to getColorSpace on an empty image");
+    }
+
+    return *m_colorSpace;
+}
+
 size_t Image::getRowStride() const
 {
-    return alignedSize(getPixelStride(m_format) * m_size.width, m_rowAlignment);
+    const auto pixelStride = getPixelFormat().getPixelStride();
+    return alignedSize(pixelStride * m_size.width, m_rowAlignment);
 }
 
 uint8_t* Image::getRowPointer(uint32_t y)
@@ -102,7 +138,8 @@ void Image::flipVertically()
 
 ImageView Image::getView() const
 {
-    return ImageView(m_format, *m_colorSpace, m_size, getRowStride(), m_data.get());
+    return ImageView(getPixelFormat(), getColorSpace(),
+                     m_size, getRowStride(), m_data.get());
 }
 
 }

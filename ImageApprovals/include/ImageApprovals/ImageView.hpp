@@ -26,6 +26,9 @@ struct Size
 
     bool operator !=(const Size& rhs) const
     { return !(*this == rhs); }
+
+    bool isZero() const
+    { return (width == 0) || (height == 0); }
 };
 
 std::ostream& operator <<(std::ostream& stream, const Size& size);
@@ -36,13 +39,16 @@ public:
     ImageView() = default;
     ImageView(const ImageView&) = default;
 
-    ImageView(PixelFormat format, const ColorSpace& colorSpace,
+    ImageView(const PixelFormat& format, const ColorSpace& colorSpace,
               const Size& size, size_t rowStride, const uint8_t* data);
 
     ImageView& operator =(const ImageView&) = default;
 
-    PixelFormat getPixelFormat() const { return m_pixelFormat; }
-    const ColorSpace& getColorSpace() const { return *m_colorSpace; }
+    bool isEmpty() const;
+
+    const PixelFormat& getPixelFormat() const;
+    const ColorSpace& getColorSpace() const;
+
     Size getSize() const { return m_size; }
     size_t getRowStride() const { return m_rowStride; }
 
@@ -53,8 +59,8 @@ public:
     RGBA getPixel(uint32_t x, uint32_t y) const;
 
 private:
-    PixelFormat m_pixelFormat;
-    const ColorSpace* m_colorSpace = &ColorSpace::getLinear();
+    const PixelFormat* m_pixelFormat = nullptr;
+    const ColorSpace* m_colorSpace = nullptr;
     Size m_size;
     size_t m_rowStride = 0;
     const uint8_t* m_data = nullptr;

@@ -10,11 +10,36 @@ std::ostream& operator <<(std::ostream& stream, const Size& size)
     return stream;
 }
 
-ImageView::ImageView(PixelFormat format, const ColorSpace& colorSpace,
+ImageView::ImageView(const PixelFormat& format, const ColorSpace& colorSpace,
                      const Size& size, size_t rowStride, const uint8_t* data)
-    : m_pixelFormat(format), m_colorSpace(&colorSpace), m_size(size),
+    : m_pixelFormat(&format), m_colorSpace(&colorSpace), m_size(size),
       m_rowStride(rowStride), m_data(data)
 {}
+
+bool ImageView::isEmpty() const
+{
+    return m_pixelFormat == nullptr;
+}
+
+const PixelFormat& ImageView::getPixelFormat() const
+{
+    if (!m_pixelFormat)
+    {
+        throw std::logic_error("calling getPixelFormat on an empty ImageView");
+    }
+
+    return *m_pixelFormat;
+}
+
+const ColorSpace& ImageView::getColorSpace() const
+{
+    if (!m_colorSpace)
+    {
+        throw std::logic_error("calling getColorSpace on an empty ImageView");
+    }
+
+    return *m_colorSpace;
+}
 
 const uint8_t* ImageView::getRowPointer(uint32_t index) const
 {
@@ -34,8 +59,13 @@ RGBA ImageView::getPixel(uint32_t x, uint32_t y) const
     }
 
     const auto rowPtr = getRowPointer(y);
-    const auto stride = getPixelStride(m_pixelFormat);
-    return decode(m_pixelFormat, rowPtr + stride * x, rowPtr + m_rowStride);
+
+    const auto& fmt = getPixelFormat();
+    const auto pixelStride = fmt.getPixelStride();
+
+    RGBA value;
+    fmt.decode(rowPtr + pixelStride * x, rowPtr + m_rowStride, value);
+    return value;
 }
 
 }

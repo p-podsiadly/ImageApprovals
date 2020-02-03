@@ -96,7 +96,7 @@ Image PngImageCodec::read(std::istream& stream, const std::string&) const
 
     png_read_png(png, info, 0, nullptr);
 
-    PixelFormat format;
+    const PixelFormat* format = nullptr;
     const ColorSpace* colorSpace = &ColorSpace::getLinear();
     const Size imgSize{ png_get_image_width(png, info), png_get_image_height(png, info) };
 
@@ -111,16 +111,16 @@ Image PngImageCodec::read(std::istream& stream, const std::string&) const
     switch (pngColorType)
     {
     case PNG_COLOR_TYPE_GRAY:
-        format.layout = PixelLayout::Luminance;
+        format = &PixelFormat::getLuminanceU8();
         break;
     case PNG_COLOR_TYPE_GRAY_ALPHA:
-        format.layout = PixelLayout::LuminanceAlpha;
+        format = &PixelFormat::getLuminanceAlphaU8();
         break;
     case PNG_COLOR_TYPE_RGB:
-        format.layout = PixelLayout::RGB;
+        format = &PixelFormat::getRgbU8();
         break;
     case PNG_COLOR_TYPE_RGB_ALPHA:
-        format.layout = PixelLayout::RGBA;
+        format = &PixelFormat::getRgbAlphaU8();
         break;
     default:
         throw std::runtime_error("unsupported PNG color type");
@@ -132,10 +132,10 @@ Image PngImageCodec::read(std::istream& stream, const std::string&) const
         colorSpace = &ColorSpace::getSRGB();
     }
 
-    image = Image(format, *colorSpace, imgSize);
+    image = Image(*format, *colorSpace, imgSize);
 
     png_byte** rowPointers = png_get_rows(png, info);
-    const size_t rowSize = getPixelStride(format) * imgSize.width;
+    const size_t rowSize = format->getPixelStride() * imgSize.width;
     for (uint32_t y = 0; y < imgSize.height; ++y)
     {
         const png_byte* srcRow = rowPointers[y];
@@ -148,7 +148,9 @@ Image PngImageCodec::read(std::istream& stream, const std::string&) const
 
 void PngImageCodec::write(const ImageView& image, std::ostream& stream, const std::string&) const
 {
-    if (image.getPixelFormat().dataType != PixelDataType::UInt8)
+    const auto& fmt = image.getPixelFormat();
+
+    if (!fmt.isU8())
     {
         throw std::runtime_error("unable to write the image to PNG file");
     }
@@ -183,22 +185,25 @@ void PngImageCodec::write(const ImageView& image, std::ostream& stream, const st
     png_set_write_fn(png, &stream, &writeBytes, &flush);
 
     int pngColorType = 0;
-    switch (image.getPixelFormat().layout)
+    if (fmt == PixelFormat::getLuminanceU8())
     {
-    case PixelLayout::Luminance:
         pngColorType = PNG_COLOR_TYPE_GRAY;
-        break;
-    case PixelLayout::LuminanceAlpha:
+    }
+    else if (fmt == PixelFormat::getLuminanceAlphaU8())
+    {
         pngColorType = PNG_COLOR_TYPE_GRAY_ALPHA;
-        break;
-    case PixelLayout::RGB:
+    }
+    else if (fmt == PixelFormat::getRgbU8())
+    {
         pngColorType = PNG_COLOR_TYPE_RGB;
-        break;
-    case PixelLayout::RGBA:
+    }
+    else if (fmt == PixelFormat::getRgbAlphaU8())
+    {
         pngColorType = PNG_COLOR_TYPE_RGB_ALPHA;
-        break;
-    default:
-        throw std::runtime_error("unsupported PixelLayout value");
+    }
+    else
+    {
+        throw std::runtime_error("unexpected pixel format");
     }
 
     const auto sz = image.getSize();

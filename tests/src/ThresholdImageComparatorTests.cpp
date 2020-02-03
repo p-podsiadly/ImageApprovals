@@ -7,7 +7,7 @@ TEST_CASE("ThresholdImageComparator")
 {
     ThresholdImageComparator comparator(AbsThreshold(0.004), Percent(5.0));
 
-    const PixelFormat format{ PixelLayout::RGB, PixelDataType::UInt8 };
+    const PixelFormat& format = PixelFormat::getRgbU8();
     const auto& colorSpace = ColorSpace::getLinear();
     const Size size{ 20, 1 };
 
@@ -35,10 +35,7 @@ TEST_CASE("ThresholdImageComparator")
 
     SUBCASE("Images have different pixel formats")
     {
-        Image right({ PixelLayout::RGBA, format.dataType }, colorSpace, size);
-        REQUIRE_FALSE(comparator.compare(left.getView(), right.getView()).passed);
-
-        right = Image({ format.layout, PixelDataType::Float }, colorSpace, size);
+        Image right(PixelFormat::getRgbAlphaU8(), colorSpace, size);
         REQUIRE_FALSE(comparator.compare(left.getView(), right.getView()).passed);
     }
 
