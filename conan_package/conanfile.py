@@ -4,8 +4,10 @@ import os
 class ImageApprovalsConan(ConanFile):
     name = "imageapprovals"
     version = "master"
+    description = "Image support for ApprovalTests.cpp library"
+    homepage = "https://github.com/p-podsiadly/ImageApprovals"
+    url = "https://github.com/p-podsiadly/ImageApprovals.git"
     license = "Apache-2.0"
-    author = "Piotr Podsiadły"
     topics = ("testing", "unit-testing", "approval-tests", "graphics", "image")
 
     settings = "os", "compiler", "build_type", "arch"
