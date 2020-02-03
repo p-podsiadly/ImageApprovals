@@ -36,16 +36,20 @@ install:
   # conan profile, on windows, powershell
   # execption is thrown and the build fails.
   - cmd: conan user
+  - ps: conan user ppodsiadly -r https://api.bintray.com/conan/ppodsiadly/conan -p $env:BINTRAY_PASSWORD 
 
 clone_depth: 1
 
 build_script:
-  - ps: mkdir build
-  - ps: mkdir install
+  - ps: mkdir build | Out-Null
+  - ps: mkdir install | Out-Null
   - ps: cd build
   - ps: cmake .. -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -DCMAKE_INSTALL_PREFIX="$(pwd)/.."
   - ps: cmake --build . --config "$env:CONFIGURATION"
   - ps: cmake --build . --config "$env:CONFIGURATION" --target install
   - ps: ctest --verbose
+  - ps: conan export conan_package/ ppodsiadly/testing
+  - ps: conan test conan_package/test_package/ imageapprovals/master@ppodsiadly/testing --build=imageapprovals
+  - ps: conan upload -r ppodsiadly imageapprovals/master@ppodsiadly/testing
 
 test: off
