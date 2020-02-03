@@ -1,10 +1,12 @@
 #include <ImageApprovals/ImageComparator.hpp>
-#include <ImageApprovals/StringUtils.hpp>
 #include <ImageApprovals/ImageView.hpp>
+#define NOMINMAX
+#include <ApprovalTests.hpp>
 #include <algorithm>
-#include <sstream>
 
 namespace ImageApprovals {
+
+using ApprovalTests::StringUtils;
 
 ImageComparator::Result ImageComparator::Result::makePassed()
 {
@@ -47,22 +49,22 @@ ImageComparator::Result ImageComparator::compareInfos(const ImageView& left, con
     if (left.getPixelFormat() != right.getPixelFormat())
     {
         return Result::makeFailed(
-            "pixel format = " + toString(left.getPixelFormat()),
-            "pixel format = " + toString(right.getPixelFormat()));
+            "pixel format = " + StringUtils::toString(left.getPixelFormat()),
+            "pixel format = " + StringUtils::toString(right.getPixelFormat()));
     }
 
     if (left.getColorSpace() != right.getColorSpace())
     {
         return Result::makeFailed(
-            "color space = " + toString(left.getColorSpace()),
-            "color space = " + toString(right.getColorSpace()));
+            "color space = " + StringUtils::toString(left.getColorSpace()),
+            "color space = " + StringUtils::toString(right.getColorSpace()));
     }
 
     if (left.getSize() != right.getSize())
     {
         return Result::makeFailed(
-            "size = " + toString(left.getSize()),
-            "size = " + toString(right.getSize()));
+            "size = " + StringUtils::toString(left.getSize()),
+            "size = " + StringUtils::toString(right.getSize()));
     }
 
     return Result::makePassed();
@@ -112,8 +114,8 @@ ImageComparator::Result ThresholdImageComparator::compareContents(const ImageVie
     if (percentAboveThreshold > m_maxFailedPixelsPercentage)
     {
         std::string rightInfo
-            = toString(numAboveThreshold) + " pixels (" + toString(percentAboveThreshold)
-            + ") are above threshold = " + toString(m_pixelFailThreshold);
+            = StringUtils::toString(numAboveThreshold) + " pixels (" + StringUtils::toString(percentAboveThreshold)
+            + ") are above threshold = " + StringUtils::toString(m_pixelFailThreshold);
 
         return Result::makeFailed("reference image", rightInfo);
     }

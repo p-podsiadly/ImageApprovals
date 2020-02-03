@@ -14,7 +14,6 @@ set(headers
     "include/ImageApprovals/ImageView.hpp"
     "include/ImageApprovals/ImageWriter.hpp"
     "include/ImageApprovals/PixelFormat.hpp"
-    "include/ImageApprovals/StringUtils.hpp"
     "include/ImageApprovals/Units.hpp"
 )
 

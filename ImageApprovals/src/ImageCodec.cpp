@@ -1,4 +1,5 @@
 #include <ImageApprovals/ImageCodec.hpp>
+#include <ApprovalTests.hpp>
 #include <algorithm>
 #include <fstream>
 #include <vector>
@@ -7,6 +8,8 @@
 #include "PngImageCodec.hpp"
 
 namespace ImageApprovals {
+
+using ApprovalTests::StringUtils;
 
 namespace {
 
@@ -76,25 +79,13 @@ Image ImageCodec::read(const std::string& fileName)
     throw std::runtime_error("unsupported image file format when reading \"" + fileName + "\"");
 }
 
-namespace {
-bool endsWith(const std::string& str, const std::string& suffix)
-{
-    if (str.size() < suffix.size())
-    {
-        return false;
-    }
-
-    return (str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0);
-}
-}
-
 void ImageCodec::write(const std::string& fileName, const ImageView& image)
 {
     const ImageCodec* matchingCodec = nullptr;
 
     for (const auto& codec : imageCodecs)
     {
-        if (endsWith(fileName, codec->getFileExtensionWithDot()))
+        if (StringUtils::endsWith(fileName, codec->getFileExtensionWithDot()))
         {
             matchingCodec = codec.get();
             break;
