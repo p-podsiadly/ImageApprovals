@@ -3,6 +3,7 @@
 #include <OpenEXR/ImfIO.h>
 #include <OpenEXR/ImfArray.h>
 #include <OpenEXR/half.h>
+#include <cstring>
 
 namespace ImageApprovals {
 
