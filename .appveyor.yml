@@ -1,7 +1,7 @@
 environment:
   matrix:
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
       CC: gcc-7
       CXX: g++-7
@@ -35,9 +35,7 @@ install:
   # and for some reason when there's no
   # conan profile, on windows, powershell
   # execption is thrown and the build fails.
-  - cmd: conan user
-  - ps: conan remote add ppodsiadly https://api.bintray.com/conan/ppodsiadly/conan
-  - ps: conan user ppodsiadly -r ppodsiadly -p $env:BINTRAY_PASSWORD 
+  - cmd: conan user 
 
 clone_depth: 1
 
@@ -45,13 +43,19 @@ build_script:
   - ps: mkdir build | Out-Null
   - ps: mkdir install | Out-Null
   - ps: cd build
-  - ps: cmake .. -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -DCMAKE_INSTALL_PREFIX="$(pwd)/.."
+  - ps: cmake .. -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -DCMAKE_INSTALL_PREFIX="$(pwd)/../install"
   - ps: cmake --build . --config "$env:CONFIGURATION"
   - ps: cmake --build . --config "$env:CONFIGURATION" --target install
+  - ps: cd ..
+
+test_script:
+  - ps: cd build
   - ps: ctest --verbose
   - ps: cd ..
   - ps: conan export conan_package/ ppodsiadly/testing
   - ps: conan test conan_package/test_package/ imageapprovals/master@ppodsiadly/testing --build=imageapprovals
-  - ps: conan upload -r ppodsiadly imageapprovals/master@ppodsiadly/testing
 
-test: off
+deploy_script:
+  - ps: conan remote add ppodsiadly https://api.bintray.com/conan/ppodsiadly/conan
+  - ps: conan user ppodsiadly -r ppodsiadly -p $env:BINTRAY_PASSWORD
+  - ps: conan upload -r ppodsiadly imageapprovals/master@ppodsiadly/testing
