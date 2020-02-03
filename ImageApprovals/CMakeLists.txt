@@ -50,9 +50,9 @@ target_link_libraries(
         ZLIB::ZLIB
 )
 
-if(MSVC)
-    target_compile_definitions(ImageApprovals PRIVATE "_CRT_SECURE_NO_WARNINGS")
-endif()
+target_compile_definitions(ImageApprovals PRIVATE "$<$<CXX_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS>")
+
+add_library(ImageApprovals::ImageApprovals ALIAS ImageApprovals)
 
 install(
     DIRECTORY "include/"

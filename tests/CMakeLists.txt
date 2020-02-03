@@ -22,7 +22,7 @@ target_include_directories(ImageApprovalsTests PRIVATE "${CMAKE_CURRENT_BINARY_D
 target_link_libraries(
 	ImageApprovalsTests
 	PRIVATE
-		ImageApprovals
+		ImageApprovals::ImageApprovals
 		doctest::doctest
 )
 
