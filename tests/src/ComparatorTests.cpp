@@ -15,7 +15,7 @@ TEST_CASE("Comparator")
         Comparator comparator(std::move(imgComparator));
 
         const auto approvedPath = TEST_FILE("cornell.approved.png");
-        const auto receivedPath = TEST_FILE("cornell.received_ref.png");
+        const auto receivedPath = TEST_FILE("cornell.received.png");
 
         REQUIRE(comparator.contentsAreEquivalent(receivedPath, approvedPath));
     }
@@ -28,7 +28,7 @@ TEST_CASE("Comparator")
         Comparator comparator(std::move(imgComparator));
 
         const auto approvedPath = TEST_FILE("cornell.approved.png");
-        const auto receivedPath = TEST_FILE("cornell.received_ref.png");
+        const auto receivedPath = TEST_FILE("cornell.received.png");
 
         REQUIRE_THROWS_AS(
             comparator.contentsAreEquivalent(receivedPath, approvedPath),
@@ -40,7 +40,7 @@ TEST_CASE("Comparator")
         auto comparator = Comparator::make<ThresholdImageComparator>(AbsThreshold(0.1), Percent(1.25));
         auto comparatorDisposer = FileApprover::registerComparatorForExtension(".png", comparator);
 
-        FileApprover::verify(TEST_FILE("cornell.received_ref.png"), TEST_FILE("cornell.approved.png"));
+        FileApprover::verify(TEST_FILE("cornell.received.png"), TEST_FILE("cornell.approved.png"));
     }
 
     SUBCASE("Using FileApprover::verify with EXR")
@@ -48,7 +48,7 @@ TEST_CASE("Comparator")
         auto comparator = Comparator::make<ThresholdImageComparator>(AbsThreshold(0.1), Percent(1.25));
         auto comparatorDisposer = FileApprover::registerComparatorForExtension(".exr", comparator);
 
-        FileApprover::verify(TEST_FILE("cornell.received_ref.exr"), TEST_FILE("cornell.approved.exr"));
+        FileApprover::verify(TEST_FILE("cornell.received.exr"), TEST_FILE("cornell.approved.exr"));
     }
 }
 
@@ -58,7 +58,7 @@ TEST_CASE("Comparator::registerForAllExtensions" * doctest::should_fail())
     auto comparatorDisposer
         = Comparator::registerForAllExtensions<ThresholdImageComparator>(AbsThreshold(0.1), Percent(1.25));
 
-    FileApprover::verify(TEST_FILE("cornell.received_ref.png"), TEST_FILE("cornell.approved.png"));
+    FileApprover::verify(TEST_FILE("cornell.received.png"), TEST_FILE("cornell.approved.png"));
 
-    FileApprover::verify(TEST_FILE("cornell.received_ref.exr"), TEST_FILE("cornell.approved.exr"));
+    FileApprover::verify(TEST_FILE("cornell.received.exr"), TEST_FILE("cornell.approved.exr"));
 }
