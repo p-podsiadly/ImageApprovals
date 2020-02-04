@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(ImageApprovals VERSION 0.1.0)
+project(ImageApprovals)
 
 option(ImageApprovals_ENABLE_TEST "Enable tests?" ON)
 

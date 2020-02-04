@@ -2,6 +2,7 @@ environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      CMAKE_GENERATOR: "Visual Studio 14 2015 Win64"
     - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
       CC: gcc-7
       CXX: g++-7
@@ -51,11 +52,3 @@ build_script:
 test_script:
   - ps: cd build
   - ps: ctest --verbose
-  - ps: cd ..
-  - ps: conan export conan_package/ ppodsiadly/testing
-  - ps: conan test conan_package/test_package/ imageapprovals/master@ppodsiadly/testing --build=imageapprovals
-
-deploy_script:
-  - ps: conan remote add ppodsiadly https://api.bintray.com/conan/ppodsiadly/conan
-  - ps: conan user ppodsiadly -r ppodsiadly -p $env:BINTRAY_PASSWORD
-  - ps: conan upload -r ppodsiadly imageapprovals/master@ppodsiadly/testing
