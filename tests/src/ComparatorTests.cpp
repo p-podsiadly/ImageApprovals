@@ -52,8 +52,7 @@ TEST_CASE("Comparator")
     }
 }
 
-// TODO: remove should_fail once this is resolved: https://github.com/approvals/ApprovalTests.cpp/pull/93
-TEST_CASE("Comparator::registerForAllExtensions" * doctest::should_fail())
+TEST_CASE("Comparator::registerForAllExtensions")
 {
     auto comparatorDisposer
         = Comparator::registerForAllExtensions<ThresholdImageComparator>(AbsThreshold(0.1), Percent(1.25));

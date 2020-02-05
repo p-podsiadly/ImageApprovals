@@ -7,7 +7,7 @@ option(ImageApprovals_ENABLE_TEST "Enable tests?" ON)
 if(NOT CONAN_EXPORTED)
     include("conan.cmake")
     conan_cmake_run(
-        REQUIRES "approvaltests.cpp/8.1.0"
+        REQUIRES "approvaltests.cpp/8.2.0"
                  "libpng/1.6.37"
                  "openexr/2.4.0"
                  "zlib/1.2.11"
