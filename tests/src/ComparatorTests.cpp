@@ -9,8 +9,9 @@ TEST_CASE("Comparator")
 {
     SUBCASE("Differences are within tolerance")
     {
-        std::unique_ptr<ImageComparator> imgComparator;
-        imgComparator.reset(new ThresholdImageComparator(AbsThreshold(0.1), Percent(1.25)));
+        auto imgComparator
+            = std::make_shared<ThresholdImageComparator>(
+                AbsThreshold(0.1), Percent(1.25));
 
         Comparator comparator(std::move(imgComparator));
 
@@ -22,8 +23,9 @@ TEST_CASE("Comparator")
 
     SUBCASE("Differences are not within tolerance")
     {
-        std::unique_ptr<ImageComparator> imgComparator;
-        imgComparator.reset(new ThresholdImageComparator(AbsThreshold(0.1), Percent(1.2)));
+        auto imgComparator
+            = std::make_shared<ThresholdImageComparator>(
+                AbsThreshold(0.1), Percent(1.2));
 
         Comparator comparator(std::move(imgComparator));
 

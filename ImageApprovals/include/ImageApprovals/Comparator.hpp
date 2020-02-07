@@ -24,14 +24,14 @@ public:
     };
 
     Comparator();
-    explicit Comparator(std::unique_ptr<ImageComparator> comparator);
+    explicit Comparator(std::shared_ptr<ImageComparator> comparator);
 
     bool contentsAreEquivalent(std::string receivedPath, std::string approvedPath) const override;
 
     template<typename ConcreteImageComparator, typename... Arguments>
     static std::shared_ptr<Comparator> make(Arguments&&... args)
     {
-        std::unique_ptr<ImageComparator> imgComparator(
+        std::shared_ptr<ImageComparator> imgComparator(
             new ConcreteImageComparator(std::forward<Arguments>(args)...));
 
         return std::make_shared<Comparator>(std::move(imgComparator));
@@ -40,15 +40,15 @@ public:
     template<typename ConcreteImageComparator, typename... Arguments>
     static Disposer registerForAllExtensions(Arguments&&... args)
     {
-        std::unique_ptr<ImageComparator> imgComparator(
+        std::shared_ptr<ImageComparator> imgComparator(
             new ConcreteImageComparator(std::forward<Arguments>(args)...));
         return registerForAllExtensionsImpl(std::move(imgComparator));
     }
 
 private:
-    std::unique_ptr<ImageComparator> m_comparator;
+    std::shared_ptr<ImageComparator> m_comparator;
 
-    static Disposer registerForAllExtensionsImpl(std::unique_ptr<ImageComparator> imageComparator);
+    static Disposer registerForAllExtensionsImpl(std::shared_ptr<ImageComparator> imageComparator);
 };
 
 }

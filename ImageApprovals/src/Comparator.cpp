@@ -14,7 +14,7 @@ Comparator::Comparator()
     : m_comparator(new ThresholdImageComparator())
 {}
 
-Comparator::Comparator(std::unique_ptr<ImageComparator> comparator)
+Comparator::Comparator(std::shared_ptr<ImageComparator> comparator)
     : m_comparator(std::move(comparator))
 {}
 
@@ -32,7 +32,7 @@ bool Comparator::contentsAreEquivalent(std::string receivedPath, std::string app
     return true;
 }
 
-Comparator::Disposer Comparator::registerForAllExtensionsImpl(std::unique_ptr<ImageComparator> imageComparator)
+Comparator::Disposer Comparator::registerForAllExtensionsImpl(std::shared_ptr<ImageComparator> imageComparator)
 {
     using namespace ApprovalTests;
 
