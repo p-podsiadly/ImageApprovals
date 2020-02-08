@@ -10,8 +10,8 @@ environment:
       CC: gcc-9
       CXX: g++-9
     - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
-      CC: clang-9
-      CXX: clang++-9
+      CC: clang-6.0
+      CXX: clang++-6.0
 
 platform:
   - x64
@@ -25,11 +25,8 @@ install:
         python -m pip install --upgrade pip;
         python -m pip install conan;
       } elseif($isLinux) {
-        sudo apt install -y python3-pip;
+        sudo apt install -y python3-pip $($env:CC);
         sudo pip3 install conan;
-      } elseif($isMacOS) {
-        $env:MACOSX_DEPLOYMENT_TARGET = "10.15";
-        pip3 install --user conan;
       }
   # Run conan user only on windows
   # cmake is run from powershell below,
