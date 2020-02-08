@@ -22,10 +22,6 @@ public:
         : m_image(image), m_format(format)
     {}
 
-    explicit ImageWriter(const Image& image, Format format = Format::Auto)
-        : ImageWriter(image.getView(), format)
-    {}
-
     ImageWriter(const ImageWriter&) = delete;
 
     std::string getFileExtensionWithDot() const override

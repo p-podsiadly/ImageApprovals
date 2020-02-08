@@ -23,7 +23,7 @@ bool Comparator::contentsAreEquivalent(std::string receivedPath, std::string app
     const Image receivedImg = ImageCodec::read(receivedPath);
     const Image approvedImg = ImageCodec::read(approvedPath);
 
-    const auto result = m_comparator->compare(approvedImg.getView(), receivedImg.getView());
+    const auto result = m_comparator->compare(approvedImg, receivedImg);
     if (!result.passed)
     {
         throw ApprovalTests::ApprovalMismatchException(result.rightImageInfo, result.leftImageInfo);

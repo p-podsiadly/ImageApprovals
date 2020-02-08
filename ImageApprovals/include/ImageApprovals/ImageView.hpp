@@ -52,18 +52,16 @@ public:
     Size getSize() const { return m_size; }
     size_t getRowStride() const { return m_rowStride; }
 
-    const uint8_t* getPixelData() const { return m_data; }
-
     const uint8_t* getRowPointer(uint32_t index) const;
 
     RGBA getPixel(uint32_t x, uint32_t y) const;
 
-private:
-    const PixelFormat* m_pixelFormat = nullptr;
+protected:
+    const PixelFormat* m_format = nullptr;
     const ColorSpace* m_colorSpace = nullptr;
     Size m_size;
     size_t m_rowStride = 0;
-    const uint8_t* m_data = nullptr;
+    const uint8_t* m_dataPtr = nullptr;
 };
 
 }

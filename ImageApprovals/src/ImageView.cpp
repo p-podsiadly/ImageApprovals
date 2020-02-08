@@ -12,23 +12,23 @@ std::ostream& operator <<(std::ostream& stream, const Size& size)
 
 ImageView::ImageView(const PixelFormat& format, const ColorSpace& colorSpace,
                      const Size& size, size_t rowStride, const uint8_t* data)
-    : m_pixelFormat(&format), m_colorSpace(&colorSpace), m_size(size),
-      m_rowStride(rowStride), m_data(data)
+    : m_format(&format), m_colorSpace(&colorSpace), m_size(size),
+      m_rowStride(rowStride), m_dataPtr(data)
 {}
 
 bool ImageView::isEmpty() const
 {
-    return m_pixelFormat == nullptr;
+    return m_format == nullptr;
 }
 
 const PixelFormat& ImageView::getPixelFormat() const
 {
-    if (!m_pixelFormat)
+    if (!m_format)
     {
         throw std::logic_error("calling getPixelFormat on an empty ImageView");
     }
 
-    return *m_pixelFormat;
+    return *m_format;
 }
 
 const ColorSpace& ImageView::getColorSpace() const
@@ -48,7 +48,7 @@ const uint8_t* ImageView::getRowPointer(uint32_t index) const
         throw std::out_of_range("row index out of range");
     }
 
-    return m_data + m_rowStride * index;
+    return m_dataPtr + m_rowStride * index;
 }
 
 RGBA ImageView::getPixel(uint32_t x, uint32_t y) const

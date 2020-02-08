@@ -11,6 +11,17 @@ size_t alignedSize(size_t baseSize, size_t alignment)
     return ((baseSize + alignment - 1) / alignment) * alignment;
 }
 
+size_t rowStride(const PixelFormat& fmt, const Size& sz, size_t rowAlignment)
+{
+    if (rowAlignment == 0)
+    {
+        return 0;
+    }
+
+    const auto rowSize = fmt.getPixelStride() * sz.width;
+    return alignedSize(rowSize, rowAlignment);
+}
+
 }
 
 Image::Image(Image&& other) noexcept
@@ -19,7 +30,7 @@ Image::Image(Image&& other) noexcept
 }
 
 Image::Image(const PixelFormat& format, const ColorSpace& colorSpace, const Size& size, size_t rowAlignment)
-    : m_format(&format), m_colorSpace(&colorSpace), m_size(size), m_rowAlignment(rowAlignment)
+    : ImageView(format, colorSpace, size, rowStride(format, size, rowAlignment), nullptr), m_rowAlignment(rowAlignment)
 {
     if (m_size.isZero())
     {
@@ -34,6 +45,7 @@ Image::Image(const PixelFormat& format, const ColorSpace& colorSpace, const Size
     const size_t rowStride = getRowStride();
 
     m_data.reset(new uint8_t[rowStride * m_size.height]);
+    m_dataPtr = m_data.get();
 
     for (uint32_t y = 0; y < m_size.height; ++y)
     {
@@ -56,58 +68,22 @@ Image& Image::operator =(Image&& rhs) noexcept
         m_size = rhs.m_size;
         rhs.m_size = {};
 
+        m_rowStride = rhs.m_rowStride;
+        rhs.m_rowStride = 0;
+
         m_rowAlignment = rhs.m_rowAlignment;
         rhs.m_rowAlignment = 0;
 
         m_data = std::move(rhs.m_data);
+
+        m_dataPtr = m_data.get();
+        rhs.m_dataPtr = nullptr;
     }
 
     return *this;
 }
 
-bool Image::isEmpty() const
-{
-    return m_format == nullptr;
-}
-
-const PixelFormat& Image::getPixelFormat() const
-{
-    if (!m_format)
-    {
-        throw std::logic_error("call to getPixelFormat on an empty image");
-    }
-
-    return *m_format;
-}
-
-const ColorSpace& Image::getColorSpace() const
-{
-    if (!m_colorSpace)
-    {
-        throw std::logic_error("call to getColorSpace on an empty image");
-    }
-
-    return *m_colorSpace;
-}
-
-size_t Image::getRowStride() const
-{
-    const auto pixelStride = getPixelFormat().getPixelStride();
-    return alignedSize(pixelStride * m_size.width, m_rowAlignment);
-}
-
 uint8_t* Image::getRowPointer(uint32_t y)
-{
-    if (y >= m_size.height)
-    {
-        throw std::out_of_range("row index out of range");
-    }
-
-    const auto rowStride = getRowStride();
-    return &m_data[rowStride * y];
-}
-
-const uint8_t* Image::getRowPointer(uint32_t y) const
 {
     if (y >= m_size.height)
     {
@@ -134,12 +110,6 @@ void Image::flipVertically()
         std::memcpy(upperRow, lowerRow, rowStride);
         std::memcpy(lowerRow, rowBuffer.get(), rowStride);
     }
-}
-
-ImageView Image::getView() const
-{
-    return ImageView(getPixelFormat(), getColorSpace(),
-                     m_size, getRowStride(), m_data.get());
 }
 
 }

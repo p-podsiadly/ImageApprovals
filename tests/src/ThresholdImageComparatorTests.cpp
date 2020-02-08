@@ -19,7 +19,7 @@ TEST_CASE("ThresholdImageComparator")
         auto pixels = right.getPixelData();
         pixels[6] = 2;
 
-        REQUIRE(comparator.compare(left.getView(), right.getView()).passed);
+        REQUIRE(comparator.compare(left, right).passed);
     }
 
     SUBCASE("Differences are not within thresholds")
@@ -30,30 +30,30 @@ TEST_CASE("ThresholdImageComparator")
         pixels[10] = 2;
         pixels[14] = 2;
         
-        REQUIRE_FALSE(comparator.compare(left.getView(), right.getView()).passed);
+        REQUIRE_FALSE(comparator.compare(left, right).passed);
     }
 
     SUBCASE("Images have different pixel formats")
     {
         Image right(PixelFormat::getRgbAlphaU8(), colorSpace, size);
-        REQUIRE_FALSE(comparator.compare(left.getView(), right.getView()).passed);
+        REQUIRE_FALSE(comparator.compare(left, right).passed);
     }
 
     SUBCASE("Images have different color spaces")
     {
         Image right(format, ColorSpace::getSRGB(), size);
-        REQUIRE_FALSE(comparator.compare(left.getView(), right.getView()).passed);
+        REQUIRE_FALSE(comparator.compare(left, right).passed);
     }
 
     SUBCASE("Images have different sizes")
     {
         Image right(format, colorSpace, Size{ size.width + 1, size.height });
-        REQUIRE_FALSE(comparator.compare(left.getView(), right.getView()).passed);
+        REQUIRE_FALSE(comparator.compare(left, right).passed);
     }
 
     SUBCASE("Images have different row alignment values")
     {
         Image right(format, colorSpace, size, 1);
-        REQUIRE(comparator.compare(left.getView(), right.getView()).passed);
+        REQUIRE(comparator.compare(left, right).passed);
     }
 }
