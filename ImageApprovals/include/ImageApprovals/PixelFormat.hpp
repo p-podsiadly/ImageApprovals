@@ -53,8 +53,8 @@ public:
 
     const uint8_t* decode(const uint8_t* begin, const uint8_t* end, RGBA& outRgba) const;
 
-    static const PixelFormat& getLuminanceU8();
-    static const PixelFormat& getLuminanceAlphaU8();
+    static const PixelFormat& getGrayU8();
+    static const PixelFormat& getGrayAlphaU8();
 
     static const PixelFormat& getRgbU8();
     static const PixelFormat& getRgbAlphaU8();

@@ -44,9 +44,9 @@ struct GenericPixelFormat : PixelFormat
     }
 };
 
-struct LuminanceU8PixelFormat : GenericPixelFormat<1, uint8_t>
+struct GrayU8PixelFormat : GenericPixelFormat<1, uint8_t>
 {
-    const char* getName() const override { return "LuminanceU8"; }
+    const char* getName() const override { return "GrayU8"; }
 
     void decode(const uint8_t* begin, RGBA& outRgba) const override
     {
@@ -55,9 +55,9 @@ struct LuminanceU8PixelFormat : GenericPixelFormat<1, uint8_t>
     }
 };
 
-struct LuminanceAlphaU8PixelFormat : GenericPixelFormat<2, uint8_t>
+struct GrayAlphaU8PixelFormat : GenericPixelFormat<2, uint8_t>
 {
-    const char* getName() const override { return "LuminanceAlphaU8"; }
+    const char* getName() const override { return "GrayAlphaU8"; }
 
     void decode(const uint8_t* begin, RGBA& outRgba) const override
     {
@@ -124,15 +124,15 @@ const uint8_t* PixelFormat::decode(const uint8_t* begin, const uint8_t* end, RGB
     return begin + stride;
 }
 
-const PixelFormat& PixelFormat::getLuminanceU8()
+const PixelFormat& PixelFormat::getGrayU8()
 {
-    static const LuminanceU8PixelFormat instance;
+    static const GrayU8PixelFormat instance;
     return instance;
 }
 
-const PixelFormat& PixelFormat::getLuminanceAlphaU8()
+const PixelFormat& PixelFormat::getGrayAlphaU8()
 {
-    static const LuminanceAlphaU8PixelFormat instance;
+    static const GrayAlphaU8PixelFormat instance;
     return instance;
 }
 

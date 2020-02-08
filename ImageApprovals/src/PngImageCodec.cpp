@@ -111,10 +111,10 @@ Image PngImageCodec::read(std::istream& stream, const std::string&) const
     switch (pngColorType)
     {
     case PNG_COLOR_TYPE_GRAY:
-        format = &PixelFormat::getLuminanceU8();
+        format = &PixelFormat::getGrayU8();
         break;
     case PNG_COLOR_TYPE_GRAY_ALPHA:
-        format = &PixelFormat::getLuminanceAlphaU8();
+        format = &PixelFormat::getGrayAlphaU8();
         break;
     case PNG_COLOR_TYPE_RGB:
         format = &PixelFormat::getRgbU8();
@@ -185,11 +185,11 @@ void PngImageCodec::write(const ImageView& image, std::ostream& stream, const st
     png_set_write_fn(png, &stream, &writeBytes, &flush);
 
     int pngColorType = 0;
-    if (fmt == PixelFormat::getLuminanceU8())
+    if (fmt == PixelFormat::getGrayU8())
     {
         pngColorType = PNG_COLOR_TYPE_GRAY;
     }
-    else if (fmt == PixelFormat::getLuminanceAlphaU8())
+    else if (fmt == PixelFormat::getGrayAlphaU8())
     {
         pngColorType = PNG_COLOR_TYPE_GRAY_ALPHA;
     }
