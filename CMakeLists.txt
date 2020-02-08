@@ -2,9 +2,10 @@ cmake_minimum_required(VERSION 3.10)
 
 project(ImageApprovals)
 
-option(ImageApprovals_ENABLE_TEST "Enable tests?" ON)
+set(ImageApprovals_RUN_CONAN ON CACHE BOOL "Run conan install?")
+set(ImageApprovals_ENABLE_TEST ON CACHE BOOL "Enable tests?")
 
-if(NOT CONAN_EXPORTED)
+if(NOT CONAN_EXPORTED OR NOT ImageApprovals_RUN_CONAN)
     include("conan.cmake")
     conan_cmake_run(
         REQUIRES "approvaltests.cpp/8.2.0"
