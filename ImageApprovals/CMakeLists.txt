@@ -21,6 +21,8 @@ set(sources
     ${headers}
 
     "src/ColorSpace.cpp"
+    "src/ColorSpaceUtils.cpp"
+    "src/ColorSpaceUtils.hpp"
     "src/Comparator.cpp"
     "src/ExrImageCodec.cpp"
     "src/ExrImageCodec.hpp"

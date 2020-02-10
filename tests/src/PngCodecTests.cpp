@@ -11,7 +11,7 @@ TEST_CASE("PngCodec")
         const Image img = ImageCodec::read(TEST_FILE("png/basi4a08.png"));
 
         REQUIRE_EQ(img.getPixelFormat(), PixelFormat::getGrayAlphaU8());
-        REQUIRE_EQ(img.getColorSpace(), ColorSpace::getLinear());
+        REQUIRE_EQ(img.getColorSpace(), ColorSpace::getLinearSRgb());
         REQUIRE_EQ(img.getSize(), Size{ 32, 32 });
     }
 }

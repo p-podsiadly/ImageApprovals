@@ -8,7 +8,7 @@ TEST_CASE("ThresholdImageComparator")
     ThresholdImageComparator comparator(AbsThreshold(0.004), Percent(5.0));
 
     const PixelFormat& format = PixelFormat::getRgbU8();
-    const auto& colorSpace = ColorSpace::getLinear();
+    const auto& colorSpace = ColorSpace::getLinearSRgb();
     const Size size{ 20, 1 };
 
     Image left(format, colorSpace, size);
@@ -41,7 +41,7 @@ TEST_CASE("ThresholdImageComparator")
 
     SUBCASE("Images have different color spaces")
     {
-        Image right(format, ColorSpace::getSRGB(), size);
+        Image right(format, ColorSpace::getSRgb(), size);
         REQUIRE_FALSE(comparator.compare(left, right).passed);
     }
 

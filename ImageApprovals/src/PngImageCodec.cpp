@@ -1,4 +1,5 @@
 #include "PngImageCodec.hpp"
+#include "ColorSpaceUtils.hpp"
 #include <png.h>
 #include <functional>
 #include <cstring>
@@ -44,6 +45,52 @@ void PNGCBAPI flush(png_struct* png)
 {
     auto& stream = *reinterpret_cast<std::ostream*>(png_get_io_ptr(png));
     stream.flush();
+}
+
+const ColorSpace* detectColorSpace(png_struct* png, png_info* info)
+{
+    int intent = -1;
+    if (png_get_sRGB(png, info, &intent) == PNG_INFO_sRGB)
+    {
+        return &ColorSpace::getSRgb();
+    }
+
+    char* iccpName = nullptr;
+    int iccpCompressionType = PNG_COMPRESSION_TYPE_BASE;
+    png_byte* iccpData = nullptr;
+    uint32_t iccpDataLen = 0;
+    const auto iCCP
+        = png_get_iCCP(
+            png, info,
+            &iccpName,
+            &iccpCompressionType,
+            &iccpData, &iccpDataLen);
+
+    if (iCCP == PNG_INFO_iCCP && isSRgbIccProfile(iccpDataLen, iccpData))
+    {
+        return &ColorSpace::getSRgb();
+    }
+
+    double white_x = 0.0, white_y = 0.0;
+    RgbPrimaries prims;
+
+    const auto cHRM
+        = png_get_cHRM(
+            png, info,
+            &white_x, &white_y,
+            &prims.r.x, &prims.r.y,
+            &prims.g.x, &prims.g.y,
+            &prims.b.x, &prims.b.y);
+
+    double gamma = 0.0f;
+    const auto gAMA = png_get_gAMA(png, info, &gamma);
+
+    if (cHRM == PNG_INFO_cHRM && gAMA == PNG_INFO_gAMA)
+    {
+        return detectColorSpace(prims, gamma);
+    }
+
+    return &ColorSpace::getLinearSRgb();
 }
 
 }
@@ -97,7 +144,6 @@ Image PngImageCodec::read(std::istream& stream, const std::string&) const
     png_read_png(png, info, 0, nullptr);
 
     const PixelFormat* format = nullptr;
-    const ColorSpace* colorSpace = &ColorSpace::getLinear();
     const Size imgSize{ png_get_image_width(png, info), png_get_image_height(png, info) };
 
     const int pngBitDepth = png_get_bit_depth(png, info);
@@ -126,10 +172,10 @@ Image PngImageCodec::read(std::istream& stream, const std::string&) const
         throw std::runtime_error("unsupported PNG color type");
     }
 
-    int pngSRGBIntent = 0;
-    if (png_get_sRGB(png, info, &pngSRGBIntent) == PNG_INFO_sRGB)
+    const ColorSpace* colorSpace = detectColorSpace(png, info);
+    if (!colorSpace)
     {
-        colorSpace = &ColorSpace::getSRGB();
+        throw std::runtime_error("unknown color space");
     }
 
     image = Image(*format, *colorSpace, imgSize);
@@ -214,11 +260,11 @@ void PngImageCodec::write(const ImageView& image, std::ostream& stream, const st
         PNG_COMPRESSION_TYPE_DEFAULT,
         PNG_FILTER_TYPE_DEFAULT);
 
-    if (image.getColorSpace() == ColorSpace::getSRGB())
+    if (image.getColorSpace() == ColorSpace::getSRgb())
     {
-        png_set_sRGB(png, info, PNG_sRGB_INTENT_RELATIVE);
+        png_set_sRGB_gAMA_and_cHRM(png, info, PNG_sRGB_INTENT_RELATIVE);
     }
-    else if (image.getColorSpace() != ColorSpace::getLinear())
+    else if (image.getColorSpace() != ColorSpace::getLinearSRgb())
     {
         throw std::runtime_error("unsupported ColorSpace");
     }

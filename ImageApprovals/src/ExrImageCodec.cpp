@@ -4,6 +4,7 @@
 #include <OpenEXR/ImfArray.h>
 #include <OpenEXR/half.h>
 #include <cstring>
+#include <array>
 
 namespace ImageApprovals {
 
@@ -97,20 +98,12 @@ std::string ExrImageCodec::getFileExtensionWithDot() const
 
 bool ExrImageCodec::canRead(std::istream& stream, const std::string& fileName) const
 {
-    InputStramAdapter streamAdapter(fileName, stream);
+    const std::array<uint8_t, 4> refSignature{ 0x76, 0x2f, 0x31, 0x01 };
+    std::array<uint8_t, 4> signature;
+   
+    stream.read(reinterpret_cast<char*>(signature.data()), 4);
 
-    try
-    {
-        Imf::RgbaInputFile file(streamAdapter);
-    }
-    catch (...)
-    {
-        stream.seekg(0);
-        return false;
-    }
-
-    stream.seekg(0);
-    return true;
+    return refSignature == signature;
 }
 
 Image ExrImageCodec::read(std::istream& stream, const std::string& fileName) const
@@ -145,7 +138,7 @@ Image ExrImageCodec::read(std::istream& stream, const std::string& fileName) con
 
     const Size imgSize(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
 
-    Image image(*fmt, ColorSpace::getLinear(), imgSize, 4);
+    Image image(*fmt, ColorSpace::getLinearSRgb(), imgSize, 4);
     copyPixels(fmt->getNumberOfChannels(), imgSize, pixels, image.getPixelData());
 
     return image;
@@ -160,7 +153,7 @@ void ExrImageCodec::write(const ImageView& image, std::ostream& stream, const st
         throw std::runtime_error("EXR codec cannot write non-float pixels");
     }
 
-    if (image.getColorSpace() != ColorSpace::getLinear())
+    if (image.getColorSpace() != ColorSpace::getLinearSRgb())
     {
         throw std::runtime_error("EXR codec can write only images with linear color space");
     }

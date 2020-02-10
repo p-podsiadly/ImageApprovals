@@ -8,7 +8,7 @@ namespace {
 struct LinearColorSpace : ColorSpace
 {
     const char* getName() const override
-    { return "linear"; }
+    { return "Linear sRGB"; }
 };
 
 struct SRGBColorSpace : ColorSpace
@@ -19,13 +19,13 @@ struct SRGBColorSpace : ColorSpace
 
 }
 
-const ColorSpace& ColorSpace::getLinear()
+const ColorSpace& ColorSpace::getLinearSRgb()
 {
     static const LinearColorSpace instance;
     return instance;
 }
 
-const ColorSpace& ColorSpace::getSRGB()
+const ColorSpace& ColorSpace::getSRgb()
 {
     static const SRGBColorSpace instance;
     return instance;

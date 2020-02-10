@@ -9,7 +9,7 @@ TEST_CASE("Image")
     SUBCASE("Image constructor throws when called with incorrect arguments")
     {
         auto makeImage = [](const Size& sz, uint32_t rowAlignment) {
-            return Image(PixelFormat::getRgbU8(), ColorSpace::getLinear(), sz, rowAlignment);
+            return Image(PixelFormat::getRgbU8(), ColorSpace::getLinearSRgb(), sz, rowAlignment);
         };
 
         REQUIRE_THROWS_AS(makeImage(Size(0, 1), 1), std::logic_error);
