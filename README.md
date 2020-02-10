@@ -11,6 +11,8 @@
 
 2. [The Challenge](#The-Challenge)
 
+3. [Setup](docs/setup.md)
+
 ## Introduction
 
 `ImageApprovals` extends [ApprovalTests.cpp] with the ability to verify correctness of graphical output, such as 3D renders or user interfaces.
