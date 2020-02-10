@@ -14,4 +14,25 @@ TEST_CASE("PngCodec")
         REQUIRE_EQ(img.getColorSpace(), ColorSpace::getLinearSRgb());
         REQUIRE_EQ(img.getSize(), Size{ 32, 32 });
     }
+
+    SUBCASE("gimp_sRGB.png")
+    {
+        const Image img = ImageCodec::read(TEST_FILE("png/gimp_sRGB.png"));
+
+        REQUIRE_EQ(img.getColorSpace(), ColorSpace::getSRgb());
+    }
+
+    SUBCASE("gimp_sRGB_with_gamma.png")
+    {
+        const Image img = ImageCodec::read(TEST_FILE("png/gimp_sRGB_with_gamma.png"));
+
+        REQUIRE_EQ(img.getColorSpace(), ColorSpace::getSRgb());
+    }
+
+    SUBCASE("paint.png")
+    {
+        const Image img = ImageCodec::read(TEST_FILE("png/paint.png"));
+
+        REQUIRE_EQ(img.getColorSpace(), ColorSpace::getSRgb());
+    }
 }

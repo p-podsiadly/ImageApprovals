@@ -1,3 +1,11 @@
 Test PNG images from http://www.schaik.com/pngsuite/:
 
   * basi4a08.png
+
+sRGB test images:
+
+  * `gimp_sRGB.png` - has only embedded ICC profile
+
+  * `gimp_sRGB_with_gamma.png` - has ICC profile and gAMA chunk
+
+  * `paint.png` - has sRGB chunk
