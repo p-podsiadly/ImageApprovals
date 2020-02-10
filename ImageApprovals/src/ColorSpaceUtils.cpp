@@ -31,9 +31,9 @@ bool RgbPrimaries::approxEqual(const RgbPrimaries& other) const
 RgbPrimaries RgbPrimaries::getSRgbPrimaries()
 {
     RgbPrimaries p;
-    p.r = { 0.64, 0.33 };
-    p.g = { 0.30, 0.60 };
-    p.b = { 0.15, 0.06 };
+    p.r = Primary(0.64, 0.33);
+    p.g = Primary(0.30, 0.60);
+    p.b = Primary(0.15, 0.06);
     return p;
 }
 

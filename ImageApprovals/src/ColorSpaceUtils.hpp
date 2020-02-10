@@ -13,6 +13,15 @@ struct RgbPrimaries
     {
         double x = 0.0, y = 0.0;
 
+        Primary() = default;
+        Primary(const Primary&) = default;
+
+        Primary(double x, double y)
+            : x(x), y(y)
+        {}
+
+        Primary& operator =(const Primary&) = default;
+
         bool approxEqual(const Primary& other) const;
     };
 
