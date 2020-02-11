@@ -15,7 +15,7 @@ float clamp(float x, float minX, float maxX)
 }
 
 template<typename T, size_t N>
-auto normalize(const std::array<T, N>& src, float maxValue)
+std::array<float, N> normalize(const std::array<T, N>& src, float maxValue)
 {
     std::array<float, N> dst;
 
