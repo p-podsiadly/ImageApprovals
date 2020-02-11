@@ -7,7 +7,7 @@ set(sources
 	"src/main.cpp"
 	"src/PixelDecodeTests.cpp"
 	"src/PngCodecTests.cpp"
-	"src/ThresholdImageComparatorTests.cpp"
+	"src/ThresholdCompareStrategyTests.cpp"
 )
 
 configure_file(

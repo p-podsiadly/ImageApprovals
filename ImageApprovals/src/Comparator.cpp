@@ -11,11 +11,11 @@ Comparator::Disposer::Disposer(std::vector<ApprovalTests::ComparatorDisposer> di
 {}
 
 Comparator::Comparator()
-    : m_comparator(new ThresholdImageComparator())
+    : m_compareStrategy(std::make_shared<ThresholdCompareStrategy>())
 {}
 
-Comparator::Comparator(std::shared_ptr<ImageComparator> comparator)
-    : m_comparator(std::move(comparator))
+Comparator::Comparator(std::shared_ptr<CompareStrategy> comparator)
+    : m_compareStrategy(std::move(comparator))
 {}
 
 bool Comparator::contentsAreEquivalent(std::string receivedPath, std::string approvedPath) const
@@ -23,7 +23,7 @@ bool Comparator::contentsAreEquivalent(std::string receivedPath, std::string app
     const Image receivedImg = ImageCodec::read(receivedPath);
     const Image approvedImg = ImageCodec::read(approvedPath);
 
-    const auto result = m_comparator->compare(approvedImg, receivedImg);
+    const auto result = m_compareStrategy->compare(approvedImg, receivedImg);
     if (!result.passed)
     {
         throw ApprovalTests::ApprovalMismatchException(result.rightImageInfo, result.leftImageInfo);
@@ -32,11 +32,11 @@ bool Comparator::contentsAreEquivalent(std::string receivedPath, std::string app
     return true;
 }
 
-Comparator::Disposer Comparator::registerForAllExtensionsImpl(std::shared_ptr<ImageComparator> imageComparator)
+Comparator::Disposer Comparator::registerForAllExtensions(std::shared_ptr<CompareStrategy> strategy)
 {
     using namespace ApprovalTests;
 
-    auto comparator = std::make_shared<Comparator>(std::move(imageComparator));
+    auto comparator = std::make_shared<Comparator>(std::move(strategy));
 
     const auto allExtensions = ImageCodec::getRegisteredExtensions();
     
