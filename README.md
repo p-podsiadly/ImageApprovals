@@ -11,7 +11,9 @@
 
 2. [The Challenge](#The-Challenge)
 
-3. [Setup](docs/setup.md)
+3. [Setup](#Setup)
+
+4. [Examples](#Examples)
 
 ## Introduction
 
@@ -44,3 +46,15 @@ The image the right shows differences between pixel values, with significantly i
 Such differences can have a variety of causes (e. g. different order of evaluation in floating-point arithmetic or hardware differences) and, in practice, cannot be avoided.
 
 [ApprovalTests.cpp]: https://github.com/approvals/ApprovalTests.cpp
+
+## Setup
+
+* [Detailed setup documentation](docs/setup.md)
+
+* [Sample project `ImageApprovalsDemos` (CMake, Conan and Git)](https://github.com/p-podsiadly/ImageApprovalsDemos)
+
+## Examples
+
+* [`ImageApprovalsDemos`](https://github.com/p-podsiadly/ImageApprovalsDemos) project demonstrates how to use the library in practice
+
+* *TODO*
