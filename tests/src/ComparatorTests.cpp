@@ -13,7 +13,7 @@ TEST_CASE("Comparator")
             = std::make_shared<ThresholdCompareStrategy>(
                 AbsThreshold(0.1), Percent(1.25));
 
-        Comparator comparator(strategy);
+        ImageComparator comparator(strategy);
 
         const auto approvedPath = TEST_FILE("cornell.approved.png");
         const auto receivedPath = TEST_FILE("cornell.received.png");
@@ -27,7 +27,7 @@ TEST_CASE("Comparator")
             = std::make_shared<ThresholdCompareStrategy>(
                 AbsThreshold(0.1), Percent(1.2));
 
-        Comparator comparator(strategy);
+        ImageComparator comparator(strategy);
 
         const auto approvedPath = TEST_FILE("cornell.approved.png");
         const auto receivedPath = TEST_FILE("cornell.received.png");
@@ -39,7 +39,7 @@ TEST_CASE("Comparator")
 
     SUBCASE("Using FileApprover::verify with PNG")
     {
-        auto comparator = Comparator::make<ThresholdCompareStrategy>(AbsThreshold(0.1), Percent(1.25));
+        auto comparator = ImageComparator::make<ThresholdCompareStrategy>(AbsThreshold(0.1), Percent(1.25));
         auto comparatorDisposer = FileApprover::registerComparatorForExtension(".png", comparator);
 
         FileApprover::verify(TEST_FILE("cornell.received.png"), TEST_FILE("cornell.approved.png"));
@@ -47,7 +47,7 @@ TEST_CASE("Comparator")
 
     SUBCASE("Using FileApprover::verify with EXR")
     {
-        auto comparator = Comparator::make<ThresholdCompareStrategy>(AbsThreshold(0.1), Percent(1.25));
+        auto comparator = ImageComparator::make<ThresholdCompareStrategy>(AbsThreshold(0.1), Percent(1.25));
         auto comparatorDisposer = FileApprover::registerComparatorForExtension(".exr", comparator);
 
         FileApprover::verify(TEST_FILE("cornell.received.exr"), TEST_FILE("cornell.approved.exr"));
@@ -57,7 +57,7 @@ TEST_CASE("Comparator")
 TEST_CASE("Comparator::registerForAllExtensions")
 {
     auto comparatorDisposer
-        = Comparator::registerForAllExtensions<ThresholdCompareStrategy>(AbsThreshold(0.1), Percent(1.25));
+        = ImageComparator::registerForAllExtensions<ThresholdCompareStrategy>(AbsThreshold(0.1), Percent(1.25));
 
     FileApprover::verify(TEST_FILE("cornell.received.png"), TEST_FILE("cornell.approved.png"));
 

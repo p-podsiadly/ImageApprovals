@@ -7,7 +7,7 @@ using namespace ImageApprovals;
 
 TEST_CASE("ErrorExceptions")
 {
-    auto disposer = Comparator::registerForAllExtensions<ThresholdCompareStrategy>();
+    auto disposer = ImageComparator::registerForAllExtensions<ThresholdCompareStrategy>();
 
     const auto corrupted = TEST_FILE("png/xhdn0g08.png");
     const auto valid = TEST_FILE("png/basi4a08.png");
