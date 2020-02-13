@@ -11,20 +11,11 @@ namespace ImageApprovals {
 
 using ApprovalTests::StringUtils;
 
-namespace {
-
-std::vector<std::shared_ptr<ImageCodec>> imageCodecs = {
-    std::make_shared<ExrImageCodec>(),
-    std::make_shared<PngImageCodec>()
-};
-
-}
-
 ImageCodec::Disposer ImageCodec::registerCodec(const std::shared_ptr<ImageCodec>& codec)
 {
     if (codec)
     {
-        imageCodecs.insert(imageCodecs.begin(), codec);
+        getImageCodecs().insert(getImageCodecs().begin(), codec);
     }
 
     return Disposer(codec);
@@ -37,19 +28,23 @@ void ImageCodec::unregisterCodec(const std::shared_ptr<ImageCodec>& codec)
         return;
     }
 
-    auto pos = std::find(imageCodecs.begin(), imageCodecs.end(), codec);
-    if (pos != imageCodecs.end())
+    auto& codecs = getImageCodecs();
+
+    auto pos = std::find(codecs.begin(), codecs.end(), codec);
+    if (pos != codecs.end())
     {
-        imageCodecs.erase(pos);
+        codecs.erase(pos);
     }
 }
 
 std::vector<std::string> ImageCodec::getRegisteredExtensions()
 {
-    std::vector<std::string> extensions;
-    extensions.resize(imageCodecs.size());
+    auto& codecs = getImageCodecs();
 
-    transform(imageCodecs.begin(), imageCodecs.end(), extensions.begin(),
+    std::vector<std::string> extensions;
+    extensions.resize(codecs.size());
+
+    transform(codecs.begin(), codecs.end(), extensions.begin(),
         [](const std::shared_ptr<ImageCodec>& codec) { return codec->getFileExtensionWithDot(); });
 
     return extensions;
@@ -65,7 +60,7 @@ Image ImageCodec::read(const std::string& fileName)
 
     fileStream.exceptions(std::ios::failbit | std::ios::badbit);
 
-    for (const auto& codec : imageCodecs)
+    for (const auto& codec : getImageCodecs())
     {
         const bool canRead = codec->canRead(fileStream, fileName);
         fileStream.seekg(0);
@@ -83,7 +78,7 @@ void ImageCodec::write(const std::string& fileName, const ImageView& image)
 {
     const ImageCodec* matchingCodec = nullptr;
 
-    for (const auto& codec : imageCodecs)
+    for (const auto& codec : getImageCodecs())
     {
         if (StringUtils::endsWith(fileName, codec->getFileExtensionWithDot()))
         {
@@ -105,6 +100,16 @@ void ImageCodec::write(const std::string& fileName, const ImageView& image)
 
     fileStream.exceptions(std::ios::badbit | std::ios::failbit);
     matchingCodec->write(image, fileStream, fileName);
+}
+
+std::vector<std::shared_ptr<ImageCodec>>& ImageCodec::getImageCodecs()
+{
+    static std::vector<std::shared_ptr<ImageCodec>> imageCodecs = {
+        std::make_shared<ExrImageCodec>(),
+        std::make_shared<PngImageCodec>()
+    };
+
+    return imageCodecs;
 }
 
 ImageCodec::Disposer::Disposer(std::shared_ptr<ImageCodec> codec)

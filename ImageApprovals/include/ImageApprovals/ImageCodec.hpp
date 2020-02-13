@@ -30,6 +30,9 @@ protected:
     virtual Image read(std::istream& stream, const std::string& fileName) const = 0;
 
     virtual void write(const ImageView& image, std::ostream& stream, const std::string& fileName) const = 0;
+
+private:
+    static std::vector<std::shared_ptr<ImageCodec>>& getImageCodecs();
 };
 
 class ImageCodec::Disposer
