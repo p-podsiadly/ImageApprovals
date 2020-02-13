@@ -18,10 +18,30 @@ Comparator::Comparator(std::shared_ptr<CompareStrategy> comparator)
     : m_compareStrategy(std::move(comparator))
 {}
 
+namespace {
+
+Image readImage(const std::string& which, const std::string& path)
+{
+    try
+    {
+        return ImageCodec::read(path);
+    }
+    catch (const std::exception & exc)
+    {
+        const auto msg =
+            "Failed to read " + which + " image from \""
+            + path + "\": " + exc.what();
+
+        throw ApprovalTests::ApprovalException(msg);
+    }
+}
+
+}
+
 bool Comparator::contentsAreEquivalent(std::string receivedPath, std::string approvedPath) const
 {
-    const Image receivedImg = ImageCodec::read(receivedPath);
-    const Image approvedImg = ImageCodec::read(approvedPath);
+    const Image receivedImg = readImage("received", receivedPath);
+    const Image approvedImg = readImage("approved", approvedPath);
 
     const auto result = m_compareStrategy->compare(approvedImg, receivedImg);
     if (!result.passed)

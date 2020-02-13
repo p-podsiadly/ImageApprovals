@@ -2,6 +2,8 @@ Test PNG images from http://www.schaik.com/pngsuite/:
 
   * basi4a08.png
 
+  * xhdn0g08.png
+
 sRGB test images:
 
   * `gimp_sRGB.png` - has only embedded ICC profile
