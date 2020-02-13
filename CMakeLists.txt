@@ -8,7 +8,7 @@ set(ImageApprovals_ENABLE_TESTS ON CACHE BOOL "Enable tests?")
 if(NOT CONAN_EXPORTED AND ImageApprovals_RUN_CONAN)
 
     set(conan_requires
-        "approvaltests.cpp/8.2.0"
+        "approvaltests.cpp/8.3.0"
         "libpng/1.6.37"
         "openexr/2.4.0"
         "zlib/1.2.11"
