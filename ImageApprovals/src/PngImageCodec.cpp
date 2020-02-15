@@ -93,6 +93,23 @@ const ColorSpace* detectColorSpace(png_struct* png, png_info* info)
     return &ColorSpace::getLinearSRgb();
 }
 
+void writePngComment(png_struct* png, png_info* info)
+{
+    std::string textKey = "Software";
+    std::string textStr = "ImageApprovals";
+
+    png_text text;
+    text.compression = PNG_TEXT_COMPRESSION_NONE;
+    text.key = &textKey[0];
+    text.text = &textStr[0];
+    text.text_length = textStr.size();
+    text.itxt_length = 0;
+    text.lang = nullptr;
+    text.lang_key = nullptr;
+
+    png_set_text(png, info, &text, 1);
+}
+
 }
 
 std::string PngImageCodec::getFileExtensionWithDot() const
@@ -264,10 +281,24 @@ void PngImageCodec::write(const ImageView& image, std::ostream& stream, const st
     {
         png_set_sRGB_gAMA_and_cHRM(png, info, PNG_sRGB_INTENT_RELATIVE);
     }
-    else if (image.getColorSpace() != ColorSpace::getLinearSRgb())
+    else if (image.getColorSpace() == ColorSpace::getLinearSRgb())
+    {
+        png_set_gAMA(png, info, 1.0);
+
+        const auto p = RgbPrimaries::getSRgbPrimaries();
+        png_set_cHRM(
+            png, info,
+            0.3127, 0.3291,
+            p.r.x, p.r.y,
+            p.g.x, p.g.y,
+            p.b.x, p.b.y);
+    }
+    else
     {
         throw std::runtime_error("unsupported ColorSpace");
     }
+
+    writePngComment(png, info);
 
     rowPointers.reset(new png_const_bytep[sz.height]);
     for (uint32_t y = 0; y < sz.height; ++y)
