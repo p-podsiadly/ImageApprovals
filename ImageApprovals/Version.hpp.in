@@ -1,0 +1,10 @@
+#ifndef IMAGEAPPROVALS_VERSION_HPP_INCLUDED
+#define IMAGEAPPROVALS_VERSION_HPP_INCLUDED
+
+#define ImageApprovals_VERSION_MAJOR @ImageApprovals_VERSION_MAJOR@
+#define ImageApprovals_VERSION_MINOR @ImageApprovals_VERSION_MINOR@
+#define ImageApprovals_VERSION_PATCH @ImageApprovals_VERSION_PATCH@
+
+#define ImageApprovals_VERSION_STR "@ImageApprovals_VERSION@"
+
+#endif // IMAGEAPPROVALS_VERSION_HPP_INCLUDED

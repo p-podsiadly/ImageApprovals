@@ -5,4 +5,6 @@
 #include "ImageApprovals/ImageComparator.hpp"
 #include "ImageApprovals/Image.hpp"
 
+#include "ImageApprovals/Version.hpp"
+
 #endif // IMAGEAPPROVALS_HPP_INCLUDED

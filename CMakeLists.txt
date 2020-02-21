@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(ImageApprovals)
+project(ImageApprovals VERSION 0.1.0)
 
 set(ImageApprovals_RUN_CONAN ON CACHE BOOL "Run conan install?")
 set(ImageApprovals_ENABLE_TESTS ON CACHE BOOL "Enable tests?")

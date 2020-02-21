@@ -36,10 +36,17 @@ set(sources
     "src/Units.cpp"
 )
 
+configure_file("Version.hpp.in" "include/ImageApprovals/Version.hpp")
+
 add_library(ImageApprovals STATIC ${sources})
 target_compile_features(ImageApprovals PUBLIC cxx_std_11)
 
-target_include_directories(ImageApprovals PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_include_directories(
+    ImageApprovals
+    PUBLIC
+        "${CMAKE_CURRENT_SOURCE_DIR}/include"
+        "${CMAKE_CURRENT_BINARY_DIR}/include"
+)
 
 target_link_libraries(
     ImageApprovals
@@ -57,6 +64,11 @@ add_library(ImageApprovals::ImageApprovals ALIAS ImageApprovals)
 
 install(
     DIRECTORY "include/"
+    DESTINATION include
+)
+
+install(
+    DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/"
     DESTINATION include
 )
 
