@@ -35,6 +35,11 @@ install:
   # execption is thrown and the build fails.
   - cmd: conan user 
 
+  - cmd: cd %APPVEYOR_BUILD_FOLDER%
+  - cmd: git submodule update --init
+  
+  - sh: (cd $APPVEYOR_BUILD_FOLDER; git submodule update --init)
+
 clone_depth: 1
 
 build_script:
