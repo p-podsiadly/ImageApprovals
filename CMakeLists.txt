@@ -18,7 +18,7 @@ if(NOT CONAN_EXPORTED AND ImageApprovals_RUN_CONAN)
         list(APPEND conan_requires "doctest/2.3.6")
     endif()
 
-    include("conan.cmake")
+    include("cmake-conan/conan.cmake")
     
     conan_cmake_run(
         REQUIRES ${conan_requires}
