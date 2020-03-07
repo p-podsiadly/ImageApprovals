@@ -7,6 +7,7 @@ set(sources
 	"src/ImageTest.cpp"
 	"src/main.cpp"
 	"src/PixelDecodeTests.cpp"
+	"src/PixelPerfectCompareStrategyTests.cpp"
 	"src/PngCodecTests.cpp"
 	"src/ThresholdCompareStrategyTests.cpp"
 )

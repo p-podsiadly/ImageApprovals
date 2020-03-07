@@ -33,12 +33,9 @@ protected:
 class ThresholdCompareStrategy : public CompareStrategy
 {
 public:
-    ThresholdCompareStrategy(
+    explicit ThresholdCompareStrategy(
         AbsThreshold pixelFailThreshold = AbsThreshold(0.004),
         Percent maxFailedPixelsPercentage = Percent(0.1));
-
-    AbsThreshold getPixelFailThreshold() const { return m_pixelFailThreshold; }
-    Percent getMaxFailedPixelsPercentage() const { return m_maxFailedPixelsPercentage; }
 
 protected:
     Result compareContents(const ImageView& left, const ImageView& right) const override;
@@ -46,6 +43,15 @@ protected:
 private:
     AbsThreshold m_pixelFailThreshold;
     Percent m_maxFailedPixelsPercentage;
+};
+
+class PixelPerfectCompareStrategy : public CompareStrategy
+{
+public:
+    PixelPerfectCompareStrategy() = default;
+
+protected:
+    Result compareContents(const ImageView& left, const ImageView& right) const override;
 };
 
 }

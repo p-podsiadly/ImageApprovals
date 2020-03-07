@@ -1,5 +1,6 @@
 #include <ImageApprovals/CompareStrategy.hpp>
 #include <ImageApprovals/ImageView.hpp>
+#include <cstring>
 #define NOMINMAX
 #include <ApprovalTests.hpp>
 #include <algorithm>
@@ -118,6 +119,25 @@ CompareStrategy::Result ThresholdCompareStrategy::compareContents(const ImageVie
             + ") are above threshold = " + StringUtils::toString(m_pixelFailThreshold);
 
         return Result::makeFailed("reference image", rightInfo);
+    }
+
+    return Result::makePassed();
+}
+
+CompareStrategy::Result PixelPerfectCompareStrategy::compareContents(const ImageView& left, const ImageView& right) const
+{
+    const auto sz = left.getSize();
+    const auto rowLen = left.getPixelFormat().getPixelStride() * sz.width;
+
+    for(uint32_t y = 0; y < sz.height; ++y)
+    {
+        const auto leftRow = left.getRowPointer(y);
+        const auto rightRow = right.getRowPointer(y);
+
+        if(0 != std::memcmp(leftRow, rightRow, rowLen))
+        {
+            return Result::makeFailed("reference image", "different pixels in row " + std::to_string(y));
+        }
     }
 
     return Result::makePassed();
