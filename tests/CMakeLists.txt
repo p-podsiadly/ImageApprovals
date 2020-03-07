@@ -5,6 +5,7 @@ set(sources
 	"src/ErrorTest.cpp"
 	"src/ExrCodecTest.cpp"
 	"src/ImageTest.cpp"
+	"src/ImageWriterTests.cpp"
 	"src/main.cpp"
 	"src/PixelDecodeTests.cpp"
 	"src/PixelPerfectCompareStrategyTests.cpp"

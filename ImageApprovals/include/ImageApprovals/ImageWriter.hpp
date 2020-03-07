@@ -18,6 +18,11 @@ enum class Format
 class ImageWriter : public ApprovalTests::ApprovalWriter
 {
 public:
+    template<typename T, typename = typename std::enable_if<SupportsMakeView<T>::value, void>::type>
+    explicit ImageWriter(const T& image, Format format = Format::Auto)
+        : m_image(makeView(image)), m_format(format)
+    {}
+
     explicit ImageWriter(const ImageView& image, Format format = Format::Auto)
         : m_image(image), m_format(format)
     {}

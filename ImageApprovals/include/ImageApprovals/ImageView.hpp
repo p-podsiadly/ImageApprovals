@@ -4,6 +4,7 @@
 #include "ColorSpace.hpp"
 #include "PixelFormat.hpp"
 #include <cstdint>
+#include <type_traits>
 
 namespace ImageApprovals {
 
@@ -63,6 +64,17 @@ protected:
     size_t m_rowStride = 0;
     const uint8_t* m_dataPtr = nullptr;
 };
+
+namespace detail {
+
+template<typename T>
+std::true_type supportsMakeView(T*, ImageView = makeView(*(const T*)nullptr));
+std::false_type supportsMakeView(...);
+
+}
+
+template<typename T>
+struct SupportsMakeView : decltype(detail::supportsMakeView((T*)nullptr)) {};
 
 }
 
