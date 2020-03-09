@@ -1,5 +1,7 @@
 #include <doctest/doctest.h>
 #include <TestsConfig.hpp>
+#include <QGuiApplication>
+#include <iterator>
 
 #define ImageApprovals_CONFIG_QT5
 #include <ImageApprovals.hpp>
@@ -7,7 +9,28 @@
 using namespace ApprovalTests;
 using namespace ImageApprovals;
 
-TEST_CASE("ImageView from QImage")
+class QGuiFixture
+{
+public:
+    QGuiFixture()
+    {
+        for(auto& s : args)
+        {
+            argv.push_back(&s[0]);
+        }
+
+        app = std::make_unique<QGuiApplication>(argc, argv.data());
+    }
+
+private:
+    int argc = 1;
+    std::vector<std::string> args = { "ImageApprovalsTest" };
+    std::vector<char*> argv;
+
+    std::unique_ptr<QGuiApplication> app;
+};
+
+TEST_CASE_FIXTURE(QGuiFixture, "ImageView from QImage")
 {
     SUBCASE("Format_RGB888")
     {

@@ -15,7 +15,7 @@ set(sources
 
 if(ImageApprovals_ENABLE_QT5_TESTS)
 
-	find_package(Qt5Gui REQUIRED)
+	find_package(Qt5 COMPONENTS Gui REQUIRED)
 
 	list(APPEND sources
 		"src/QImageTests.cpp"
