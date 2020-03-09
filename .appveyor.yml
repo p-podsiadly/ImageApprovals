@@ -28,6 +28,9 @@ install:
         sudo apt install -y python3-pip $($env:CC);
         sudo pip3 install conan;
       }
+
+  - sh: sudo apt install qt5-default
+
   # Run conan user only on windows
   # cmake is run from powershell below,
   # and for some reason when there's no

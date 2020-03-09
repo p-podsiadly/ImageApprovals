@@ -5,8 +5,27 @@
 #include "Image.hpp"
 #include <ApprovalTests.hpp>
 #include <stdexcept>
+#include <type_traits>
 
 namespace ImageApprovals {
+
+namespace detail {
+
+template<typename T>
+std::true_type supportsMakeViewMeta(T*, ImageView = makeView(*(const T*)nullptr));
+std::false_type supportsMakeViewMeta(...);
+
+template<typename T>
+constexpr bool supportsMakeView()
+{
+    using namespace ImageApprovals;
+    return decltype(supportsMakeViewMeta((T*)nullptr))::value;
+}
+
+}
+
+template<typename T>
+struct SupportsMakeView : std::integral_constant<bool, detail::supportsMakeView<T>()> {};
 
 enum class Format
 {

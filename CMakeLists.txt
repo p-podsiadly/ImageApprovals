@@ -2,8 +2,15 @@ cmake_minimum_required(VERSION 3.10)
 
 project(ImageApprovals VERSION 0.1.0)
 
-set(ImageApprovals_RUN_CONAN ON CACHE BOOL "Run conan install?")
-set(ImageApprovals_ENABLE_TESTS ON CACHE BOOL "Enable tests?")
+include(CMakeDependentOption)
+
+option(ImageApprovals_RUN_CONAN "Run conan install?" ON)
+option(ImageApprovals_ENABLE_TESTS "Enable tests?" ON)
+
+cmake_dependent_option(
+        ImageApprovals_ENABLE_QT5_TESTS
+        "Enable tests of Qt5 integration?" ON
+        ImageApprovals_ENABLE_TESTS OFF)
 
 if(NOT CONAN_EXPORTED AND ImageApprovals_RUN_CONAN)
 

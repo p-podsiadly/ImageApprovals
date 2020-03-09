@@ -13,6 +13,16 @@ set(sources
 	"src/ThresholdCompareStrategyTests.cpp"
 )
 
+if(ImageApprovals_ENABLE_QT5_TESTS)
+
+	find_package(Qt5Gui REQUIRED)
+
+	list(APPEND sources
+		"src/QImageTests.cpp"
+	)
+
+endif()
+
 configure_file(
 	"TestsConfig.hpp.in"
 	"include/TestsConfig.hpp"
@@ -28,6 +38,10 @@ target_link_libraries(
 		ImageApprovals::ImageApprovals
 		doctest::doctest
 )
+
+if(ImageApprovals_ENABLE_QT5_TESTS)
+	target_link_libraries(ImageApprovalsTests PRIVATE Qt5::Gui)
+endif()
 
 if(MSVC)
 	target_compile_options(ImageApprovalsTests PRIVATE /FC)
