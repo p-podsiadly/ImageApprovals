@@ -9,9 +9,6 @@ environment:
     - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
       CC: gcc-9
       CXX: g++-9
-    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
-      CC: clang-6.0
-      CXX: clang++-6.0
 
 platform:
   - x64
