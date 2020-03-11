@@ -2,7 +2,7 @@ environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       CMAKE_GENERATOR: "Visual Studio 15 2017 Win64"
-      Qt5_DIR: "C:/Qt/5.13.2/msvc2017_64/lib/cmake/Qt5"
+      ADDITIONAL_CMAKE_ARGS: "-DImageApprovals_ENABLE_QT5_TESTS=OFF"
     - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
       CC: gcc-7
       CXX: g++-7
@@ -51,7 +51,7 @@ build_script:
   - ps: mkdir build | Out-Null
   - ps: mkdir install | Out-Null
   - ps: cd build
-  - ps: cmake .. -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -DCMAKE_INSTALL_PREFIX="$(pwd)/../install"
+  - ps: cmake .. -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -DCMAKE_INSTALL_PREFIX="$(pwd)/../install" $env:ADDITIONAL_CMAKE_ARGS
   - ps: cmake --build . --config "$env:CONFIGURATION"
   - ps: cmake --build . --config "$env:CONFIGURATION" --target install
   - ps: cd ..
