@@ -1,0 +1,23 @@
+name: Check single header
+
+on: push
+
+jobs:
+  check-single-header:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up python 3
+      uses: actions/setup-python@v1
+      with:
+        python-version: "3.x"
+
+    - name: Install python dependencies
+      run: |
+        pip install toposort
+
+    - name: Check is single header is up to date
+      run: |
+        (cd $GITHUB_WORKSPACE/scripts; python single_header.py) > ref.hpp
+        cmp $GITHUB_WORKSPACE/single_header/ImageApprovals.hpp ref.hpp
