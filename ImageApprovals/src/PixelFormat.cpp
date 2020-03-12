@@ -1,4 +1,5 @@
 #include <ImageApprovals/PixelFormat.hpp>
+#include <ImageApprovals/Errors.hpp>
 #include <algorithm>
 #include <stdexcept>
 #include <cstring>
@@ -117,7 +118,7 @@ const uint8_t* PixelFormat::decode(const uint8_t* begin, const uint8_t* end, RGB
     const auto stride = getPixelStride();
     if (begin + stride > end)
     {
-        throw std::out_of_range("begin + stride > end");
+        throw ImageApprovalsError("begin + stride > end");
     }
 
     decode(begin, outRgba);

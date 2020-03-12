@@ -1,4 +1,5 @@
 #include "ColorSpaceUtils.hpp"
+#include <ImageApprovals/Errors.hpp>
 #include <stdexcept>
 #include <cstring>
 #include <memory>
@@ -58,7 +59,7 @@ bool isSRgbIccProfile(uint32_t profLen, const uint8_t* profData)
 {
     if (profLen < 132)
     {
-        throw std::runtime_error("incomplete ICC profile data");
+        throw ImageApprovalsError("Incomplete ICC profile data");
     }
 
     const std::array<char, 4> rgbColorSpace{ 'R', 'G', 'B', ' ' };
@@ -66,7 +67,7 @@ bool isSRgbIccProfile(uint32_t profLen, const uint8_t* profData)
     std::memcpy(colorSpace.data(), profData + 16, 4);
     if (colorSpace != rgbColorSpace)
     {
-        throw std::runtime_error("color space in the ICC profile is not RGB");
+        throw ImageApprovalsError("Color space in the ICC profile is not RGB");
     }
 
     uint32_t numTags = 0;
@@ -74,7 +75,7 @@ bool isSRgbIccProfile(uint32_t profLen, const uint8_t* profData)
     numTags = fromBigEndian(numTags);
     if ((128 + numTags * 12) > profLen)
     {
-        throw std::runtime_error("incomplete ICC profile data");
+        throw ImageApprovalsError("Incomplete ICC profile data");
     }
 
     struct TagInfo
@@ -93,7 +94,7 @@ bool isSRgbIccProfile(uint32_t profLen, const uint8_t* profData)
 
         if ((info.offset + info.size) > profLen)
         {
-            throw std::runtime_error("incomplete ICC profile data");
+            throw ImageApprovalsError("Incomplete ICC profile data");
         }
 
         // profileDescriptionTag 

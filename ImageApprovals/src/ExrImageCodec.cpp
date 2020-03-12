@@ -1,4 +1,5 @@
 #include "ExrImageCodec.hpp"
+#include <ImageApprovals/Errors.hpp>
 #include <OpenEXR/ImfRgbaFile.h>
 #include <OpenEXR/ImfIO.h>
 #include <OpenEXR/ImfArray.h>
@@ -26,13 +27,13 @@ public:
         const auto read_bytes = m_stream.gcount();
         if (read_bytes < n)
         {
-            throw std::runtime_error("not eough data");
+            throw ImageApprovalsError("Not enough data");
         }
 
         return !m_stream.eof();
     }
 
-    char* readMemoryMapped(int) override { throw std::runtime_error("not memory mapped"); }
+    char* readMemoryMapped(int) override { throw ImageApprovalsError("Not memory mapped"); }
 
     Imf::Int64 tellg() override { return m_stream.tellg(); }
 
@@ -133,7 +134,7 @@ Image ExrImageCodec::read(std::istream& stream, const std::string& fileName) con
         fmt = &PixelFormat::getRgbAlphaF32();
         break;
     default:
-        throw std::runtime_error("Unsupported pixel format");
+        throw ImageApprovalsError("Unsupported pixel format");
     }
 
     const Size imgSize(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
@@ -150,12 +151,12 @@ void ExrImageCodec::write(const ImageView& image, std::ostream& stream, const st
 
     if (!fmt.isF32())
     {
-        throw std::runtime_error("EXR codec cannot write non-float pixels");
+        throw ImageApprovalsError("EXR codec cannot write non-float pixels");
     }
 
     if (image.getColorSpace() != ColorSpace::getLinearSRgb())
     {
-        throw std::runtime_error("EXR codec can write only images with linear color space");
+        throw ImageApprovalsError("EXR codec can write only images with linear color space");
     }
 
     Imf::RgbaChannels channels{};
@@ -170,7 +171,7 @@ void ExrImageCodec::write(const ImageView& image, std::ostream& stream, const st
     }
     else
     {
-        throw std::runtime_error("unexpected pixel format");
+        throw ImageApprovalsError("Unexpected pixel format");
     }
 
     OutputStreamAdapter streamAdapter(fileName, stream);

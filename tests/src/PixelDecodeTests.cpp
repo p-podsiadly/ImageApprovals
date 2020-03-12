@@ -145,8 +145,8 @@ TEST_CASE("PixelFormat::decode")
 
         RGBA value;
 
-        REQUIRE_THROWS_AS(fmt.decode(pixel, pixel + 2, value), std::out_of_range);
-        REQUIRE_THROWS_AS(fmt.decode(pixel + 2, pixel, value), std::out_of_range);
+        REQUIRE_THROWS_AS(fmt.decode(pixel, pixel + 2, value), ImageApprovalsError);
+        REQUIRE_THROWS_AS(fmt.decode(pixel + 2, pixel, value), ImageApprovalsError);
         REQUIRE_NOTHROW(fmt.decode(pixel, pixel + 6, value));
     }
 }

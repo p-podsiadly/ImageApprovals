@@ -8,6 +8,7 @@ set(headers
 
     "include/ImageApprovals/ColorSpace.hpp"
     "include/ImageApprovals/CompareStrategy.hpp"
+    "include/ImageApprovals/Errors.hpp"
     "include/ImageApprovals/Image.hpp"
     "include/ImageApprovals/ImageCodec.hpp"
     "include/ImageApprovals/ImageComparator.hpp"

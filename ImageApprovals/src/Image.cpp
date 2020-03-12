@@ -1,4 +1,5 @@
 #include <ImageApprovals/Image.hpp>
+#include <ImageApprovals/Errors.hpp>
 #include <cstring>
 #include <fstream>
 
@@ -34,12 +35,12 @@ Image::Image(const PixelFormat& format, const ColorSpace& colorSpace, const Size
 {
     if (m_size.isZero())
     {
-        throw std::logic_error("image size cannot be zero");
+        throw ImageApprovalsError("Image size cannot be zero");
     }
 
     if (m_rowAlignment == 0)
     {
-        throw std::logic_error("image row alignment must be greater than 0");
+        throw ImageApprovalsError("Image row alignment must be greater than 0");
     }
 
     const size_t rowStride = getRowStride();
@@ -87,7 +88,7 @@ uint8_t* Image::getRowPointer(uint32_t y)
 {
     if (y >= m_size.height)
     {
-        throw std::out_of_range("row index out of range");
+        throw ImageApprovalsError("Row index out of range");
     }
 
     const auto rowStride = getRowStride();

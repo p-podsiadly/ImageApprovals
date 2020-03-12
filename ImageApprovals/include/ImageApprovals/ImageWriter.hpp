@@ -3,6 +3,7 @@
 
 #include "ImageCodec.hpp"
 #include "Image.hpp"
+#include "Errors.hpp"
 #include <ApprovalTests.hpp>
 #include <stdexcept>
 #include <type_traits>
@@ -60,7 +61,7 @@ public:
             return ".exr";
         }
 
-        throw std::runtime_error("invalid Format value");
+        throw ImageApprovalsError("Invalid Format value");
     }
 
     void write(std::string path) const override
@@ -90,7 +91,7 @@ private:
             return ".exr";
         }
 
-        throw std::runtime_error("invalid PixelDataType value");
+        throw ImageApprovalsError("Invalid PixelDataType value");
     }
 };
 

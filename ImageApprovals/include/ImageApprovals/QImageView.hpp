@@ -4,6 +4,7 @@
 #ifdef ImageApprovals_CONFIG_QT5
 
 #include "ImageView.hpp"
+#include "Errors.hpp"
 #include <QImage>
 
 namespace ImageApprovals {
@@ -45,12 +46,12 @@ inline ImageView makeView(const QImage& image)
 
     if(!format)
     {
-        throw std::runtime_error("Unsupported QImage::Format value");
+        throw ImageApprovalsError("Unsupported QImage::Format value");
     }
 
     if(!colorSpace)
     {
-        throw std::runtime_error("Unsupported QColorSpace");
+        throw ImageApprovalsError("Unsupported QColorSpace");
     }
 
     const auto w = static_cast<uint32_t>(image.width());

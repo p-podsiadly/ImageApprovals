@@ -1,4 +1,5 @@
 #include <ImageApprovals/ImageCodec.hpp>
+#include <ImageApprovals/Errors.hpp>
 #include <ApprovalTests.hpp>
 #include <algorithm>
 #include <fstream>
@@ -55,7 +56,7 @@ Image ImageCodec::read(const std::string& fileName)
     std::ifstream fileStream(fileName.c_str(), std::ios::binary);
     if (!fileStream)
     {
-        throw std::runtime_error("could not open file \"" + fileName + "\" for reading");
+        throw ImageApprovalsError("Could not open file \"" + fileName + "\" for reading");
     }
 
     fileStream.exceptions(std::ios::failbit | std::ios::badbit);
@@ -71,7 +72,7 @@ Image ImageCodec::read(const std::string& fileName)
         }
     }
 
-    throw std::runtime_error("unsupported image file format when reading \"" + fileName + "\"");
+    throw ImageApprovalsError("Unsupported image file format when reading \"" + fileName + "\"");
 }
 
 void ImageCodec::write(const std::string& fileName, const ImageView& image)
@@ -89,13 +90,13 @@ void ImageCodec::write(const std::string& fileName, const ImageView& image)
 
     if (!matchingCodec)
     {
-        throw std::runtime_error("unsupported image file format when writing \"" + fileName + "\"");
+        throw ImageApprovalsError("Unsupported image file format when writing \"" + fileName + "\"");
     }
 
     std::ofstream fileStream(fileName.c_str(), std::ios::binary);
     if (!fileStream)
     {
-        throw std::runtime_error("could not open file \"" + fileName + "\" for writing");
+        throw ImageApprovalsError("Could not open file \"" + fileName + "\" for writing");
     }
 
     fileStream.exceptions(std::ios::badbit | std::ios::failbit);

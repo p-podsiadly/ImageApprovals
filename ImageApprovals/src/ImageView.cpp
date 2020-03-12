@@ -1,4 +1,5 @@
 #include <ImageApprovals/ImageView.hpp>
+#include <ImageApprovals/Errors.hpp>
 #include <stdexcept>
 #include <ostream>
 
@@ -25,7 +26,7 @@ const PixelFormat& ImageView::getPixelFormat() const
 {
     if (!m_format)
     {
-        throw std::logic_error("calling getPixelFormat on an empty ImageView");
+        throw ImageApprovalsError("Calling getPixelFormat on an empty ImageView");
     }
 
     return *m_format;
@@ -35,7 +36,7 @@ const ColorSpace& ImageView::getColorSpace() const
 {
     if (!m_colorSpace)
     {
-        throw std::logic_error("calling getColorSpace on an empty ImageView");
+        throw ImageApprovalsError("Calling getColorSpace on an empty ImageView");
     }
 
     return *m_colorSpace;
@@ -45,7 +46,7 @@ const uint8_t* ImageView::getRowPointer(uint32_t index) const
 {
     if (index >= m_size.height)
     {
-        throw std::out_of_range("row index out of range");
+        throw ImageApprovalsError("Row index out of range");
     }
 
     return m_dataPtr + m_rowStride * index;
@@ -55,7 +56,7 @@ RGBA ImageView::getPixel(uint32_t x, uint32_t y) const
 {
     if (x >= m_size.width)
     {
-        throw std::out_of_range("x out of range");
+        throw ImageApprovalsError("X out of range");
     }
 
     const auto rowPtr = getRowPointer(y);

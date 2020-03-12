@@ -1,5 +1,5 @@
 #include <doctest/doctest.h>
-#include <ImageApprovals/Image.hpp>
+#include <ImageApprovals.hpp>
 #include <stdexcept>
 
 using namespace ImageApprovals;
@@ -12,16 +12,16 @@ TEST_CASE("Image")
             return Image(PixelFormat::getRgbU8(), ColorSpace::getLinearSRgb(), sz, rowAlignment);
         };
 
-        REQUIRE_THROWS_AS(makeImage(Size(0, 1), 1), std::logic_error);
-        REQUIRE_THROWS_AS(makeImage(Size(1, 0), 1), std::logic_error);
-        REQUIRE_THROWS_AS(makeImage(Size(1, 1), 0), std::logic_error);
+        REQUIRE_THROWS_AS(makeImage(Size(0, 1), 1), ImageApprovalsError);
+        REQUIRE_THROWS_AS(makeImage(Size(1, 0), 1), ImageApprovalsError);
+        REQUIRE_THROWS_AS(makeImage(Size(1, 1), 0), ImageApprovalsError);
     }
 
     SUBCASE("getPixelFormat/getColorSpace throws when called on an empty Image")
     {
         Image emptyImage;
 
-        REQUIRE_THROWS_AS(emptyImage.getPixelFormat(), std::logic_error);
-        REQUIRE_THROWS_AS(emptyImage.getColorSpace(), std::logic_error);
+        REQUIRE_THROWS_AS(emptyImage.getPixelFormat(), ImageApprovalsError);
+        REQUIRE_THROWS_AS(emptyImage.getColorSpace(), ImageApprovalsError);
     }
 }

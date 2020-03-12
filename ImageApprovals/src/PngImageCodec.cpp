@@ -1,5 +1,6 @@
 #include "PngImageCodec.hpp"
 #include "ColorSpaceUtils.hpp"
+#include <ImageApprovals/Errors.hpp>
 #include <png.h>
 #include <functional>
 #include <cstring>
@@ -143,17 +144,17 @@ Image PngImageCodec::read(std::istream& stream, const std::string&) const
 
     if (!(png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr)))
     {
-        throw std::runtime_error("failed to allocate PNG read struct");
+        throw ImageApprovalsError("Failed to allocate PNG read struct");
     }
         
     if (!(info = png_create_info_struct(png)))
     {
-        throw std::runtime_error("failed to allocate PNG info struct");
+        throw ImageApprovalsError("Failed to allocate PNG info struct");
     }
 
     if (setjmp(png_jmpbuf(png)))
     {
-        throw std::runtime_error("failed to read PNG image");
+        throw ImageApprovalsError("Failed to read PNG image");
     }
 
     png_set_read_fn(png, &stream, &readBytes);
@@ -168,7 +169,7 @@ Image PngImageCodec::read(std::istream& stream, const std::string&) const
 
     if (pngBitDepth != 8)
     {
-        throw std::runtime_error("unsupported PNG bit depth");
+        throw ImageApprovalsError("Unsupported PNG bit depth");
     }
 
     switch (pngColorType)
@@ -186,13 +187,13 @@ Image PngImageCodec::read(std::istream& stream, const std::string&) const
         format = &PixelFormat::getRgbAlphaU8();
         break;
     default:
-        throw std::runtime_error("unsupported PNG color type");
+        throw ImageApprovalsError("Unsupported PNG color type");
     }
 
     const ColorSpace* colorSpace = detectColorSpace(png, info);
     if (!colorSpace)
     {
-        throw std::runtime_error("unknown color space");
+        throw ImageApprovalsError("Unknown color space");
     }
 
     image = Image(*format, *colorSpace, imgSize);
@@ -215,7 +216,7 @@ void PngImageCodec::write(const ImageView& image, std::ostream& stream, const st
 
     if (!fmt.isU8())
     {
-        throw std::runtime_error("unable to write the image to PNG file");
+        throw ImageApprovalsError("Unable to write the image to PNG file");
     }
 
     png_struct* png = nullptr;
@@ -232,17 +233,17 @@ void PngImageCodec::write(const ImageView& image, std::ostream& stream, const st
 
     if (!(png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr)))
     {
-        throw std::runtime_error("failed to allocate PNG write struct");
+        throw ImageApprovalsError("Failed to allocate PNG write struct");
     }
 
     if (!(info = png_create_info_struct(png)))
     {
-        throw std::runtime_error("failed to allocate PNG info struct");
+        throw ImageApprovalsError("Failed to allocate PNG info struct");
     }
 
     if (setjmp(png_jmpbuf(png)))
     {
-        throw std::runtime_error("failed to write PNG image");
+        throw ImageApprovalsError("Failed to write PNG image");
     }
 
     png_set_write_fn(png, &stream, &writeBytes, &flush);
@@ -266,7 +267,7 @@ void PngImageCodec::write(const ImageView& image, std::ostream& stream, const st
     }
     else
     {
-        throw std::runtime_error("unexpected pixel format");
+        throw ImageApprovalsError("Unexpected pixel format");
     }
 
     const auto sz = image.getSize();
@@ -295,7 +296,7 @@ void PngImageCodec::write(const ImageView& image, std::ostream& stream, const st
     }
     else
     {
-        throw std::runtime_error("unsupported ColorSpace");
+        throw ImageApprovalsError("Unsupported ColorSpace");
     }
 
     writePngComment(png, info);
