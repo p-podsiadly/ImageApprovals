@@ -118,15 +118,34 @@ std::string PngImageCodec::getFileExtensionWithDot() const
     return ".png";
 }
 
-bool PngImageCodec::canRead(std::istream& stream, const std::string&) const
+int PngImageCodec::getScore(const std::string& extensionWithDot) const
 {
-    png_byte signature[8];
-    std::fill_n(signature, 8, 0);
+    if(extensionWithDot == ".png")
+    {
+        return 100;
+    }
 
-    stream.read(reinterpret_cast<char*>(signature), 8);
-    stream.seekg(0);
+    return -1;
+}
 
-    return (png_sig_cmp(signature, 0, 8) == 0);
+int PngImageCodec::getScore(const std::string& extensionWithDot, const PixelFormat& pf, const ColorSpace& cs) const
+{
+    if(extensionWithDot != ".png")
+    {
+        return -1;
+    }
+
+    if(!pf.isU8())
+    {
+        return -1;
+    }
+
+    if(cs != ColorSpace::getSRgb() && cs != ColorSpace::getLinearSRgb())
+    {
+        return -1;
+    }
+
+    return 100;
 }
 
 Image PngImageCodec::read(std::istream& stream, const std::string&) const

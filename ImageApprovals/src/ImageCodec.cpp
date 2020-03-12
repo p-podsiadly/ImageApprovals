@@ -10,8 +10,6 @@
 
 namespace ImageApprovals {
 
-using ApprovalTests::StringUtils;
-
 ImageCodec::Disposer ImageCodec::registerCodec(const std::shared_ptr<ImageCodec>& codec)
 {
     if (codec)
@@ -53,6 +51,30 @@ std::vector<std::string> ImageCodec::getRegisteredExtensions()
 
 Image ImageCodec::read(const std::string& fileName)
 {
+    using ApprovalTests::FileUtils;
+    const auto extWithDot = FileUtils::getExtensionWithDot(fileName);    
+
+    const ImageCodec* codec = nullptr;
+    int codecScore = -1;
+
+    const auto& allCodecs = getImageCodecs();
+    for(auto iter = allCodecs.rbegin(); iter != allCodecs.rend(); ++iter)
+    {
+        const ImageCodec* thisCodec = iter->get();
+        const int thisScore = thisCodec->getScore(extWithDot);
+
+        if((thisScore >= 0) && (codecScore < thisScore))
+        {
+            codec = thisCodec;
+            codecScore = thisScore;
+        }
+    }
+
+    if(!codec)
+    {
+        throw ImageApprovalsError("No suitable ImageCodec for reading \"" + fileName + "\"");
+    }
+
     std::ifstream fileStream(fileName.c_str(), std::ios::binary);
     if (!fileStream)
     {
@@ -61,36 +83,33 @@ Image ImageCodec::read(const std::string& fileName)
 
     fileStream.exceptions(std::ios::failbit | std::ios::badbit);
 
-    for (const auto& codec : getImageCodecs())
-    {
-        const bool canRead = codec->canRead(fileStream, fileName);
-        fileStream.seekg(0);
-
-        if(canRead)
-        {            
-            return codec->read(fileStream, fileName);
-        }
-    }
-
-    throw ImageApprovalsError("Unsupported image file format when reading \"" + fileName + "\"");
+    return codec->read(fileStream, fileName);
 }
 
 void ImageCodec::write(const std::string& fileName, const ImageView& image)
 {
-    const ImageCodec* matchingCodec = nullptr;
+    using ApprovalTests::FileUtils;
+    const auto extWithDot = FileUtils::getExtensionWithDot(fileName);    
 
-    for (const auto& codec : getImageCodecs())
+    const ImageCodec* codec = nullptr;
+    int codecScore = -1;
+
+    const auto& allCodecs = getImageCodecs();
+    for(auto iter = allCodecs.rbegin(); iter != allCodecs.rend(); ++iter)
     {
-        if (StringUtils::endsWith(fileName, codec->getFileExtensionWithDot()))
+        const ImageCodec* thisCodec = iter->get();
+        const int thisScore = thisCodec->getScore(extWithDot, image.getPixelFormat(), image.getColorSpace());
+
+        if((thisScore >= 0) && (codecScore < thisScore))
         {
-            matchingCodec = codec.get();
-            break;
+            codec = thisCodec;
+            codecScore = thisScore;
         }
     }
 
-    if (!matchingCodec)
+    if(!codec)
     {
-        throw ImageApprovalsError("Unsupported image file format when writing \"" + fileName + "\"");
+        throw ImageApprovalsError("No suitable codec for writing \"" + fileName + "\"");
     }
 
     std::ofstream fileStream(fileName.c_str(), std::ios::binary);
@@ -100,7 +119,8 @@ void ImageCodec::write(const std::string& fileName, const ImageView& image)
     }
 
     fileStream.exceptions(std::ios::badbit | std::ios::failbit);
-    matchingCodec->write(image, fileStream, fileName);
+
+    codec->write(image, fileStream, fileName);
 }
 
 std::vector<std::shared_ptr<ImageCodec>>& ImageCodec::getImageCodecs()

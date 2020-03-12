@@ -26,9 +26,10 @@ public:
 protected:
     virtual std::string getFileExtensionWithDot() const = 0;
 
-    virtual bool canRead(std::istream& stream, const std::string& fileName) const = 0;
-    virtual Image read(std::istream& stream, const std::string& fileName) const = 0;
+    virtual int getScore(const std::string& extensionWithDot) const = 0;
+    virtual int getScore(const std::string& extensionWithDot, const PixelFormat& pf, const ColorSpace& cs) const = 0;
 
+    virtual Image read(std::istream& stream, const std::string& fileName) const = 0;
     virtual void write(const ImageView& image, std::ostream& stream, const std::string& fileName) const = 0;
 
 private:

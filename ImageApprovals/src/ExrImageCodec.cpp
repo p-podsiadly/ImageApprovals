@@ -97,14 +97,29 @@ std::string ExrImageCodec::getFileExtensionWithDot() const
     return ".exr";
 }
 
-bool ExrImageCodec::canRead(std::istream& stream, const std::string& fileName) const
+int ExrImageCodec::getScore(const std::string& extensionWithDot) const
 {
-    const std::array<uint8_t, 4> refSignature{ 0x76, 0x2f, 0x31, 0x01 };
-    std::array<uint8_t, 4> signature;
-   
-    stream.read(reinterpret_cast<char*>(signature.data()), 4);
+    if(extensionWithDot == ".exr")
+    {
+        return 100;
+    }
+    
+    return -1;
+}
 
-    return refSignature == signature;
+int ExrImageCodec::getScore(const std::string& extensionWithDot, const PixelFormat& pf, const ColorSpace& cs) const
+{
+    if(extensionWithDot != ".exr")
+    {
+        return -1;
+    }
+
+    if(!pf.isF32() || cs != ColorSpace::getLinearSRgb())
+    {
+        return -1;
+    }
+
+    return 100;
 }
 
 Image ExrImageCodec::read(std::istream& stream, const std::string& fileName) const
