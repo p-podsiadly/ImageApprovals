@@ -2,6 +2,7 @@ import re
 import toposort
 import os
 from abc import ABC, abstractmethod
+from pathlib import Path
 
 def preprocess_file(file_name, src, ignored_abs_includes):
 
@@ -31,7 +32,7 @@ def preprocess_file(file_name, src, ignored_abs_includes):
     def rel_include_filter(src_line):
         match = rel_include_re.match(src_line)
         if match is not None:
-            rel_includes.append(match.group(1))
+            rel_includes.append(Path(match.group(1)))
             return False
         return True
     
@@ -58,9 +59,9 @@ def preprocess_file(file_name, src, ignored_abs_includes):
         
     out_src = "\n".join(src_lines).strip()
     if len(out_src) == 0:
-        out_src = "// {}\n".format(file_name)
+        out_src = "// {}\n".format(Path(file_name).as_posix())
     else:
-        out_src = "// {}\n\n{}\n".format(file_name, out_src)
+        out_src = "// {}\n\n{}\n".format(Path(file_name).as_posix(), out_src)
 
     return (out_src, rel_includes)
 
@@ -75,7 +76,7 @@ class Scope:
 
 class SourceFileAccessor(ABC):
 
-    # Returns list of (path_dir, file_name, scope) tuples.
+    # Returns list of (dir_path, file_name, scope) tuples.
     # scope is either Scope.PUBLIC or Scope.PRIVATE.
     @abstractmethod
     def list_files(self):
@@ -83,7 +84,7 @@ class SourceFileAccessor(ABC):
 
     # Returns contents of the file
     @abstractmethod
-    def read_file(self, path_dir, file_name):
+    def read_file(self, dir_path, file_name):
         pass
 
 class SingleHeaderGen:
@@ -95,24 +96,24 @@ class SingleHeaderGen:
         self._private_sources = dict()
 
     def add_public_src(self, file_name, src, rel_includes):
-        self._public_sources[file_name] = (src, rel_includes)
+        self._public_sources[Path(file_name)] = (src, rel_includes)
 
     def add_private_src(self, file_name, src, rel_includes):
-        self._private_sources[file_name] = (src, list(filter(lambda inc : inc not in self._public_sources, rel_includes)))
+        self._private_sources[Path(file_name)] = (src, list(filter(lambda inc : inc not in self._public_sources, rel_includes)))
 
     @staticmethod
     def _generate_part(src_dict):
 
         src_deps = dict()
         for key, val in src_dict.items():
-            src_deps[key] = set(val[1])
+            src_deps[str(key)] = set([str(p) for p in val[1]])
         
         ordered_sources = toposort.toposort_flatten(src_deps)
 
         out_src = ""
 
         for src_file_name in ordered_sources:
-            src = src_dict[src_file_name][0]
+            src = src_dict[Path(src_file_name)][0]
 
             out_src = out_src + src + "\n"
 
