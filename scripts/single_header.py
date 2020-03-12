@@ -1,0 +1,167 @@
+import re
+import toposort
+import os
+from abc import ABC, abstractmethod
+
+def preprocess_file(file_name, src, ignored_abs_includes):
+
+    out_src = ""
+    rel_includes = []
+
+    src_lines = src.strip().split("\n")
+
+    if len(src_lines) < 3:
+        return ("", [])
+
+    ifndef_re = re.compile("#ifndef ([a-zA-Z0-9_]*)")
+    match = ifndef_re.match(src)
+    if match is not None:
+        
+        inc_guard = match.group(1)
+
+        line_2nd = src_lines[1].strip()
+        line_last = src_lines[-1].strip()
+
+        if line_2nd == "#define " + inc_guard and line_last.startswith("#endif"):
+            del src_lines[0:2]
+            del src_lines[-1]
+
+    rel_include_re = re.compile("#include \"([a-zA-Z0-9_.\\/]*)\"")
+
+    def rel_include_filter(src_line):
+        match = rel_include_re.match(src_line)
+        if match is not None:
+            rel_includes.append(match.group(1))
+            return False
+        return True
+    
+    src_lines = filter(rel_include_filter, src_lines)
+    
+    if len(ignored_abs_includes) > 0:
+
+        ignored_abs_includes = [re.compile(inc) for inc in ignored_abs_includes]
+
+        abs_include_re = re.compile("#include <([a-zA-Z0-9_.\\/]*)>")
+        
+        def abs_include_filter(src_line):
+            match = abs_include_re.match(src_line)
+            if match is not None:
+                inc_file = match.group(1)
+
+                for inc_re in ignored_abs_includes:
+                    if inc_re.match(inc_file) is not None:
+                        return False
+            
+            return True
+        
+        src_lines = filter(abs_include_filter, src_lines)
+        
+    out_src = "\n".join(src_lines).strip()
+    if len(out_src) == 0:
+        out_src = "// {}\n".format(file_name)
+    else:
+        out_src = "// {}\n\n{}\n".format(file_name, out_src)
+
+    return (out_src, rel_includes)
+
+# "Scope" of a source file (see SourceFileAccessor.list_files)
+class Scope:
+
+    # The file is a part of the public API
+    PUBLIC = 0
+
+    # The file is a part of the implementation
+    PRIVATE = 1
+
+class SourceFileAccessor(ABC):
+
+    # Returns list of (path_dir, file_name, scope) tuples.
+    # scope is either Scope.PUBLIC or Scope.PRIVATE.
+    @abstractmethod
+    def list_files(self):
+        pass
+
+    # Returns contents of the file
+    @abstractmethod
+    def read_file(self, path_dir, file_name):
+        pass
+
+class SingleHeaderGen:
+
+    def __init__(self, inc_guard, impl_define):
+        self._include_guard = inc_guard
+        self._impl_define = impl_define
+        self._public_sources = dict()
+        self._private_sources = dict()
+
+    def add_public_src(self, file_name, src, rel_includes):
+        self._public_sources[file_name] = (src, rel_includes)
+
+    def add_private_src(self, file_name, src, rel_includes):
+        self._private_sources[file_name] = (src, list(filter(lambda inc : inc not in self._public_sources, rel_includes)))
+
+    @staticmethod
+    def _generate_part(src_dict):
+
+        src_deps = dict()
+        for key, val in src_dict.items():
+            src_deps[key] = set(val[1])
+        
+        ordered_sources = toposort.toposort_flatten(src_deps)
+
+        out_src = ""
+
+        for src_file_name in ordered_sources:
+            src = src_dict[src_file_name][0]
+
+            out_src = out_src + src + "\n"
+
+        return out_src
+
+    def generate(self):
+        
+        out_src = (
+            "#ifndef " + self._include_guard + "\n"
+            "#define " + self._include_guard + "\n\n"
+        )
+
+        out_src = out_src + SingleHeaderGen._generate_part(self._public_sources)
+
+        out_src = out_src + "#ifdef " + self._impl_define + "\n\n"
+
+        out_src = out_src + SingleHeaderGen._generate_part(self._private_sources)
+
+        out_src = out_src + "#endif // " + self._impl_define + "\n\n"
+        out_src = out_src + "#endif // " + self._include_guard + "\n"
+
+        return out_src
+
+    def add_source_files(self, src_file_accessor, ignored_abs_includes = []):
+
+        src_files = src_file_accessor.list_files()
+
+        for dir_path, file_name, scope in src_files:
+
+            file_path = os.path.join(dir_path, file_name)
+
+            in_src = src_file_accessor.read_file(dir_path, file_name)
+
+            src, rel_includes = preprocess_file(file_path, in_src, ignored_abs_includes)
+
+            rel_includes = [os.path.join(dir_path, rel_inc) for rel_inc in rel_includes]
+
+            if scope == Scope.PUBLIC:
+                self.add_public_src(file_path, src, rel_includes)
+            else:
+                self.add_private_src(file_path, src, rel_includes)
+
+class SourceFileAccessorImpl(SourceFileAccessor):
+
+    def __init__(self, root_dir):
+        self._root_dir = root_dir
+
+    def list_files(self):
+        pass
+
+    def read_file(self, dir_path, file_name):
+        pass
