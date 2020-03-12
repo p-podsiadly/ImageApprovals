@@ -1,9 +1,7 @@
 #ifndef IMAGEAPPROVALS_HPP_INCLUDED
 #define IMAGEAPPROVALS_HPP_INCLUDED
 
-#ifdef ImageApprovals_CONFIG_QT5
-# include "ImageApprovals/QImageView.hpp"
-#endif
+#include "ImageApprovals/QImageView.hpp"
 
 #include "ImageApprovals/ImageWriter.hpp"
 #include "ImageApprovals/ImageComparator.hpp"

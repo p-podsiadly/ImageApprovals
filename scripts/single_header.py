@@ -155,13 +155,51 @@ class SingleHeaderGen:
             else:
                 self.add_private_src(file_path, src, rel_includes)
 
+def is_cpp_file(file_name):
+    _, ext = os.path.splitext(file_name)
+
+    return ext in {".hpp", ".cpp"}
+
 class SourceFileAccessorImpl(SourceFileAccessor):
 
     def __init__(self, root_dir):
         self._root_dir = root_dir
 
+    def _list_cpp_files_from_dir(self, subdir_path, scope):
+
+        result = []
+
+        for full_dir_path, _, files in os.walk(os.path.join(self._root_dir, subdir_path)):
+
+            dir_path = os.path.relpath(full_dir_path, self._root_dir)
+
+            if dir_path == ".":
+                dir_path = ""
+
+            for file_name in filter(is_cpp_file, files):
+                result.append((dir_path, file_name, scope))
+
+        return result
+
     def list_files(self):
-        pass
+
+        inc_dir = os.path.join(self._root_dir, "include")
+        src_dir = os.path.join(self._root_dir, "src")
+
+        result = []
+
+        result.extend(self._list_cpp_files_from_dir(inc_dir, Scope.PUBLIC))
+        result.extend(self._list_cpp_files_from_dir(src_dir, Scope.PRIVATE))
+                
+        return result
 
     def read_file(self, dir_path, file_name):
-        pass
+        full_path = os.path.join(self._root_dir, dir_path, file_name)
+
+        with open(full_path, "r") as f:
+            return f.read()
+
+if __name__ == "__main__":
+    gen = SingleHeaderGen("IMAGEAPPROVALS_HPP_INCLUDED", "ImageApprovals_IMPLEMENT")
+    gen.add_source_files(SourceFileAccessorImpl("../ImageApprovals/"), ["ImageApprovals/"])
+    print(gen.generate())
