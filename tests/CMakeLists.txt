@@ -59,4 +59,8 @@ add_executable(ImageApprovals_SingleHeaderTest "SingleHeader.cpp")
 target_include_directories(ImageApprovals_SingleHeaderTest PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../single_header/")
 target_link_libraries(ImageApprovals_SingleHeaderTest PRIVATE
 	ApprovalTests::ApprovalTests doctest::doctest PNG::PNG OpenEXR::OpenEXR ZLIB::ZLIB)
+if(MSVC)
+	target_compile_options(ImageApprovals_SingleHeaderTest PRIVATE /FC)
+	target_link_libraries(ImageApprovals_SingleHeaderTest PRIVATE -IGNORE:4099)
+endif()
 doctest_discover_tests(ImageApprovals_SingleHeaderTest TEST_PREFIX "ImageApprovals/")
