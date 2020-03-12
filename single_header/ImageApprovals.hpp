@@ -29,6 +29,31 @@ std::ostream& operator <<(std::ostream& stream, const ColorSpace& colorSpace);
 
 }
 
+// include/ImageApprovals/Errors.hpp
+
+#include <exception>
+#include <string>
+
+namespace ImageApprovals {
+
+class ImageApprovalsError : public std::exception
+{
+public:
+    explicit ImageApprovalsError(std::string message)
+        : m_message(std::move(message))
+    {}
+
+    const char* what() const noexcept override
+    {
+        return m_message.c_str();
+    }
+
+private:
+    std::string m_message;
+};
+
+}
+
 // include/ImageApprovals/PixelFormat.hpp
 
 #include <cstdint>
@@ -403,12 +428,12 @@ inline ImageView makeView(const QImage& image)
 
     if(!format)
     {
-        throw std::runtime_error("Unsupported QImage::Format value");
+        throw ImageApprovalsError("Unsupported QImage::Format value");
     }
 
     if(!colorSpace)
     {
-        throw std::runtime_error("Unsupported QColorSpace");
+        throw ImageApprovalsError("Unsupported QColorSpace");
     }
 
     const auto w = static_cast<uint32_t>(image.width());
@@ -533,7 +558,7 @@ public:
             return ".exr";
         }
 
-        throw std::runtime_error("invalid Format value");
+        throw ImageApprovalsError("Invalid Format value");
     }
 
     void write(std::string path) const override
@@ -563,7 +588,7 @@ private:
             return ".exr";
         }
 
-        throw std::runtime_error("invalid PixelDataType value");
+        throw ImageApprovalsError("Invalid PixelDataType value");
     }
 };
 
@@ -853,12 +878,12 @@ Image::Image(const PixelFormat& format, const ColorSpace& colorSpace, const Size
 {
     if (m_size.isZero())
     {
-        throw std::logic_error("image size cannot be zero");
+        throw ImageApprovalsError("Image size cannot be zero");
     }
 
     if (m_rowAlignment == 0)
     {
-        throw std::logic_error("image row alignment must be greater than 0");
+        throw ImageApprovalsError("Image row alignment must be greater than 0");
     }
 
     const size_t rowStride = getRowStride();
@@ -906,7 +931,7 @@ uint8_t* Image::getRowPointer(uint32_t y)
 {
     if (y >= m_size.height)
     {
-        throw std::out_of_range("row index out of range");
+        throw ImageApprovalsError("Row index out of range");
     }
 
     const auto rowStride = getRowStride();
@@ -1034,7 +1059,7 @@ const PixelFormat& ImageView::getPixelFormat() const
 {
     if (!m_format)
     {
-        throw std::logic_error("calling getPixelFormat on an empty ImageView");
+        throw ImageApprovalsError("Calling getPixelFormat on an empty ImageView");
     }
 
     return *m_format;
@@ -1044,7 +1069,7 @@ const ColorSpace& ImageView::getColorSpace() const
 {
     if (!m_colorSpace)
     {
-        throw std::logic_error("calling getColorSpace on an empty ImageView");
+        throw ImageApprovalsError("Calling getColorSpace on an empty ImageView");
     }
 
     return *m_colorSpace;
@@ -1054,7 +1079,7 @@ const uint8_t* ImageView::getRowPointer(uint32_t index) const
 {
     if (index >= m_size.height)
     {
-        throw std::out_of_range("row index out of range");
+        throw ImageApprovalsError("Row index out of range");
     }
 
     return m_dataPtr + m_rowStride * index;
@@ -1064,7 +1089,7 @@ RGBA ImageView::getPixel(uint32_t x, uint32_t y) const
 {
     if (x >= m_size.width)
     {
-        throw std::out_of_range("x out of range");
+        throw ImageApprovalsError("X out of range");
     }
 
     const auto rowPtr = getRowPointer(y);
@@ -1199,7 +1224,7 @@ const uint8_t* PixelFormat::decode(const uint8_t* begin, const uint8_t* end, RGB
     const auto stride = getPixelStride();
     if (begin + stride > end)
     {
-        throw std::out_of_range("begin + stride > end");
+        throw ImageApprovalsError("begin + stride > end");
     }
 
     decode(begin, outRgba);
@@ -1354,7 +1379,7 @@ bool isSRgbIccProfile(uint32_t profLen, const uint8_t* profData)
 {
     if (profLen < 132)
     {
-        throw std::runtime_error("incomplete ICC profile data");
+        throw ImageApprovalsError("Incomplete ICC profile data");
     }
 
     const std::array<char, 4> rgbColorSpace{ 'R', 'G', 'B', ' ' };
@@ -1362,7 +1387,7 @@ bool isSRgbIccProfile(uint32_t profLen, const uint8_t* profData)
     std::memcpy(colorSpace.data(), profData + 16, 4);
     if (colorSpace != rgbColorSpace)
     {
-        throw std::runtime_error("color space in the ICC profile is not RGB");
+        throw ImageApprovalsError("Color space in the ICC profile is not RGB");
     }
 
     uint32_t numTags = 0;
@@ -1370,7 +1395,7 @@ bool isSRgbIccProfile(uint32_t profLen, const uint8_t* profData)
     numTags = fromBigEndian(numTags);
     if ((128 + numTags * 12) > profLen)
     {
-        throw std::runtime_error("incomplete ICC profile data");
+        throw ImageApprovalsError("Incomplete ICC profile data");
     }
 
     struct TagInfo
@@ -1389,7 +1414,7 @@ bool isSRgbIccProfile(uint32_t profLen, const uint8_t* profData)
 
         if ((info.offset + info.size) > profLen)
         {
-            throw std::runtime_error("incomplete ICC profile data");
+            throw ImageApprovalsError("Incomplete ICC profile data");
         }
 
         // profileDescriptionTag 
@@ -1476,13 +1501,13 @@ public:
         const auto read_bytes = m_stream.gcount();
         if (read_bytes < n)
         {
-            throw std::runtime_error("not eough data");
+            throw ImageApprovalsError("Not enough data");
         }
 
         return !m_stream.eof();
     }
 
-    char* readMemoryMapped(int) override { throw std::runtime_error("not memory mapped"); }
+    char* readMemoryMapped(int) override { throw ImageApprovalsError("Not memory mapped"); }
 
     Imf::Int64 tellg() override { return m_stream.tellg(); }
 
@@ -1583,7 +1608,7 @@ Image ExrImageCodec::read(std::istream& stream, const std::string& fileName) con
         fmt = &PixelFormat::getRgbAlphaF32();
         break;
     default:
-        throw std::runtime_error("Unsupported pixel format");
+        throw ImageApprovalsError("Unsupported pixel format");
     }
 
     const Size imgSize(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
@@ -1600,12 +1625,12 @@ void ExrImageCodec::write(const ImageView& image, std::ostream& stream, const st
 
     if (!fmt.isF32())
     {
-        throw std::runtime_error("EXR codec cannot write non-float pixels");
+        throw ImageApprovalsError("EXR codec cannot write non-float pixels");
     }
 
     if (image.getColorSpace() != ColorSpace::getLinearSRgb())
     {
-        throw std::runtime_error("EXR codec can write only images with linear color space");
+        throw ImageApprovalsError("EXR codec can write only images with linear color space");
     }
 
     Imf::RgbaChannels channels{};
@@ -1620,7 +1645,7 @@ void ExrImageCodec::write(const ImageView& image, std::ostream& stream, const st
     }
     else
     {
-        throw std::runtime_error("unexpected pixel format");
+        throw ImageApprovalsError("Unexpected pixel format");
     }
 
     OutputStreamAdapter streamAdapter(fileName, stream);
@@ -1716,7 +1741,7 @@ Image ImageCodec::read(const std::string& fileName)
     std::ifstream fileStream(fileName.c_str(), std::ios::binary);
     if (!fileStream)
     {
-        throw std::runtime_error("could not open file \"" + fileName + "\" for reading");
+        throw ImageApprovalsError("Could not open file \"" + fileName + "\" for reading");
     }
 
     fileStream.exceptions(std::ios::failbit | std::ios::badbit);
@@ -1732,7 +1757,7 @@ Image ImageCodec::read(const std::string& fileName)
         }
     }
 
-    throw std::runtime_error("unsupported image file format when reading \"" + fileName + "\"");
+    throw ImageApprovalsError("Unsupported image file format when reading \"" + fileName + "\"");
 }
 
 void ImageCodec::write(const std::string& fileName, const ImageView& image)
@@ -1750,13 +1775,13 @@ void ImageCodec::write(const std::string& fileName, const ImageView& image)
 
     if (!matchingCodec)
     {
-        throw std::runtime_error("unsupported image file format when writing \"" + fileName + "\"");
+        throw ImageApprovalsError("Unsupported image file format when writing \"" + fileName + "\"");
     }
 
     std::ofstream fileStream(fileName.c_str(), std::ios::binary);
     if (!fileStream)
     {
-        throw std::runtime_error("could not open file \"" + fileName + "\" for writing");
+        throw ImageApprovalsError("Could not open file \"" + fileName + "\" for writing");
     }
 
     fileStream.exceptions(std::ios::badbit | std::ios::failbit);
@@ -1946,17 +1971,17 @@ Image PngImageCodec::read(std::istream& stream, const std::string&) const
 
     if (!(png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr)))
     {
-        throw std::runtime_error("failed to allocate PNG read struct");
+        throw ImageApprovalsError("Failed to allocate PNG read struct");
     }
         
     if (!(info = png_create_info_struct(png)))
     {
-        throw std::runtime_error("failed to allocate PNG info struct");
+        throw ImageApprovalsError("Failed to allocate PNG info struct");
     }
 
     if (setjmp(png_jmpbuf(png)))
     {
-        throw std::runtime_error("failed to read PNG image");
+        throw ImageApprovalsError("Failed to read PNG image");
     }
 
     png_set_read_fn(png, &stream, &readBytes);
@@ -1971,7 +1996,7 @@ Image PngImageCodec::read(std::istream& stream, const std::string&) const
 
     if (pngBitDepth != 8)
     {
-        throw std::runtime_error("unsupported PNG bit depth");
+        throw ImageApprovalsError("Unsupported PNG bit depth");
     }
 
     switch (pngColorType)
@@ -1989,13 +2014,13 @@ Image PngImageCodec::read(std::istream& stream, const std::string&) const
         format = &PixelFormat::getRgbAlphaU8();
         break;
     default:
-        throw std::runtime_error("unsupported PNG color type");
+        throw ImageApprovalsError("Unsupported PNG color type");
     }
 
     const ColorSpace* colorSpace = detectColorSpace(png, info);
     if (!colorSpace)
     {
-        throw std::runtime_error("unknown color space");
+        throw ImageApprovalsError("Unknown color space");
     }
 
     image = Image(*format, *colorSpace, imgSize);
@@ -2018,7 +2043,7 @@ void PngImageCodec::write(const ImageView& image, std::ostream& stream, const st
 
     if (!fmt.isU8())
     {
-        throw std::runtime_error("unable to write the image to PNG file");
+        throw ImageApprovalsError("Unable to write the image to PNG file");
     }
 
     png_struct* png = nullptr;
@@ -2035,17 +2060,17 @@ void PngImageCodec::write(const ImageView& image, std::ostream& stream, const st
 
     if (!(png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr)))
     {
-        throw std::runtime_error("failed to allocate PNG write struct");
+        throw ImageApprovalsError("Failed to allocate PNG write struct");
     }
 
     if (!(info = png_create_info_struct(png)))
     {
-        throw std::runtime_error("failed to allocate PNG info struct");
+        throw ImageApprovalsError("Failed to allocate PNG info struct");
     }
 
     if (setjmp(png_jmpbuf(png)))
     {
-        throw std::runtime_error("failed to write PNG image");
+        throw ImageApprovalsError("Failed to write PNG image");
     }
 
     png_set_write_fn(png, &stream, &writeBytes, &flush);
@@ -2069,7 +2094,7 @@ void PngImageCodec::write(const ImageView& image, std::ostream& stream, const st
     }
     else
     {
-        throw std::runtime_error("unexpected pixel format");
+        throw ImageApprovalsError("Unexpected pixel format");
     }
 
     const auto sz = image.getSize();
@@ -2098,7 +2123,7 @@ void PngImageCodec::write(const ImageView& image, std::ostream& stream, const st
     }
     else
     {
-        throw std::runtime_error("unsupported ColorSpace");
+        throw ImageApprovalsError("Unsupported ColorSpace");
     }
 
     writePngComment(png, info);
