@@ -3,6 +3,7 @@ import toposort
 import os
 from abc import ABC, abstractmethod
 from pathlib import Path
+import sys
 
 def preprocess_file(file_name, src, ignored_abs_includes):
 
@@ -201,10 +202,11 @@ class SourceFileAccessorImpl(SourceFileAccessor):
             return f.read()
 
 if __name__ == "__main__":
+    
+    single_header_path = Path(sys.argv[1])
 
     scripts_dir = Path(os.path.realpath(__file__)).parent
     lib_dir = scripts_dir / "../ImageApprovals/"
-    single_header_path = scripts_dir / "../single_header/ImageApprovals.hpp"
 
     gen = SingleHeaderGen("IMAGEAPPROVALS_HPP_INCLUDED", "ImageApprovals_IMPLEMENT")
     gen.add_source_files(SourceFileAccessorImpl(lib_dir), ["ImageApprovals/"])

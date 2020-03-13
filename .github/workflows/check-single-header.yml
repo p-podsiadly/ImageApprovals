@@ -19,5 +19,5 @@ jobs:
 
     - name: Check is single header is up to date
       run: |
-        (cd $GITHUB_WORKSPACE/scripts; python single_header.py) > ref.hpp
-        cmp $GITHUB_WORKSPACE/single_header/ImageApprovals.hpp ref.hpp
+        python $GITHUB_WORKSPACE/scripts/single_header.py ref.hpp
+        diff --text $GITHUB_WORKSPACE/single_header/ImageApprovals.hpp ref.hpp
