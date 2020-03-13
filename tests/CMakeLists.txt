@@ -1,4 +1,8 @@
 find_package(doctest REQUIRED)
+find_package(ApprovalTests REQUIRED)
+find_package(PNG REQUIRED)
+find_package(ZLIB REQUIRED)
+find_package(OpenEXR REQUIRED)
 
 set(sources
 	"src/ComparatorTests.cpp"
@@ -50,17 +54,23 @@ endif()
 
 doctest_discover_tests(ImageApprovalsTests TEST_PREFIX "ImageApprovals/")
 
-find_package(ApprovalTests REQUIRED)
-find_package(PNG REQUIRED)
-find_package(OpenEXR REQUIRED)
-find_package(ZLIB REQUIRED)
-
 add_executable(ImageApprovals_SingleHeaderTest "SingleHeader.cpp")
+
 target_include_directories(ImageApprovals_SingleHeaderTest PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../single_header/")
-target_link_libraries(ImageApprovals_SingleHeaderTest PRIVATE
-	ApprovalTests::ApprovalTests doctest::doctest PNG::PNG OpenEXR::OpenEXR ZLIB::ZLIB)
+
+target_link_libraries(
+	ImageApprovals_SingleHeaderTest
+	PRIVATE
+		ApprovalTests::ApprovalTests
+		doctest::doctest
+		OpenEXR::OpenEXR
+		ZLIB::ZLIB
+		PNG::PNG
+)
+
 if(MSVC)
 	target_compile_options(ImageApprovals_SingleHeaderTest PRIVATE /FC)
 	target_link_libraries(ImageApprovals_SingleHeaderTest PRIVATE -IGNORE:4099)
 endif()
+
 doctest_discover_tests(ImageApprovals_SingleHeaderTest TEST_PREFIX "ImageApprovals/")
