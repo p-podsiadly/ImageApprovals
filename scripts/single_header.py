@@ -201,6 +201,15 @@ class SourceFileAccessorImpl(SourceFileAccessor):
             return f.read()
 
 if __name__ == "__main__":
+
+    scripts_dir = Path(os.path.realpath(__file__)).parent
+    lib_dir = scripts_dir / "../ImageApprovals/"
+    single_header_path = scripts_dir / "../single_header/ImageApprovals.hpp"
+
     gen = SingleHeaderGen("IMAGEAPPROVALS_HPP_INCLUDED", "ImageApprovals_IMPLEMENT")
-    gen.add_source_files(SourceFileAccessorImpl("../ImageApprovals/"), ["ImageApprovals/"])
-    print(gen.generate())
+    gen.add_source_files(SourceFileAccessorImpl(lib_dir), ["ImageApprovals/"])
+    single_header_src = gen.generate()
+
+    print("Writing to {}...".format(single_header_path))
+    with open(single_header_path, "w", newline="\n") as f:
+        f.write(single_header_src)
