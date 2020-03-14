@@ -1,6 +1,8 @@
 #ifndef IMAGEAPPROVALS_PNGIMAGECODEC_HPP_INCLUDED
 #define IMAGEAPPROVALS_PNGIMAGECODEC_HPP_INCLUDED
 
+#ifdef ImageApprovals_CONFIG_WITH_LIBPNG
+
 #include <ImageApprovals/ImageCodec.hpp>
 
 namespace ImageApprovals { namespace detail {
@@ -19,5 +21,7 @@ protected:
 };
 
 } }
+
+#endif // ImageApprovals_CONFIG_WITH_LIBPNG
 
 #endif // IMAGEAPPROVALS_PNGIMAGECODEC_HPP_INCLUDED

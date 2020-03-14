@@ -1233,6 +1233,9 @@ std::ostream& operator <<(std::ostream& stream, const RGBA& rgba)
 
 // src/PngImageCodec.hpp
 
+#ifdef ImageApprovals_CONFIG_WITH_LIBPNG
+
+
 namespace ImageApprovals { namespace detail {
 
 class PngImageCodec : public ImageCodec
@@ -1249,6 +1252,8 @@ protected:
 };
 
 } }
+
+#endif // ImageApprovals_CONFIG_WITH_LIBPNG
 
 // src/Units.cpp
 
@@ -1821,6 +1826,8 @@ ImageCodec::Disposer& ImageCodec::Disposer::operator =(Disposer&& rhs) noexcept
 
 // src/PngImageCodec.cpp
 
+#ifdef ImageApprovals_CONFIG_WITH_LIBPNG
+
 #include <png.h>
 #include <functional>
 #include <cstring>
@@ -2147,6 +2154,8 @@ void PngImageCodec::write(const ImageView& image, std::ostream& stream, const st
 }
 
 } }
+
+#endif ImageApprovals_CONFIG_WITH_LIBPNG
 
 #endif // ImageApprovals_IMPLEMENT
 

@@ -1,3 +1,5 @@
+#ifdef ImageApprovals_CONFIG_WITH_LIBPNG
+
 #include "PngImageCodec.hpp"
 #include "ColorSpaceUtils.hpp"
 #include <ImageApprovals/Errors.hpp>
@@ -327,3 +329,5 @@ void PngImageCodec::write(const ImageView& image, std::ostream& stream, const st
 }
 
 } }
+
+#endif ImageApprovals_CONFIG_WITH_LIBPNG

@@ -45,6 +45,12 @@ configure_file(
 add_library(ImageApprovals STATIC ${sources})
 target_compile_features(ImageApprovals PUBLIC cxx_std_11)
 
+target_compile_definitions(
+    ImageApprovals
+    PUBLIC
+        -DImageApprovals_CONFIG_WITH_LIBPNG
+)
+
 target_include_directories(
     ImageApprovals
     PUBLIC
