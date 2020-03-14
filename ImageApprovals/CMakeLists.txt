@@ -56,7 +56,6 @@ target_compile_definitions(
     PUBLIC
         -DImageApprovals_CONFIG_WITH_LIBPNG
         -DImageApprovals_CONFIG_WITH_OPENEXR
-        -DImageApprovals_CONFIG_WITH_QT5
 )
 
 target_include_directories(
@@ -77,6 +76,7 @@ target_link_libraries(
 
 if(ImageApprovals_ENABLE_QT5_INTEGRATION)
     target_link_libraries(ImageApprovals PUBLIC Qt5::Gui)
+    target_compile_definitions(ImageApprovals PUBLIC -DImageApprovals_CONFIG_WITH_QT5)
 endif()
 
 add_library(ImageApprovals::ImageApprovals ALIAS ImageApprovals)
