@@ -3,7 +3,7 @@
 
 #define ImageApprovals_CONFIG_WITH_LIBPNG
 #define ImageApprovals_CONFIG_WITH_OPENEXR
-#define ImageApprovals_IMPLEMENT
+#define ImageApprovals_CONFIG_IMPLEMENT
 #include <ImageApprovals.hpp>
 
 TEST_CASE("SingleHeader")

@@ -1,6 +1,41 @@
 #ifndef IMAGEAPPROVALS_HPP_INCLUDED
 #define IMAGEAPPROVALS_HPP_INCLUDED
 
+/******************************************************************************
+ * 
+ * Copyright 2020 Piotr Podsiadły
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ ******************************************************************************
+ * 
+ * ImageApprovals version 0.1.0
+ * 
+ * https://github.com/p-podsiadly/ImageApprovals
+ * 
+ * Configuration #defines:
+ * 
+ * * ImageApprovals_CONFIG_WITH_LIBPNG: enables libPNG-based image codec
+ * 
+ * * ImageApprovals_CONFIG_WITH_OPENEXR: enables OpenEXR-based image codec
+ * 
+ * * ImageApprovals_CONFIG_WITH_QT5: enables Qt5 integration
+ * 
+ * * ImageApprovals_CONFIG_IMPLEMENT: necessary in exactly one file,
+ *   for implementation part to be expanded.
+ * 
+ ******************************************************************************/
+
 // include/ImageApprovals/ColorSpace.hpp
 
 #include <iosfwd>
@@ -495,7 +530,7 @@ private:
 
 // include/ImageApprovals.hpp
 
-#ifdef ImageApprovals_IMPLEMENT
+#ifdef ImageApprovals_CONFIG_IMPLEMENT
 
 // src/ColorSpace.cpp
 
@@ -2192,6 +2227,6 @@ void PngImageCodec::write(const ImageView& image, std::ostream& stream, const st
 
 #endif ImageApprovals_CONFIG_WITH_LIBPNG
 
-#endif // ImageApprovals_IMPLEMENT
+#endif // ImageApprovals_CONFIG_IMPLEMENT
 
 #endif // IMAGEAPPROVALS_HPP_INCLUDED

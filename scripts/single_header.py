@@ -91,6 +91,10 @@ class SourceFileAccessor(ABC):
 class SingleHeaderGen:
 
     def __init__(self, inc_guard, impl_define):
+
+        # Additional code inserted at the beginning of the generated header
+        self.additional_header = None
+
         self._include_guard = inc_guard
         self._impl_define = impl_define
         self._public_sources = dict()
@@ -100,7 +104,7 @@ class SingleHeaderGen:
         self._public_sources[Path(file_name)] = (src, rel_includes)
 
     def add_private_src(self, file_name, src, rel_includes):
-        self._private_sources[Path(file_name)] = (src, list(filter(lambda inc : inc not in self._public_sources, rel_includes)))
+        self._private_sources[Path(file_name)] = (src, list(filter(lambda inc : Path(inc) not in self._public_sources, rel_includes)))
 
     @staticmethod
     def _generate_part(src_dict):
@@ -127,6 +131,9 @@ class SingleHeaderGen:
             "#define " + self._include_guard + "\n\n"
         )
 
+        if self.additional_header is not None:
+            out_src = out_src + self.additional_header + "\n\n"
+
         out_src = out_src + SingleHeaderGen._generate_part(self._public_sources)
 
         out_src = out_src + "#ifdef " + self._impl_define + "\n\n"
@@ -144,13 +151,13 @@ class SingleHeaderGen:
 
         for dir_path, file_name, scope in src_files:
 
-            file_path = os.path.join(dir_path, file_name)
+            file_path = Path(dir_path) / file_name
 
             in_src = src_file_accessor.read_file(dir_path, file_name)
 
             src, rel_includes = preprocess_file(file_path, in_src, ignored_abs_includes)
 
-            rel_includes = [os.path.join(dir_path, rel_inc) for rel_inc in rel_includes]
+            rel_includes = [Path(dir_path) / rel_inc for rel_inc in rel_includes]
 
             if scope == Scope.PUBLIC:
                 self.add_public_src(file_path, src, rel_includes)
@@ -208,10 +215,27 @@ if __name__ == "__main__":
     scripts_dir = Path(os.path.realpath(__file__)).parent
     lib_dir = scripts_dir / "../ImageApprovals/"
 
-    gen = SingleHeaderGen("IMAGEAPPROVALS_HPP_INCLUDED", "ImageApprovals_IMPLEMENT")
+    # Read project version from CMake files
+    lib_version = None
+    with open(scripts_dir / "../CMakeLists.txt", "r") as f:
+        cmake_str = f.read()
+        ver_match = re.search("project[(]ImageApprovals VERSION (.+)[)]", cmake_str)
+        if ver_match is not None:
+            lib_version = ver_match.group(1)
+    
+    if lib_version is None:
+        print("Could not detect library version!")
+        exit(1)
+
+    gen = SingleHeaderGen("IMAGEAPPROVALS_HPP_INCLUDED", "ImageApprovals_CONFIG_IMPLEMENT")
+
+    with open(scripts_dir / "ImageApprovalsInfo.hpp.in", "r") as f:
+        text = f.read()
+        gen.additional_header = text.replace("@VERSION@", lib_version)
+
     gen.add_source_files(SourceFileAccessorImpl(lib_dir), ["ImageApprovals/"])
     single_header_src = gen.generate()
 
-    print("Writing to {}...".format(single_header_path))
+    print("Writing to {}, detected version {}...".format(single_header_path, lib_version))
     with open(single_header_path, "w", newline="\n") as f:
         f.write(single_header_src)

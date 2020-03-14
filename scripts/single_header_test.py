@@ -48,7 +48,7 @@ class TestPreprocessFile(unittest.TestCase):
         out_src, rel_includes = preprocess_file("Test.hpp", in_src, [])
 
         self.assertEqual(out_src, expected_out_src)
-        self.assertEqual(rel_includes, ["Header1.hpp", "Header2.hpp"])
+        self.assertEqual(rel_includes, [Path("Header1.hpp"), Path("Header2.hpp")])
 
     def test_ignored_abs_includes(self):
 
@@ -146,6 +146,42 @@ class TestSingleHeaderGen(unittest.TestCase):
         )
 
         self.assertEqual(result, expected_result)
+    
+    def test_additional_header(self):
+
+        gen = SingleHeaderGen("SINGLE_HPP", "Single_IMPL")
+
+        gen.additional_header = (
+            "/*\n"
+            " * This is a comment.\n"
+            " */\n"
+        )
+
+        gen.add_public_src(**self.in_header_1)
+
+        result = gen.generate()
+
+        expected_result = (
+            "#ifndef SINGLE_HPP\n"
+            "#define SINGLE_HPP\n"
+            "\n"
+            "/*\n"
+            " * This is a comment.\n"
+            " */\n"
+            "\n"
+            "\n"
+            "// Test1.hpp\n"
+            "\n"
+            "void f1();\n"
+            "\n"
+            "#ifdef Single_IMPL\n"
+            "\n"
+            "#endif // Single_IMPL\n"
+            "\n"
+            "#endif // SINGLE_HPP\n"
+        )
+
+
 
     def test_add_source_files(self):
 
