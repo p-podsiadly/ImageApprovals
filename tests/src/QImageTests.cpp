@@ -1,6 +1,7 @@
 #include <doctest/doctest.h>
 #include <TestsConfig.hpp>
 #include <QGuiApplication>
+#include <QImage>
 #include <iterator>
 
 #define ImageApprovals_CONFIG_QT5

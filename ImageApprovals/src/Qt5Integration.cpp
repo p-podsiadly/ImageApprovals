@@ -1,17 +1,14 @@
-#ifndef IMAGEAPPROVALS_QIMAGEVIEW_HPP_INCLUDED
-#define IMAGEAPPROVALS_QIMAGEVIEW_HPP_INCLUDED
-
 #ifdef ImageApprovals_CONFIG_WITH_QT5
 
-#include "ImageView.hpp"
-#include "Errors.hpp"
+#include <ImageApprovals/Qt5Integration.hpp>
+#include <ImageApprovals/Errors.hpp>
 #include <QImage>
 
 namespace ImageApprovals {
 
-namespace qt5 {
+namespace detail {
 
-inline const PixelFormat* imagePixelFormat(const QImage& image)
+const PixelFormat* fromQt5PixelFormat(const QImage& image)
 {
     switch (image.format())
     {
@@ -30,7 +27,7 @@ inline const PixelFormat* imagePixelFormat(const QImage& image)
     return nullptr;
 }
 
-inline const ColorSpace* imageColorSpace(const QImage &image)
+const ColorSpace* fromQt5ColorSpace(const QImage &image)
 {
     // TODO QColorSpace was added in Qt 5.14
     ((void) image);
@@ -39,10 +36,10 @@ inline const ColorSpace* imageColorSpace(const QImage &image)
 
 }
 
-inline ImageView makeView(const QImage& image)
+ImageView makeView(const QImage& image)
 {
-    auto format = qt5::imagePixelFormat(image);
-    auto colorSpace = qt5::imageColorSpace(image);
+    auto format = detail::fromQt5PixelFormat(image);
+    auto colorSpace = detail::fromQt5ColorSpace(image);
 
     if(!format)
     {
@@ -64,5 +61,3 @@ inline ImageView makeView(const QImage& image)
 }
 
 #endif // ImageApprovals_CONFIG_WITH_QT5
-
-#endif // IMAGEAPPROVALS_QIMAGEVIEW_HPP_INCLUDED

@@ -19,6 +19,7 @@ set(headers
     "include/ImageApprovals/ImageView.hpp"
     "include/ImageApprovals/ImageWriter.hpp"
     "include/ImageApprovals/PixelFormat.hpp"
+    "include/ImageApprovals/Qt5Integration.hpp"
     "include/ImageApprovals/Units.hpp"
 )
 
@@ -38,6 +39,7 @@ set(sources
     "src/PixelFormat.cpp"
     "src/PngImageCodec.cpp"
     "src/PngImageCodec.hpp"
+    "src/Qt5Integration.cpp"
     "src/Units.cpp"
 )
 
