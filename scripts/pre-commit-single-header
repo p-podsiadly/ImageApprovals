@@ -1,0 +1,37 @@
+#!/bin/sh
+
+if [ ! -d ".git/" ]; then
+    echo "The script must be run from the root of the git tree!"
+    exit 1
+fi
+
+if [ $# -eq 1 ] && [ $1 = "install" ]; then
+    echo "Installing the script as Git hook..."
+    rm .git/hooks/pre_commit
+    cp "$0" .git/hooks/pre_commit
+    exit 0
+fi
+
+echo "Generating single header version of ImageApprovals..."
+
+python_cmd=`which python3 2>/dev/null`
+python_found=$?
+
+if [ $python_found -ne 0 ]; then
+    python_cmd=`which python 2>/dev/null`
+    python_found=$?
+fi
+
+if [ $python_found -ne 0 ]; then
+    echo "Could not find python; needed to regenerate single header version!"
+    exit 1
+fi
+
+py_ver=`$python_cmd --version`
+if [[ ! $py_ver =~ "Python 3" ]]; then
+    echo "$py_ver found; Python 3 is necessary!"
+    exit 1
+fi
+
+$python_cmd scripts/single_header.py single_header/ImageApprovals.hpp
+git add single_header/ImageApprovals.hpp
