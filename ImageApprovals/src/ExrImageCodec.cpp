@@ -1,3 +1,5 @@
+#ifdef ImageApprovals_CONFIG_WITH_OPENEXR
+
 #include "ExrImageCodec.hpp"
 #include <ImageApprovals/Errors.hpp>
 #include <cstring>
@@ -230,3 +232,5 @@ void ExrImageCodec::write(const ImageView& image, std::ostream& stream, const st
 }
 
 } }
+
+#endif ImageApprovals_CONFIG_WITH_OPENEXR

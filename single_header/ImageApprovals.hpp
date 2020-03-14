@@ -774,6 +774,9 @@ CompareStrategy::Result PixelPerfectCompareStrategy::compareContents(const Image
 
 // src/ExrImageCodec.hpp
 
+#ifdef ImageApprovals_CONFIG_WITH_OPENEXR
+
+
 namespace ImageApprovals { namespace detail {
 
 class ExrImageCodec : public ImageCodec
@@ -790,6 +793,8 @@ protected:
 };
 
 } }
+
+#endif ImageApprovals_CONFIG_WITH_OPENEXR
 
 // src/Image.cpp
 
@@ -1427,6 +1432,8 @@ const ColorSpace* detectColorSpace(const RgbPrimaries& primaries, double gamma)
 
 // src/ExrImageCodec.cpp
 
+#ifdef ImageApprovals_CONFIG_WITH_OPENEXR
+
 #include <cstring>
 #include <array>
 
@@ -1658,6 +1665,8 @@ void ExrImageCodec::write(const ImageView& image, std::ostream& stream, const st
 
 } }
 
+#endif ImageApprovals_CONFIG_WITH_OPENEXR
+
 // src/ImageCodec.cpp
 
 #include <ApprovalTests.hpp>
@@ -1679,7 +1688,9 @@ std::vector<std::shared_ptr<ImageCodec>> initCodecs()
     codecs.push_back(std::make_shared<PngImageCodec>());
 #endif ImageApprovals_CONFIG_WITH_LIBPNG
 
+#ifdef ImageApprovals_CONFIG_WITH_OPENEXR
     codecs.push_back(std::make_shared<ExrImageCodec>());
+#endif ImageApprovals_CONFIG_WITH_OPENEXR
 
     return codecs;
 }

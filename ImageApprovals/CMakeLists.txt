@@ -49,6 +49,7 @@ target_compile_definitions(
     ImageApprovals
     PUBLIC
         -DImageApprovals_CONFIG_WITH_LIBPNG
+        -DImageApprovals_CONFIG_WITH_OPENEXR
 )
 
 target_include_directories(

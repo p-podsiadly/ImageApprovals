@@ -2,6 +2,7 @@
 #include <ApprovalTests.hpp>
 
 #define ImageApprovals_CONFIG_WITH_LIBPNG
+#define ImageApprovals_CONFIG_WITH_OPENEXR
 #define ImageApprovals_IMPLEMENT
 #include <ImageApprovals.hpp>
 

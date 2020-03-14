@@ -1,6 +1,8 @@
 #ifndef IMAGEAPPROVALS_EXRIMAGECODEC_HPP_INCLUDED
 #define IMAGEAPPROVALS_EXRIMAGECODEC_HPP_INCLUDED
 
+#ifdef ImageApprovals_CONFIG_WITH_OPENEXR
+
 #include <ImageApprovals/ImageCodec.hpp>
 
 namespace ImageApprovals { namespace detail {
@@ -19,5 +21,7 @@ protected:
 };
 
 } }
+
+#endif ImageApprovals_CONFIG_WITH_OPENEXR
 
 #endif // IMAGEAPPROVALS_EXRIMAGECODEC_HPP_INCLUDED

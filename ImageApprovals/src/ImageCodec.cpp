@@ -21,7 +21,9 @@ std::vector<std::shared_ptr<ImageCodec>> initCodecs()
     codecs.push_back(std::make_shared<PngImageCodec>());
 #endif ImageApprovals_CONFIG_WITH_LIBPNG
 
+#ifdef ImageApprovals_CONFIG_WITH_OPENEXR
     codecs.push_back(std::make_shared<ExrImageCodec>());
+#endif ImageApprovals_CONFIG_WITH_OPENEXR
 
     return codecs;
 }
