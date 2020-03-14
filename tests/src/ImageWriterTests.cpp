@@ -29,7 +29,7 @@ TEST_CASE("ImageWriter")
 {
     const CustomImageType image;
 
-    ImageWriter writer(image);
+    ImageWriter writer(makeView(image));
 
     REQUIRE_EQ(writer.getFileExtensionWithDot(), ".png");
 }

@@ -128,13 +128,8 @@ int PngImageCodec::getScore(const std::string& extensionWithDot) const
     return -1;
 }
 
-int PngImageCodec::getScore(const std::string& extensionWithDot, const PixelFormat& pf, const ColorSpace& cs) const
+int PngImageCodec::getScore(const PixelFormat& pf, const ColorSpace& cs) const
 {
-    if(extensionWithDot != ".png")
-    {
-        return -1;
-    }
-
     if(!pf.isU8())
     {
         return -1;

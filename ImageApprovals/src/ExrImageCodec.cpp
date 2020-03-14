@@ -107,13 +107,8 @@ int ExrImageCodec::getScore(const std::string& extensionWithDot) const
     return -1;
 }
 
-int ExrImageCodec::getScore(const std::string& extensionWithDot, const PixelFormat& pf, const ColorSpace& cs) const
+int ExrImageCodec::getScore(const PixelFormat& pf, const ColorSpace& cs) const
 {
-    if(extensionWithDot != ".exr")
-    {
-        return -1;
-    }
-
     if(!pf.isF32() || cs != ColorSpace::getLinearSRgb())
     {
         return -1;

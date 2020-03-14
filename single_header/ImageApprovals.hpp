@@ -462,20 +462,23 @@ public:
 
     virtual ~ImageCodec() = default;
 
+    virtual std::string getFileExtensionWithDot() const = 0;
+
+    virtual int getScore(const std::string& extensionWithDot) const = 0;
+    virtual int getScore(const PixelFormat& pf, const ColorSpace& cs) const = 0;
+
+    void write(const std::string& fileName, const ImageView& image) const;
+
     static Disposer registerCodec(const std::shared_ptr<ImageCodec>& codec);
     static void unregisterCodec(const std::shared_ptr<ImageCodec>& codec);
 
     static std::vector<std::string> getRegisteredExtensions();
 
     static Image read(const std::string& fileName);
-    static void write(const std::string& fileName, const ImageView& image);
+    
+    static const ImageCodec& getBestCodec(const ImageView& image);
 
 protected:
-    virtual std::string getFileExtensionWithDot() const = 0;
-
-    virtual int getScore(const std::string& extensionWithDot) const = 0;
-    virtual int getScore(const std::string& extensionWithDot, const PixelFormat& pf, const ColorSpace& cs) const = 0;
-
     virtual Image read(std::istream& stream, const std::string& fileName) const = 0;
     virtual void write(const ImageView& image, std::ostream& stream, const std::string& fileName) const = 0;
 
@@ -508,63 +511,23 @@ private:
 
 namespace ImageApprovals {
 
-namespace detail {
-
-template<typename T>
-std::true_type supportsMakeViewMeta(T*, ImageView = makeView(*(const T*)nullptr));
-std::false_type supportsMakeViewMeta(...);
-
-template<typename T>
-constexpr bool supportsMakeView()
-{
-    using namespace ImageApprovals;
-    return decltype(supportsMakeViewMeta((T*)nullptr))::value;
-}
-
-}
-
-template<typename T>
-struct SupportsMakeView : std::integral_constant<bool, detail::supportsMakeView<T>()> {};
-
-enum class Format
-{
-    Auto,
-    PNG,
-    EXR
-};
-
 class ImageWriter : public ApprovalTests::ApprovalWriter
 {
 public:
-    template<typename T, typename = typename std::enable_if<SupportsMakeView<T>::value, void>::type>
-    explicit ImageWriter(const T& image, Format format = Format::Auto)
-        : m_image(makeView(image)), m_format(format)
-    {}
-
-    explicit ImageWriter(const ImageView& image, Format format = Format::Auto)
-        : m_image(image), m_format(format)
+    explicit ImageWriter(const ImageView& image)
+        : m_image(image), m_codec(ImageCodec::getBestCodec(image))
     {}
 
     ImageWriter(const ImageWriter&) = delete;
 
     std::string getFileExtensionWithDot() const override
     {
-        switch (m_format)
-        {
-        case Format::Auto:
-            return autoDetectExtension();
-        case Format::PNG:
-            return ".png";
-        case Format::EXR:
-            return ".exr";
-        }
-
-        throw ImageApprovalsError("Invalid Format value");
+        return m_codec.getFileExtensionWithDot();
     }
 
     void write(std::string path) const override
     {
-        ImageCodec::write(path, m_image);
+        m_codec.write(path, m_image);
     }
 
     void cleanUpReceived(std::string receivedPath) const override
@@ -574,23 +537,7 @@ public:
 
 private:
     const ImageView m_image;
-    Format m_format;
-
-    std::string autoDetectExtension() const
-    {
-        const auto& fmt = m_image.getPixelFormat();
-
-        if (fmt.isU8())
-        {
-            return ".png";
-        }
-        else if (fmt.isF32())
-        {
-            return ".exr";
-        }
-
-        throw ImageApprovalsError("Invalid PixelDataType value");
-    }
+    const ImageCodec& m_codec;
 };
 
 }
@@ -835,8 +782,9 @@ public:
     std::string getFileExtensionWithDot() const override;
 
     int getScore(const std::string& extensionWithDot) const override;
-    int getScore(const std::string& extensionWithDot, const PixelFormat& pf, const ColorSpace& cs) const override;
+    int getScore(const PixelFormat& pf, const ColorSpace& cs) const override;
 
+protected:
     Image read(std::istream& stream, const std::string& fileName) const override;
     void write(const ImageView& image, std::ostream& stream, const std::string& fileName) const override;
 };
@@ -1293,8 +1241,9 @@ public:
     std::string getFileExtensionWithDot() const override;
 
     int getScore(const std::string& extensionWithDot) const override;
-    int getScore(const std::string& extensionWithDot, const PixelFormat& pf, const ColorSpace& cs) const override;
+    int getScore(const PixelFormat& pf, const ColorSpace& cs) const override;
 
+protected:
     Image read(std::istream& stream, const std::string& fileName) const override;
     void write(const ImageView& image, std::ostream& stream, const std::string& fileName) const override;
 };
@@ -1584,13 +1533,8 @@ int ExrImageCodec::getScore(const std::string& extensionWithDot) const
     return -1;
 }
 
-int ExrImageCodec::getScore(const std::string& extensionWithDot, const PixelFormat& pf, const ColorSpace& cs) const
+int ExrImageCodec::getScore(const PixelFormat& pf, const ColorSpace& cs) const
 {
-    if(extensionWithDot != ".exr")
-    {
-        return -1;
-    }
-
     if(!pf.isF32() || cs != ColorSpace::getLinearSRgb())
     {
         return -1;
@@ -1708,10 +1652,49 @@ void ExrImageCodec::write(const ImageView& image, std::ostream& stream, const st
 #include <ApprovalTests.hpp>
 #include <algorithm>
 #include <fstream>
+#include <sstream>
 #include <vector>
 
 
 namespace ImageApprovals {
+
+namespace detail {
+
+template<typename... ArgTypes>
+const ImageCodec* findBestMatch(const std::vector<std::shared_ptr<ImageCodec>>& codecs, const ArgTypes&... args)
+{
+    const ImageCodec* bestCodec = nullptr;
+    int bestScore = -1;
+
+    for(auto iter = codecs.rbegin(); iter != codecs.rend(); ++iter)
+    {
+        const ImageCodec* codec = iter->get();
+        const int score = codec->getScore(args...);
+
+        if((score >= 0) && (score > bestScore))
+        {
+            bestCodec = codec;
+            bestScore = score;
+        }
+    }
+
+    return bestCodec;
+}
+
+}
+
+void ImageCodec::write(const std::string& fileName, const ImageView& image) const
+{
+    std::ofstream fileStream(fileName.c_str(), std::ios::binary);
+    if (!fileStream)
+    {
+        throw ImageApprovalsError("Could not open file \"" + fileName + "\" for writing");
+    }
+
+    fileStream.exceptions(std::ios::badbit | std::ios::failbit);
+
+    write(image, fileStream, fileName);
+}
 
 ImageCodec::Disposer ImageCodec::registerCodec(const std::shared_ptr<ImageCodec>& codec)
 {
@@ -1757,21 +1740,7 @@ Image ImageCodec::read(const std::string& fileName)
     using ApprovalTests::FileUtils;
     const auto extWithDot = FileUtils::getExtensionWithDot(fileName);    
 
-    const ImageCodec* codec = nullptr;
-    int codecScore = -1;
-
-    const auto& allCodecs = getImageCodecs();
-    for(auto iter = allCodecs.rbegin(); iter != allCodecs.rend(); ++iter)
-    {
-        const ImageCodec* thisCodec = iter->get();
-        const int thisScore = thisCodec->getScore(extWithDot);
-
-        if((thisScore >= 0) && (codecScore < thisScore))
-        {
-            codec = thisCodec;
-            codecScore = thisScore;
-        }
-    }
+    const ImageCodec* codec = detail::findBestMatch(getImageCodecs(), extWithDot);
 
     if(!codec)
     {
@@ -1789,41 +1758,21 @@ Image ImageCodec::read(const std::string& fileName)
     return codec->read(fileStream, fileName);
 }
 
-void ImageCodec::write(const std::string& fileName, const ImageView& image)
+const ImageCodec& ImageCodec::getBestCodec(const ImageView& image)
 {
-    using ApprovalTests::FileUtils;
-    const auto extWithDot = FileUtils::getExtensionWithDot(fileName);    
+    const auto& pf = image.getPixelFormat();
+    const auto& cs = image.getColorSpace();
 
-    const ImageCodec* codec = nullptr;
-    int codecScore = -1;
-
-    const auto& allCodecs = getImageCodecs();
-    for(auto iter = allCodecs.rbegin(); iter != allCodecs.rend(); ++iter)
-    {
-        const ImageCodec* thisCodec = iter->get();
-        const int thisScore = thisCodec->getScore(extWithDot, image.getPixelFormat(), image.getColorSpace());
-
-        if((thisScore >= 0) && (codecScore < thisScore))
-        {
-            codec = thisCodec;
-            codecScore = thisScore;
-        }
-    }
+    const ImageCodec* codec = detail::findBestMatch(getImageCodecs(), pf, cs);
 
     if(!codec)
     {
-        throw ImageApprovalsError("No suitable codec for writing \"" + fileName + "\"");
+        std::ostringstream msg;
+        msg << "Could find a codec for pixel format " << pf << " and color space " << cs;
+        throw ImageApprovalsError(msg.str());
     }
 
-    std::ofstream fileStream(fileName.c_str(), std::ios::binary);
-    if (!fileStream)
-    {
-        throw ImageApprovalsError("Could not open file \"" + fileName + "\" for writing");
-    }
-
-    fileStream.exceptions(std::ios::badbit | std::ios::failbit);
-
-    codec->write(image, fileStream, fileName);
+    return *codec;
 }
 
 std::vector<std::shared_ptr<ImageCodec>>& ImageCodec::getImageCodecs()
@@ -1993,13 +1942,8 @@ int PngImageCodec::getScore(const std::string& extensionWithDot) const
     return -1;
 }
 
-int PngImageCodec::getScore(const std::string& extensionWithDot, const PixelFormat& pf, const ColorSpace& cs) const
+int PngImageCodec::getScore(const PixelFormat& pf, const ColorSpace& cs) const
 {
-    if(extensionWithDot != ".png")
-    {
-        return -1;
-    }
-
     if(!pf.isU8())
     {
         return -1;

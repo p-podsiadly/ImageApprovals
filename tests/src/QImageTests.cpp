@@ -51,7 +51,7 @@ TEST_CASE_FIXTURE(QGuiFixture, "ImageView from QImage")
             }
         }
 
-        ImageWriter writer(image);
+        ImageWriter writer(makeView(image));
         writer.write(receivedPath);
 
         FileApprover::verify(receivedPath, approvedPath);

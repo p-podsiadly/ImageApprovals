@@ -15,20 +15,23 @@ public:
 
     virtual ~ImageCodec() = default;
 
+    virtual std::string getFileExtensionWithDot() const = 0;
+
+    virtual int getScore(const std::string& extensionWithDot) const = 0;
+    virtual int getScore(const PixelFormat& pf, const ColorSpace& cs) const = 0;
+
+    void write(const std::string& fileName, const ImageView& image) const;
+
     static Disposer registerCodec(const std::shared_ptr<ImageCodec>& codec);
     static void unregisterCodec(const std::shared_ptr<ImageCodec>& codec);
 
     static std::vector<std::string> getRegisteredExtensions();
 
     static Image read(const std::string& fileName);
-    static void write(const std::string& fileName, const ImageView& image);
+    
+    static const ImageCodec& getBestCodec(const ImageView& image);
 
 protected:
-    virtual std::string getFileExtensionWithDot() const = 0;
-
-    virtual int getScore(const std::string& extensionWithDot) const = 0;
-    virtual int getScore(const std::string& extensionWithDot, const PixelFormat& pf, const ColorSpace& cs) const = 0;
-
     virtual Image read(std::istream& stream, const std::string& fileName) const = 0;
     virtual void write(const ImageView& image, std::ostream& stream, const std::string& fileName) const = 0;
 
