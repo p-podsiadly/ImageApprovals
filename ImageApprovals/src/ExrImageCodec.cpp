@@ -17,7 +17,7 @@
 # pragma warning(pop)
 #endif
 
-namespace ImageApprovals {
+namespace ImageApprovals { namespace detail {
 
 namespace {
 
@@ -229,4 +229,4 @@ void ExrImageCodec::write(const ImageView& image, std::ostream& stream, const st
     file.writePixels(height);
 }
 
-}
+} }

@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <cmath>
 
-namespace ImageApprovals {
+namespace ImageApprovals { namespace detail {
 
 struct RgbPrimaries
 {
@@ -36,6 +36,6 @@ bool isSRgbIccProfile(uint32_t profLen, const uint8_t* profData);
 
 const ColorSpace* detectColorSpace(const RgbPrimaries& primaries, double gamma);
 
-}
+} }
 
 #endif // IMAGEAPPROVALS_COLORSPACEUTILS_HPP_INCLUDED

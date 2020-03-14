@@ -8,7 +8,7 @@
 
 namespace ImageApprovals {
 
-namespace {
+namespace detail {
 
 float clamp(float x, float minX, float maxX)
 {
@@ -127,37 +127,37 @@ const uint8_t* PixelFormat::decode(const uint8_t* begin, const uint8_t* end, RGB
 
 const PixelFormat& PixelFormat::getGrayU8()
 {
-    static const GrayU8PixelFormat instance;
+    static const detail::GrayU8PixelFormat instance;
     return instance;
 }
 
 const PixelFormat& PixelFormat::getGrayAlphaU8()
 {
-    static const GrayAlphaU8PixelFormat instance;
+    static const detail::GrayAlphaU8PixelFormat instance;
     return instance;
 }
 
 const PixelFormat& PixelFormat::getRgbU8()
 {
-    static const RgbU8PixelFormat instance;
+    static const detail::RgbU8PixelFormat instance;
     return instance;
 }
 
 const PixelFormat& PixelFormat::getRgbAlphaU8()
 {
-    static const RgbAlphaU8PixelFormat instance;
+    static const detail::RgbAlphaU8PixelFormat instance;
     return instance;
 }
 
 const PixelFormat& PixelFormat::getRgbF32()
 {
-    static const RgbF32PixelFormat instance;
+    static const detail::RgbF32PixelFormat instance;
     return instance;
 }
 
 const PixelFormat& PixelFormat::getRgbAlphaF32()
 {
-    static const RgbAlphaF32PixelFormat instance;
+    static const detail::RgbAlphaF32PixelFormat instance;
     return instance;
 }
 

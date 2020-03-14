@@ -5,21 +5,17 @@
 #include <memory>
 #include <array>
 
-namespace ImageApprovals {
-
-namespace {
+namespace ImageApprovals { namespace detail {
 
 bool approxEqual(double a, double b)
 {
     return std::abs(a - b) <= 1e-5;
 }
 
-}
-
 bool RgbPrimaries::Primary::approxEqual(const Primary& other) const
 {
-    return ImageApprovals::approxEqual(x, other.x)
-        && ImageApprovals::approxEqual(y, other.y);
+    return detail::approxEqual(x, other.x)
+        && detail::approxEqual(y, other.y);
 }
 
 bool RgbPrimaries::approxEqual(const RgbPrimaries& other) const
@@ -150,4 +146,4 @@ const ColorSpace* detectColorSpace(const RgbPrimaries& primaries, double gamma)
     return nullptr;
 }
 
-}
+} }

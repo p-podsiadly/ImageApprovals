@@ -7,7 +7,7 @@
 #include <istream>
 #include <ostream>
 
-namespace ImageApprovals {
+namespace ImageApprovals { namespace detail {
 
 namespace {
 
@@ -326,4 +326,4 @@ void PngImageCodec::write(const ImageView& image, std::ostream& stream, const st
     png_write_png(png, info, 0, nullptr);
 }
 
-}
+} }

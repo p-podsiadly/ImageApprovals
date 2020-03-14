@@ -3,7 +3,7 @@
 
 namespace ImageApprovals {
 
-namespace {
+namespace detail {
 
 struct LinearColorSpace : ColorSpace
 {
@@ -21,13 +21,13 @@ struct SRGBColorSpace : ColorSpace
 
 const ColorSpace& ColorSpace::getLinearSRgb()
 {
-    static const LinearColorSpace instance;
+    static const detail::LinearColorSpace instance;
     return instance;
 }
 
 const ColorSpace& ColorSpace::getSRgb()
 {
-    static const SRGBColorSpace instance;
+    static const detail::SRGBColorSpace instance;
     return instance;
 }
 

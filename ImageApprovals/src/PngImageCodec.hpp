@@ -3,7 +3,7 @@
 
 #include <ImageApprovals/ImageCodec.hpp>
 
-namespace ImageApprovals {
+namespace ImageApprovals { namespace detail {
 
 class PngImageCodec : public ImageCodec
 {
@@ -18,6 +18,6 @@ protected:
     void write(const ImageView& image, std::ostream& stream, const std::string& fileName) const override;
 };
 
-}
+} }
 
 #endif // IMAGEAPPROVALS_PNGIMAGECODEC_HPP_INCLUDED

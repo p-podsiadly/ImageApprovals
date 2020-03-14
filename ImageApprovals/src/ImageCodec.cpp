@@ -131,8 +131,8 @@ const ImageCodec& ImageCodec::getBestCodec(const ImageView& image)
 std::vector<std::shared_ptr<ImageCodec>>& ImageCodec::getImageCodecs()
 {
     static std::vector<std::shared_ptr<ImageCodec>> imageCodecs = {
-        std::make_shared<ExrImageCodec>(),
-        std::make_shared<PngImageCodec>()
+        std::make_shared<detail::ExrImageCodec>(),
+        std::make_shared<detail::PngImageCodec>()
     };
 
     return imageCodecs;

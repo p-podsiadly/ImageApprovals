@@ -75,7 +75,7 @@ ThresholdCompareStrategy::ThresholdCompareStrategy(AbsThreshold pixelFailThresho
     : m_pixelFailThreshold(pixelFailThreshold), m_maxFailedPixelsPercentage(maxFailedPixelsPercentage)
 {}
 
-namespace {
+namespace detail {
 
 float maxAbsDiff(const RGBA& left, const RGBA& right)
 {
@@ -101,7 +101,7 @@ CompareStrategy::Result ThresholdCompareStrategy::compareContents(const ImageVie
             const auto leftPixel = left.getPixel(x, y);
             const auto rightPixel = right.getPixel(x, y);
 
-            const float diff = maxAbsDiff(leftPixel, rightPixel);
+            const float diff = detail::maxAbsDiff(leftPixel, rightPixel);
             if (diff > m_pixelFailThreshold.value)
             {
                 ++numAboveThreshold;

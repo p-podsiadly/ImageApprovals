@@ -5,7 +5,7 @@
 
 namespace ImageApprovals {
 
-namespace {
+namespace detail {
 
 size_t alignedSize(size_t baseSize, size_t alignment)
 {
@@ -31,7 +31,7 @@ Image::Image(Image&& other) noexcept
 }
 
 Image::Image(const PixelFormat& format, const ColorSpace& colorSpace, const Size& size, size_t rowAlignment)
-    : ImageView(format, colorSpace, size, rowStride(format, size, rowAlignment), nullptr), m_rowAlignment(rowAlignment)
+    : ImageView(format, colorSpace, size, detail::rowStride(format, size, rowAlignment), nullptr), m_rowAlignment(rowAlignment)
 {
     if (m_size.isZero())
     {

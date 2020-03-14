@@ -18,7 +18,7 @@ ImageComparator::ImageComparator(std::shared_ptr<CompareStrategy> comparator)
     : m_compareStrategy(std::move(comparator))
 {}
 
-namespace {
+namespace detail {
 
 Image readImage(const std::string& which, const std::string& path)
 {
@@ -40,8 +40,8 @@ Image readImage(const std::string& which, const std::string& path)
 
 bool ImageComparator::contentsAreEquivalent(std::string receivedPath, std::string approvedPath) const
 {
-    const Image receivedImg = readImage("received", receivedPath);
-    const Image approvedImg = readImage("approved", approvedPath);
+    const Image receivedImg = detail::readImage("received", receivedPath);
+    const Image approvedImg = detail::readImage("approved", approvedPath);
 
     const auto result = m_compareStrategy->compare(approvedImg, receivedImg);
     if (!result.passed)

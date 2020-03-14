@@ -552,7 +552,7 @@ private:
 
 namespace ImageApprovals {
 
-namespace {
+namespace detail {
 
 struct LinearColorSpace : ColorSpace
 {
@@ -570,13 +570,13 @@ struct SRGBColorSpace : ColorSpace
 
 const ColorSpace& ColorSpace::getLinearSRgb()
 {
-    static const LinearColorSpace instance;
+    static const detail::LinearColorSpace instance;
     return instance;
 }
 
 const ColorSpace& ColorSpace::getSRgb()
 {
-    static const SRGBColorSpace instance;
+    static const detail::SRGBColorSpace instance;
     return instance;
 }
 
@@ -592,7 +592,7 @@ std::ostream& operator <<(std::ostream& stream, const ColorSpace& colorSpace)
 #include <cstdint>
 #include <cmath>
 
-namespace ImageApprovals {
+namespace ImageApprovals { namespace detail {
 
 struct RgbPrimaries
 {
@@ -623,7 +623,7 @@ bool isSRgbIccProfile(uint32_t profLen, const uint8_t* profData);
 
 const ColorSpace* detectColorSpace(const RgbPrimaries& primaries, double gamma);
 
-}
+} }
 
 // src/CompareStrategy.cpp
 
@@ -702,7 +702,7 @@ ThresholdCompareStrategy::ThresholdCompareStrategy(AbsThreshold pixelFailThresho
     : m_pixelFailThreshold(pixelFailThreshold), m_maxFailedPixelsPercentage(maxFailedPixelsPercentage)
 {}
 
-namespace {
+namespace detail {
 
 float maxAbsDiff(const RGBA& left, const RGBA& right)
 {
@@ -728,7 +728,7 @@ CompareStrategy::Result ThresholdCompareStrategy::compareContents(const ImageVie
             const auto leftPixel = left.getPixel(x, y);
             const auto rightPixel = right.getPixel(x, y);
 
-            const float diff = maxAbsDiff(leftPixel, rightPixel);
+            const float diff = detail::maxAbsDiff(leftPixel, rightPixel);
             if (diff > m_pixelFailThreshold.value)
             {
                 ++numAboveThreshold;
@@ -774,7 +774,7 @@ CompareStrategy::Result PixelPerfectCompareStrategy::compareContents(const Image
 
 // src/ExrImageCodec.hpp
 
-namespace ImageApprovals {
+namespace ImageApprovals { namespace detail {
 
 class ExrImageCodec : public ImageCodec
 {
@@ -789,7 +789,7 @@ protected:
     void write(const ImageView& image, std::ostream& stream, const std::string& fileName) const override;
 };
 
-}
+} }
 
 // src/Image.cpp
 
@@ -798,7 +798,7 @@ protected:
 
 namespace ImageApprovals {
 
-namespace {
+namespace detail {
 
 size_t alignedSize(size_t baseSize, size_t alignment)
 {
@@ -824,7 +824,7 @@ Image::Image(Image&& other) noexcept
 }
 
 Image::Image(const PixelFormat& format, const ColorSpace& colorSpace, const Size& size, size_t rowAlignment)
-    : ImageView(format, colorSpace, size, rowStride(format, size, rowAlignment), nullptr), m_rowAlignment(rowAlignment)
+    : ImageView(format, colorSpace, size, detail::rowStride(format, size, rowAlignment), nullptr), m_rowAlignment(rowAlignment)
 {
     if (m_size.isZero())
     {
@@ -928,7 +928,7 @@ ImageComparator::ImageComparator(std::shared_ptr<CompareStrategy> comparator)
     : m_compareStrategy(std::move(comparator))
 {}
 
-namespace {
+namespace detail {
 
 Image readImage(const std::string& which, const std::string& path)
 {
@@ -950,8 +950,8 @@ Image readImage(const std::string& which, const std::string& path)
 
 bool ImageComparator::contentsAreEquivalent(std::string receivedPath, std::string approvedPath) const
 {
-    const Image receivedImg = readImage("received", receivedPath);
-    const Image approvedImg = readImage("approved", approvedPath);
+    const Image receivedImg = detail::readImage("received", receivedPath);
+    const Image approvedImg = detail::readImage("approved", approvedPath);
 
     const auto result = m_compareStrategy->compare(approvedImg, receivedImg);
     if (!result.passed)
@@ -1064,7 +1064,7 @@ RGBA ImageView::getPixel(uint32_t x, uint32_t y) const
 
 namespace ImageApprovals {
 
-namespace {
+namespace detail {
 
 float clamp(float x, float minX, float maxX)
 {
@@ -1183,37 +1183,37 @@ const uint8_t* PixelFormat::decode(const uint8_t* begin, const uint8_t* end, RGB
 
 const PixelFormat& PixelFormat::getGrayU8()
 {
-    static const GrayU8PixelFormat instance;
+    static const detail::GrayU8PixelFormat instance;
     return instance;
 }
 
 const PixelFormat& PixelFormat::getGrayAlphaU8()
 {
-    static const GrayAlphaU8PixelFormat instance;
+    static const detail::GrayAlphaU8PixelFormat instance;
     return instance;
 }
 
 const PixelFormat& PixelFormat::getRgbU8()
 {
-    static const RgbU8PixelFormat instance;
+    static const detail::RgbU8PixelFormat instance;
     return instance;
 }
 
 const PixelFormat& PixelFormat::getRgbAlphaU8()
 {
-    static const RgbAlphaU8PixelFormat instance;
+    static const detail::RgbAlphaU8PixelFormat instance;
     return instance;
 }
 
 const PixelFormat& PixelFormat::getRgbF32()
 {
-    static const RgbF32PixelFormat instance;
+    static const detail::RgbF32PixelFormat instance;
     return instance;
 }
 
 const PixelFormat& PixelFormat::getRgbAlphaF32()
 {
-    static const RgbAlphaF32PixelFormat instance;
+    static const detail::RgbAlphaF32PixelFormat instance;
     return instance;
 }
 
@@ -1233,7 +1233,7 @@ std::ostream& operator <<(std::ostream& stream, const RGBA& rgba)
 
 // src/PngImageCodec.hpp
 
-namespace ImageApprovals {
+namespace ImageApprovals { namespace detail {
 
 class PngImageCodec : public ImageCodec
 {
@@ -1248,7 +1248,7 @@ protected:
     void write(const ImageView& image, std::ostream& stream, const std::string& fileName) const override;
 };
 
-}
+} }
 
 // src/Units.cpp
 
@@ -1277,21 +1277,17 @@ std::ostream& operator <<(std::ostream& stream, const Percent& percent)
 #include <memory>
 #include <array>
 
-namespace ImageApprovals {
-
-namespace {
+namespace ImageApprovals { namespace detail {
 
 bool approxEqual(double a, double b)
 {
     return std::abs(a - b) <= 1e-5;
 }
 
-}
-
 bool RgbPrimaries::Primary::approxEqual(const Primary& other) const
 {
-    return ImageApprovals::approxEqual(x, other.x)
-        && ImageApprovals::approxEqual(y, other.y);
+    return detail::approxEqual(x, other.x)
+        && detail::approxEqual(y, other.y);
 }
 
 bool RgbPrimaries::approxEqual(const RgbPrimaries& other) const
@@ -1422,7 +1418,7 @@ const ColorSpace* detectColorSpace(const RgbPrimaries& primaries, double gamma)
     return nullptr;
 }
 
-}
+} }
 
 // src/ExrImageCodec.cpp
 
@@ -1443,7 +1439,7 @@ const ColorSpace* detectColorSpace(const RgbPrimaries& primaries, double gamma)
 # pragma warning(pop)
 #endif
 
-namespace ImageApprovals {
+namespace ImageApprovals { namespace detail {
 
 namespace {
 
@@ -1655,7 +1651,7 @@ void ExrImageCodec::write(const ImageView& image, std::ostream& stream, const st
     file.writePixels(height);
 }
 
-}
+} }
 
 // src/ImageCodec.cpp
 
@@ -1788,8 +1784,8 @@ const ImageCodec& ImageCodec::getBestCodec(const ImageView& image)
 std::vector<std::shared_ptr<ImageCodec>>& ImageCodec::getImageCodecs()
 {
     static std::vector<std::shared_ptr<ImageCodec>> imageCodecs = {
-        std::make_shared<ExrImageCodec>(),
-        std::make_shared<PngImageCodec>()
+        std::make_shared<detail::ExrImageCodec>(),
+        std::make_shared<detail::PngImageCodec>()
     };
 
     return imageCodecs;
@@ -1831,7 +1827,7 @@ ImageCodec::Disposer& ImageCodec::Disposer::operator =(Disposer&& rhs) noexcept
 #include <istream>
 #include <ostream>
 
-namespace ImageApprovals {
+namespace ImageApprovals { namespace detail {
 
 namespace {
 
@@ -2150,7 +2146,7 @@ void PngImageCodec::write(const ImageView& image, std::ostream& stream, const st
     png_write_png(png, info, 0, nullptr);
 }
 
-}
+} }
 
 #endif // ImageApprovals_IMPLEMENT
 
