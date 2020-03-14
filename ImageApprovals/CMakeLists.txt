@@ -3,6 +3,10 @@ find_package(PNG REQUIRED)
 find_package(OpenEXR REQUIRED)
 find_package(ZLIB REQUIRED)
 
+if(ImageApprovals_ENABLE_QT5_INTEGRATION)
+    find_package(Qt5 COMPONENTS Gui REQUIRED)
+endif()
+
 set(headers
     "include/ImageApprovals.hpp"
 
@@ -67,6 +71,10 @@ target_link_libraries(
         OpenEXR::OpenEXR
         ZLIB::ZLIB
 )
+
+if(ImageApprovals_ENABLE_QT5_INTEGRATION)
+    target_link_libraries(ImageApprovals PUBLIC Qt5::Gui)
+endif()
 
 add_library(ImageApprovals::ImageApprovals ALIAS ImageApprovals)
 

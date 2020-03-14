@@ -4,13 +4,9 @@ project(ImageApprovals VERSION 0.1.0)
 
 include(CMakeDependentOption)
 
-option(ImageApprovals_RUN_CONAN "Run conan install?" ON)
-option(ImageApprovals_ENABLE_TESTS "Enable tests?" ON)
-
-cmake_dependent_option(
-        ImageApprovals_ENABLE_QT5_TESTS
-        "Enable tests of Qt5 integration?" ON
-        ImageApprovals_ENABLE_TESTS OFF)
+option(ImageApprovals_ENABLE_QT5_INTEGRATION "Enable Qt5 integration?" ON)
+option(ImageApprovals_RUN_CONAN              "Run conan install?"      ON)
+option(ImageApprovals_ENABLE_TESTS           "Enable tests?"           ON)
 
 if(NOT CONAN_EXPORTED AND ImageApprovals_RUN_CONAN)
 
