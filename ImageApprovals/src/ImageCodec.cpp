@@ -13,6 +13,19 @@ namespace ImageApprovals {
 
 namespace detail {
 
+std::vector<std::shared_ptr<ImageCodec>> initCodecs()
+{
+    std::vector<std::shared_ptr<ImageCodec>> codecs;
+
+#ifdef ImageApprovals_CONFIG_WITH_LIBPNG
+    codecs.push_back(std::make_shared<PngImageCodec>());
+#endif ImageApprovals_CONFIG_WITH_LIBPNG
+
+    codecs.push_back(std::make_shared<ExrImageCodec>());
+
+    return codecs;
+}
+
 template<typename... ArgTypes>
 const ImageCodec* findBestMatch(const std::vector<std::shared_ptr<ImageCodec>>& codecs, const ArgTypes&... args)
 {
@@ -130,11 +143,7 @@ const ImageCodec& ImageCodec::getBestCodec(const ImageView& image)
 
 std::vector<std::shared_ptr<ImageCodec>>& ImageCodec::getImageCodecs()
 {
-    static std::vector<std::shared_ptr<ImageCodec>> imageCodecs = {
-        std::make_shared<detail::ExrImageCodec>(),
-        std::make_shared<detail::PngImageCodec>()
-    };
-
+    static std::vector<std::shared_ptr<ImageCodec>> imageCodecs = detail::initCodecs();
     return imageCodecs;
 }
 
