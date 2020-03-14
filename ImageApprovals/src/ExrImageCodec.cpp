@@ -1,11 +1,21 @@
 #include "ExrImageCodec.hpp"
 #include <ImageApprovals/Errors.hpp>
+#include <cstring>
+#include <array>
+
+#ifdef _MSC_VER
+# pragma warning(push)
+# pragma warning(disable: 4996)
+#endif
+
 #include <OpenEXR/ImfRgbaFile.h>
 #include <OpenEXR/ImfIO.h>
 #include <OpenEXR/ImfArray.h>
 #include <OpenEXR/half.h>
-#include <cstring>
-#include <array>
+
+#ifdef _MSC_VER
+# pragma warning(pop)
+#endif
 
 namespace ImageApprovals {
 

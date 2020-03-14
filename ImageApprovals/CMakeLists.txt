@@ -61,8 +61,6 @@ target_link_libraries(
         ZLIB::ZLIB
 )
 
-target_compile_definitions(ImageApprovals PRIVATE "$<$<CXX_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS>")
-
 add_library(ImageApprovals::ImageApprovals ALIAS ImageApprovals)
 
 install(
