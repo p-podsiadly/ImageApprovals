@@ -2,7 +2,7 @@ environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       CMAKE_GENERATOR: "Visual Studio 15 2017 Win64"
-      ADDITIONAL_CMAKE_ARGS: "-DImageApprovals_ENABLE_QT5_TESTS=OFF"
+      ADDITIONAL_CMAKE_ARGS: "-DImageApprovals_ENABLE_QT5_INTEGRATION=OFF"
     - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
       CC: gcc-7
       CXX: g++-7
