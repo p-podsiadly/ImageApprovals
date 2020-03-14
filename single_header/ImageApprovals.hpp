@@ -385,7 +385,7 @@ private:
 
 // include/ImageApprovals/QImageView.hpp
 
-#ifdef ImageApprovals_CONFIG_QT5
+#ifdef ImageApprovals_CONFIG_WITH_QT5
 
 #include <QImage>
 
@@ -445,7 +445,7 @@ inline ImageView makeView(const QImage& image)
 
 }
 
-#endif // ImageApprovals_CONFIG_QT5
+#endif // ImageApprovals_CONFIG_WITH_QT5
 
 // include/ImageApprovals/ImageCodec.hpp
 

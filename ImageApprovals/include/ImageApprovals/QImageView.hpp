@@ -1,7 +1,7 @@
 #ifndef IMAGEAPPROVALS_QIMAGEVIEW_HPP_INCLUDED
 #define IMAGEAPPROVALS_QIMAGEVIEW_HPP_INCLUDED
 
-#ifdef ImageApprovals_CONFIG_QT5
+#ifdef ImageApprovals_CONFIG_WITH_QT5
 
 #include "ImageView.hpp"
 #include "Errors.hpp"
@@ -63,6 +63,6 @@ inline ImageView makeView(const QImage& image)
 
 }
 
-#endif // ImageApprovals_CONFIG_QT5
+#endif // ImageApprovals_CONFIG_WITH_QT5
 
 #endif // IMAGEAPPROVALS_QIMAGEVIEW_HPP_INCLUDED

@@ -54,6 +54,7 @@ target_compile_definitions(
     PUBLIC
         -DImageApprovals_CONFIG_WITH_LIBPNG
         -DImageApprovals_CONFIG_WITH_OPENEXR
+        -DImageApprovals_CONFIG_WITH_QT5
 )
 
 target_include_directories(
