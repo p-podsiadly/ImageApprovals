@@ -2,6 +2,7 @@
 #include <ImageApprovals/Errors.hpp>
 #include <ImageApprovals/Image.hpp>
 #include <stdexcept>
+#include <cstring>
 #include <ostream>
 
 namespace ImageApprovals {

@@ -979,6 +979,7 @@ ImageComparator::Disposer ImageComparator::registerForAllExtensions(std::shared_
 // src/ImageView.cpp
 
 #include <stdexcept>
+#include <cstring>
 #include <ostream>
 
 namespace ImageApprovals {
