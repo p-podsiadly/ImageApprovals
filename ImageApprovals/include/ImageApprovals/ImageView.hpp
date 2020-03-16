@@ -33,6 +33,8 @@ struct Size
 
 std::ostream& operator <<(std::ostream& stream, const Size& size);
 
+class Image;
+
 class ImageView
 {
 public:
@@ -43,6 +45,8 @@ public:
               const Size& size, size_t rowStride, const uint8_t* data);
 
     ImageView& operator =(const ImageView&) = default;
+
+    Image copy() const;
 
     bool isEmpty() const;
 

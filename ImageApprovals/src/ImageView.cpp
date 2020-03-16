@@ -1,5 +1,6 @@
 #include <ImageApprovals/ImageView.hpp>
 #include <ImageApprovals/Errors.hpp>
+#include <ImageApprovals/Image.hpp>
 #include <stdexcept>
 #include <ostream>
 
@@ -16,6 +17,30 @@ ImageView::ImageView(const PixelFormat& format, const ColorSpace& colorSpace,
     : m_format(&format), m_colorSpace(&colorSpace), m_size(size),
       m_rowStride(rowStride), m_dataPtr(data)
 {}
+
+Image ImageView::copy() const
+{
+    if(isEmpty())
+    {
+        return {};
+    }
+
+    const auto sz = getSize();
+    const auto& pf = getPixelFormat();
+
+    Image imgCopy(pf, getColorSpace(), sz);
+
+    const size_t pixelStride = pf.getPixelStride();
+    for(uint32_t y = 0; y < sz.height; ++y)
+    {
+        const auto srcRow = getRowPointer(y);
+        auto dstRow = imgCopy.getRowPointer(y);
+
+        std::memcpy(dstRow, srcRow, pixelStride * sz.width);
+    }
+
+    return imgCopy;
+}
 
 bool ImageView::isEmpty() const
 {

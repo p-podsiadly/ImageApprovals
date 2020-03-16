@@ -256,10 +256,10 @@ private:
     Percent m_maxFailedPixelsPercentage;
 };
 
-class PixelPerfectCompareStrategy : public CompareStrategy
+class BitwiseCompareStrategy : public CompareStrategy
 {
 public:
-    PixelPerfectCompareStrategy() = default;
+    BitwiseCompareStrategy() = default;
 
 protected:
     Result compareContents(const ImageView& left, const ImageView& right) const override;
@@ -299,6 +299,8 @@ struct Size
 
 std::ostream& operator <<(std::ostream& stream, const Size& size);
 
+class Image;
+
 class ImageView
 {
 public:
@@ -309,6 +311,8 @@ public:
               const Size& size, size_t rowStride, const uint8_t* data);
 
     ImageView& operator =(const ImageView&) = default;
+
+    Image copy() const;
 
     bool isEmpty() const;
 
@@ -737,7 +741,7 @@ CompareStrategy::Result ThresholdCompareStrategy::compareContents(const ImageVie
     return Result::makePassed();
 }
 
-CompareStrategy::Result PixelPerfectCompareStrategy::compareContents(const ImageView& left, const ImageView& right) const
+CompareStrategy::Result BitwiseCompareStrategy::compareContents(const ImageView& left, const ImageView& right) const
 {
     const auto sz = left.getSize();
     const auto rowLen = left.getPixelFormat().getPixelStride() * sz.width;
@@ -990,6 +994,30 @@ ImageView::ImageView(const PixelFormat& format, const ColorSpace& colorSpace,
     : m_format(&format), m_colorSpace(&colorSpace), m_size(size),
       m_rowStride(rowStride), m_dataPtr(data)
 {}
+
+Image ImageView::copy() const
+{
+    if(isEmpty())
+    {
+        return {};
+    }
+
+    const auto sz = getSize();
+    const auto& pf = getPixelFormat();
+
+    Image imgCopy(pf, getColorSpace(), sz);
+
+    const size_t pixelStride = pf.getPixelStride();
+    for(uint32_t y = 0; y < sz.height; ++y)
+    {
+        const auto srcRow = getRowPointer(y);
+        auto dstRow = imgCopy.getRowPointer(y);
+
+        std::memcpy(dstRow, srcRow, pixelStride * sz.width);
+    }
+
+    return imgCopy;
+}
 
 bool ImageView::isEmpty() const
 {
