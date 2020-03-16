@@ -45,10 +45,10 @@ private:
     Percent m_maxFailedPixelsPercentage;
 };
 
-class PixelPerfectCompareStrategy : public CompareStrategy
+class BitwiseCompareStrategy : public CompareStrategy
 {
 public:
-    PixelPerfectCompareStrategy() = default;
+    BitwiseCompareStrategy() = default;
 
 protected:
     Result compareContents(const ImageView& left, const ImageView& right) const override;

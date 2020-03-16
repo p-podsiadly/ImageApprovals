@@ -124,7 +124,7 @@ CompareStrategy::Result ThresholdCompareStrategy::compareContents(const ImageVie
     return Result::makePassed();
 }
 
-CompareStrategy::Result PixelPerfectCompareStrategy::compareContents(const ImageView& left, const ImageView& right) const
+CompareStrategy::Result BitwiseCompareStrategy::compareContents(const ImageView& left, const ImageView& right) const
 {
     const auto sz = left.getSize();
     const auto rowLen = left.getPixelFormat().getPixelStride() * sz.width;

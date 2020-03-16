@@ -3,9 +3,9 @@
 
 using namespace ImageApprovals;
 
-TEST_CASE("PixelPerfectCompareStrategy")
+TEST_CASE("BitwiseCompareStrategy")
 {
-    PixelPerfectCompareStrategy strategy;
+    BitwiseCompareStrategy strategy;
 
     const PixelFormat& format = PixelFormat::getRgbU8();
     const auto& colorSpace = ColorSpace::getLinearSRgb();

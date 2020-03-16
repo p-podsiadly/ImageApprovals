@@ -12,7 +12,7 @@ set(sources
 	"src/ImageWriterTests.cpp"
 	"src/main.cpp"
 	"src/PixelDecodeTests.cpp"
-	"src/PixelPerfectCompareStrategyTests.cpp"
+	"src/BitwiseCompareStrategyTests.cpp"
 	"src/PngCodecTests.cpp"
 	"src/ThresholdCompareStrategyTests.cpp"
 )
