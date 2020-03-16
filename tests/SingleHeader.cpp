@@ -6,11 +6,14 @@
 #define ImageApprovals_CONFIG_IMPLEMENT
 #include <ImageApprovals.hpp>
 
+#include <set>
+
 TEST_CASE("SingleHeader")
 {
-    const auto extensions = ImageApprovals::ImageCodec::getRegisteredExtensions();
+    const auto orderedExtensions = ImageApprovals::ImageCodec::getRegisteredExtensions();
 
-    REQUIRE_EQ(extensions.size(), 2);
-    REQUIRE_EQ(extensions[0], ".png");
-    REQUIRE_EQ(extensions[1], ".exr");
+    std::set<std::string> extensions(orderedExtensions.begin(), orderedExtensions.end());
+
+    REQUIRE_EQ(extensions.count(".png"), 1);
+    REQUIRE_EQ(extensions.count(".exr"), 1);
 }
