@@ -19,11 +19,11 @@ std::vector<std::shared_ptr<ImageCodec>> initCodecs()
 
 #ifdef ImageApprovals_CONFIG_WITH_LIBPNG
     codecs.push_back(std::make_shared<PngImageCodec>());
-#endif ImageApprovals_CONFIG_WITH_LIBPNG
+#endif // ImageApprovals_CONFIG_WITH_LIBPNG
 
 #ifdef ImageApprovals_CONFIG_WITH_OPENEXR
     codecs.push_back(std::make_shared<ExrImageCodec>());
-#endif ImageApprovals_CONFIG_WITH_OPENEXR
+#endif // ImageApprovals_CONFIG_WITH_OPENEXR
 
     return codecs;
 }

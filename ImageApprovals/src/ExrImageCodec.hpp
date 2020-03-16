@@ -22,6 +22,6 @@ protected:
 
 } }
 
-#endif ImageApprovals_CONFIG_WITH_OPENEXR
+#endif // ImageApprovals_CONFIG_WITH_OPENEXR
 
 #endif // IMAGEAPPROVALS_EXRIMAGECODEC_HPP_INCLUDED
