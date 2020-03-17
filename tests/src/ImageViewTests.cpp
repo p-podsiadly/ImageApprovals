@@ -8,7 +8,9 @@ TEST_CASE("ImageView::copy")
 {
     BitwiseCompareStrategy cmpStrategy;
 
-    Image img = ImageCodec::read(TEST_FILE("cornell.approved.png"));
+    const auto imgPath = TEST_FILE("cornell.approved.png");
+
+    Image img = ImageCodec::getBestCodec(imgPath).read(imgPath);
 
     Image imgCopy = img.copy();
 

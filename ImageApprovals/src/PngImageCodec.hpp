@@ -16,8 +16,8 @@ public:
     int getScore(const PixelFormat& pf, const ColorSpace& cs) const override;
 
 protected:
-    Image read(std::istream& stream, const std::string& fileName) const override;
-    void write(const ImageView& image, std::ostream& stream, const std::string& fileName) const override;
+    Image readFromStream(std::istream& stream, const std::string& fileName) const override;
+    void writeToStream(const ImageView& image, std::ostream& stream, const std::string& fileName) const override;
 };
 
 } }

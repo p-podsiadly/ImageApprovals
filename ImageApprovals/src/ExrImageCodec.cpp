@@ -129,7 +129,7 @@ int ExrImageCodec::getScore(const PixelFormat& pf, const ColorSpace& cs) const
     return 100;
 }
 
-Image ExrImageCodec::read(std::istream& stream, const std::string& fileName) const
+Image ExrImageCodec::readFromStream(std::istream& stream, const std::string& fileName) const
 {
     InputStramAdapter streamAdapter(fileName, stream);
 
@@ -167,7 +167,7 @@ Image ExrImageCodec::read(std::istream& stream, const std::string& fileName) con
     return image;
 }
 
-void ExrImageCodec::write(const ImageView& image, std::ostream& stream, const std::string& fileName) const
+void ExrImageCodec::writeToStream(const ImageView& image, std::ostream& stream, const std::string& fileName) const
 {
     const auto& fmt = image.getPixelFormat();
 

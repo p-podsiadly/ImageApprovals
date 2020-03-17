@@ -33,7 +33,12 @@ configure_file(
 
 add_executable(ImageApprovalsTests ${sources})
 
-target_include_directories(ImageApprovalsTests PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/include")
+target_include_directories(
+	ImageApprovalsTests
+	PRIVATE
+		"${CMAKE_CURRENT_SOURCE_DIR}/../ImageApprovals/src"
+		"${CMAKE_CURRENT_BINARY_DIR}/include"
+)
 
 target_link_libraries(
 	ImageApprovalsTests

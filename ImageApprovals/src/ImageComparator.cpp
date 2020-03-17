@@ -24,7 +24,8 @@ Image readImage(const std::string& which, const std::string& path)
 {
     try
     {
-        return ImageCodec::read(path);
+        const auto& codec = ImageCodec::getBestCodec(path);
+        return codec.read(path);
     }
     catch (const std::exception & exc)
     {

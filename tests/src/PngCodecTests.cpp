@@ -1,14 +1,17 @@
 #include <doctest/doctest.h>
 #include <ImageApprovals/ImageCodec.hpp>
 #include <TestsConfig.hpp>
+#include <PngImageCodec.hpp>
 
 using namespace ImageApprovals;
 
 TEST_CASE("PngCodec")
 {
+    detail::PngImageCodec codec;
+
     SUBCASE("Reading 8 bit GA")
     {
-        const Image img = ImageCodec::read(TEST_FILE("png/basi4a08.png"));
+        const Image img = codec.read(TEST_FILE("png/basi4a08.png"));
 
         REQUIRE_EQ(img.getPixelFormat(), PixelFormat::getGrayAlphaU8());
         REQUIRE_EQ(img.getColorSpace(), ColorSpace::getLinearSRgb());
@@ -17,21 +20,21 @@ TEST_CASE("PngCodec")
 
     SUBCASE("gimp_sRGB.png")
     {
-        const Image img = ImageCodec::read(TEST_FILE("png/gimp_sRGB.png"));
+        const Image img = codec.read(TEST_FILE("png/gimp_sRGB.png"));
 
         REQUIRE_EQ(img.getColorSpace(), ColorSpace::getSRgb());
     }
 
     SUBCASE("gimp_sRGB_with_gamma.png")
     {
-        const Image img = ImageCodec::read(TEST_FILE("png/gimp_sRGB_with_gamma.png"));
+        const Image img = codec.read(TEST_FILE("png/gimp_sRGB_with_gamma.png"));
 
         REQUIRE_EQ(img.getColorSpace(), ColorSpace::getSRgb());
     }
 
     SUBCASE("paint.png")
     {
-        const Image img = ImageCodec::read(TEST_FILE("png/paint.png"));
+        const Image img = codec.read(TEST_FILE("png/paint.png"));
 
         REQUIRE_EQ(img.getColorSpace(), ColorSpace::getSRgb());
     }

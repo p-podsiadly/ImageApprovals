@@ -145,7 +145,7 @@ int PngImageCodec::getScore(const PixelFormat& pf, const ColorSpace& cs) const
     return 100;
 }
 
-Image PngImageCodec::read(std::istream& stream, const std::string&) const
+Image PngImageCodec::readFromStream(std::istream& stream, const std::string&) const
 {
     Image image;
     png_struct* png = nullptr;
@@ -226,7 +226,7 @@ Image PngImageCodec::read(std::istream& stream, const std::string&) const
     return image;
 }
 
-void PngImageCodec::write(const ImageView& image, std::ostream& stream, const std::string&) const
+void PngImageCodec::writeToStream(const ImageView& image, std::ostream& stream, const std::string&) const
 {
     const auto& fmt = image.getPixelFormat();
 

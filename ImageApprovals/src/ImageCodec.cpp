@@ -51,6 +51,19 @@ const ImageCodec* findBestMatch(const std::vector<std::shared_ptr<ImageCodec>>& 
 
 }
 
+Image ImageCodec::read(const std::string& fileName) const
+{
+    std::ifstream fileStream(fileName.c_str(), std::ios::binary);
+    if (!fileStream)
+    {
+        throw ImageApprovalsError("Could not open file \"" + fileName + "\" for reading");
+    }
+
+    fileStream.exceptions(std::ios::failbit | std::ios::badbit);
+
+    return readFromStream(fileStream, fileName);
+}
+
 void ImageCodec::write(const std::string& fileName, const ImageView& image) const
 {
     std::ofstream fileStream(fileName.c_str(), std::ios::binary);
@@ -61,7 +74,7 @@ void ImageCodec::write(const std::string& fileName, const ImageView& image) cons
 
     fileStream.exceptions(std::ios::badbit | std::ios::failbit);
 
-    write(image, fileStream, fileName);
+    writeToStream(image, fileStream, fileName);
 }
 
 ImageCodec::Disposer ImageCodec::registerCodec(const std::shared_ptr<ImageCodec>& codec)
@@ -103,29 +116,6 @@ std::vector<std::string> ImageCodec::getRegisteredExtensions()
     return extensions;
 }
 
-Image ImageCodec::read(const std::string& fileName)
-{
-    using ApprovalTests::FileUtils;
-    const auto extWithDot = FileUtils::getExtensionWithDot(fileName);    
-
-    const ImageCodec* codec = detail::findBestMatch(getImageCodecs(), extWithDot);
-
-    if(!codec)
-    {
-        throw ImageApprovalsError("No suitable ImageCodec for reading \"" + fileName + "\"");
-    }
-
-    std::ifstream fileStream(fileName.c_str(), std::ios::binary);
-    if (!fileStream)
-    {
-        throw ImageApprovalsError("Could not open file \"" + fileName + "\" for reading");
-    }
-
-    fileStream.exceptions(std::ios::failbit | std::ios::badbit);
-
-    return codec->read(fileStream, fileName);
-}
-
 const ImageCodec& ImageCodec::getBestCodec(const ImageView& image)
 {
     const auto& pf = image.getPixelFormat();
@@ -137,6 +127,23 @@ const ImageCodec& ImageCodec::getBestCodec(const ImageView& image)
     {
         std::ostringstream msg;
         msg << "Could find a codec for pixel format " << pf << " and color space " << cs;
+        throw ImageApprovalsError(msg.str());
+    }
+
+    return *codec;
+}
+
+const ImageCodec& ImageCodec::getBestCodec(const std::string& filePath)
+{
+    using namespace ApprovalTests;
+    const std::string extWithDot = FileUtils::getExtensionWithDot(filePath);
+
+    const ImageCodec* codec = detail::findBestMatch(getImageCodecs(), extWithDot);
+
+    if(!codec)
+    {
+        std::ostringstream msg;
+        msg << "Could not find a codec for file extension \"" << extWithDot << "\"";
         throw ImageApprovalsError(msg.str());
     }
 

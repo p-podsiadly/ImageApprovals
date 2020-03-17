@@ -457,6 +457,7 @@ public:
     virtual int getScore(const std::string& extensionWithDot) const = 0;
     virtual int getScore(const PixelFormat& pf, const ColorSpace& cs) const = 0;
 
+    Image read(const std::string& fileName) const;
     void write(const std::string& fileName, const ImageView& image) const;
 
     static Disposer registerCodec(const std::shared_ptr<ImageCodec>& codec);
@@ -464,13 +465,12 @@ public:
 
     static std::vector<std::string> getRegisteredExtensions();
 
-    static Image read(const std::string& fileName);
-    
     static const ImageCodec& getBestCodec(const ImageView& image);
+    static const ImageCodec& getBestCodec(const std::string& filePath);
 
 protected:
-    virtual Image read(std::istream& stream, const std::string& fileName) const = 0;
-    virtual void write(const ImageView& image, std::ostream& stream, const std::string& fileName) const = 0;
+    virtual Image readFromStream(std::istream& stream, const std::string& fileName) const = 0;
+    virtual void writeToStream(const ImageView& image, std::ostream& stream, const std::string& fileName) const = 0;
 
 private:
     static std::vector<std::shared_ptr<ImageCodec>>& getImageCodecs();
@@ -778,8 +778,8 @@ public:
     int getScore(const PixelFormat& pf, const ColorSpace& cs) const override;
 
 protected:
-    Image read(std::istream& stream, const std::string& fileName) const override;
-    void write(const ImageView& image, std::ostream& stream, const std::string& fileName) const override;
+    Image readFromStream(std::istream& stream, const std::string& fileName) const override;
+    void writeToStream(const ImageView& image, std::ostream& stream, const std::string& fileName) const override;
 };
 
 } }
@@ -929,7 +929,8 @@ Image readImage(const std::string& which, const std::string& path)
 {
     try
     {
-        return ImageCodec::read(path);
+        const auto& codec = ImageCodec::getBestCodec(path);
+        return codec.read(path);
     }
     catch (const std::exception & exc)
     {
@@ -1267,8 +1268,8 @@ public:
     int getScore(const PixelFormat& pf, const ColorSpace& cs) const override;
 
 protected:
-    Image read(std::istream& stream, const std::string& fileName) const override;
-    void write(const ImageView& image, std::ostream& stream, const std::string& fileName) const override;
+    Image readFromStream(std::istream& stream, const std::string& fileName) const override;
+    void writeToStream(const ImageView& image, std::ostream& stream, const std::string& fileName) const override;
 };
 
 } }
@@ -1640,7 +1641,7 @@ int ExrImageCodec::getScore(const PixelFormat& pf, const ColorSpace& cs) const
     return 100;
 }
 
-Image ExrImageCodec::read(std::istream& stream, const std::string& fileName) const
+Image ExrImageCodec::readFromStream(std::istream& stream, const std::string& fileName) const
 {
     InputStramAdapter streamAdapter(fileName, stream);
 
@@ -1678,7 +1679,7 @@ Image ExrImageCodec::read(std::istream& stream, const std::string& fileName) con
     return image;
 }
 
-void ExrImageCodec::write(const ImageView& image, std::ostream& stream, const std::string& fileName) const
+void ExrImageCodec::writeToStream(const ImageView& image, std::ostream& stream, const std::string& fileName) const
 {
     const auto& fmt = image.getPixelFormat();
 
@@ -1797,6 +1798,19 @@ const ImageCodec* findBestMatch(const std::vector<std::shared_ptr<ImageCodec>>& 
 
 }
 
+Image ImageCodec::read(const std::string& fileName) const
+{
+    std::ifstream fileStream(fileName.c_str(), std::ios::binary);
+    if (!fileStream)
+    {
+        throw ImageApprovalsError("Could not open file \"" + fileName + "\" for reading");
+    }
+
+    fileStream.exceptions(std::ios::failbit | std::ios::badbit);
+
+    return readFromStream(fileStream, fileName);
+}
+
 void ImageCodec::write(const std::string& fileName, const ImageView& image) const
 {
     std::ofstream fileStream(fileName.c_str(), std::ios::binary);
@@ -1807,7 +1821,7 @@ void ImageCodec::write(const std::string& fileName, const ImageView& image) cons
 
     fileStream.exceptions(std::ios::badbit | std::ios::failbit);
 
-    write(image, fileStream, fileName);
+    writeToStream(image, fileStream, fileName);
 }
 
 ImageCodec::Disposer ImageCodec::registerCodec(const std::shared_ptr<ImageCodec>& codec)
@@ -1849,29 +1863,6 @@ std::vector<std::string> ImageCodec::getRegisteredExtensions()
     return extensions;
 }
 
-Image ImageCodec::read(const std::string& fileName)
-{
-    using ApprovalTests::FileUtils;
-    const auto extWithDot = FileUtils::getExtensionWithDot(fileName);    
-
-    const ImageCodec* codec = detail::findBestMatch(getImageCodecs(), extWithDot);
-
-    if(!codec)
-    {
-        throw ImageApprovalsError("No suitable ImageCodec for reading \"" + fileName + "\"");
-    }
-
-    std::ifstream fileStream(fileName.c_str(), std::ios::binary);
-    if (!fileStream)
-    {
-        throw ImageApprovalsError("Could not open file \"" + fileName + "\" for reading");
-    }
-
-    fileStream.exceptions(std::ios::failbit | std::ios::badbit);
-
-    return codec->read(fileStream, fileName);
-}
-
 const ImageCodec& ImageCodec::getBestCodec(const ImageView& image)
 {
     const auto& pf = image.getPixelFormat();
@@ -1883,6 +1874,23 @@ const ImageCodec& ImageCodec::getBestCodec(const ImageView& image)
     {
         std::ostringstream msg;
         msg << "Could find a codec for pixel format " << pf << " and color space " << cs;
+        throw ImageApprovalsError(msg.str());
+    }
+
+    return *codec;
+}
+
+const ImageCodec& ImageCodec::getBestCodec(const std::string& filePath)
+{
+    using namespace ApprovalTests;
+    const std::string extWithDot = FileUtils::getExtensionWithDot(filePath);
+
+    const ImageCodec* codec = detail::findBestMatch(getImageCodecs(), extWithDot);
+
+    if(!codec)
+    {
+        std::ostringstream msg;
+        msg << "Could not find a codec for file extension \"" << extWithDot << "\"";
         throw ImageApprovalsError(msg.str());
     }
 
@@ -2069,7 +2077,7 @@ int PngImageCodec::getScore(const PixelFormat& pf, const ColorSpace& cs) const
     return 100;
 }
 
-Image PngImageCodec::read(std::istream& stream, const std::string&) const
+Image PngImageCodec::readFromStream(std::istream& stream, const std::string&) const
 {
     Image image;
     png_struct* png = nullptr;
@@ -2150,7 +2158,7 @@ Image PngImageCodec::read(std::istream& stream, const std::string&) const
     return image;
 }
 
-void PngImageCodec::write(const ImageView& image, std::ostream& stream, const std::string&) const
+void PngImageCodec::writeToStream(const ImageView& image, std::ostream& stream, const std::string&) const
 {
     const auto& fmt = image.getPixelFormat();
 
