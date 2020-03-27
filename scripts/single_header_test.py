@@ -181,7 +181,7 @@ class TestSingleHeaderGen(unittest.TestCase):
             "#endif // SINGLE_HPP\n"
         )
 
-
+        self.assertEqual(result, expected_result)
 
     def test_add_source_files(self):
 
