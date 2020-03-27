@@ -25,14 +25,24 @@
  * 
  * Configuration #defines:
  * 
+ * * ImageApprovals_CONFIG_IMPLEMENT: necessary in exactly one file,
+ *   for implementation part to be expanded.
+ * 
  * * ImageApprovals_CONFIG_WITH_LIBPNG: enables libPNG-based image codec
  * 
  * * ImageApprovals_CONFIG_WITH_OPENEXR: enables OpenEXR-based image codec
  * 
  * * ImageApprovals_CONFIG_WITH_QT5: enables Qt5 integration
  * 
- * * ImageApprovals_CONFIG_IMPLEMENT: necessary in exactly one file,
- *   for implementation part to be expanded.
+ * Version #defines:
+ * 
+ * * ImageApprovals_VERSION_MAJOR: major version of the library
+ * 
+ * * ImageApprovals_VERSION_MINOR: minor version of the library
+ * 
+ * * ImageApprovals_VERSION_PATCH: patch number
+ * 
+ * * ImageApprovals_VERSION_STR: version string
  * 
  ******************************************************************************/
 
