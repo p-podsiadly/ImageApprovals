@@ -233,4 +233,4 @@ void ExrImageCodec::writeToStream(const ImageView& image, std::ostream& stream, 
 
 } }
 
-#endif ImageApprovals_CONFIG_WITH_OPENEXR
+#endif // ImageApprovals_CONFIG_WITH_OPENEXR

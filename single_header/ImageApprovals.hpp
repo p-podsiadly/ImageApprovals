@@ -1745,7 +1745,7 @@ void ExrImageCodec::writeToStream(const ImageView& image, std::ostream& stream, 
 
 } }
 
-#endif ImageApprovals_CONFIG_WITH_OPENEXR
+#endif // ImageApprovals_CONFIG_WITH_OPENEXR
 
 // src/ImageCodec.cpp
 
@@ -2262,7 +2262,7 @@ void PngImageCodec::writeToStream(const ImageView& image, std::ostream& stream, 
 
 } }
 
-#endif ImageApprovals_CONFIG_WITH_LIBPNG
+#endif // ImageApprovals_CONFIG_WITH_LIBPNG
 
 #endif // ImageApprovals_CONFIG_IMPLEMENT
 
