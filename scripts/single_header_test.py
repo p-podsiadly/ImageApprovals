@@ -1,5 +1,6 @@
-from single_header import *
+from single_header import preprocess_file, SingleHeaderGen, SourceFileAccessor, Scope
 import unittest
+from pathlib import Path
 import re
 import os
 
